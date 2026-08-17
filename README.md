@@ -2,6 +2,12 @@
 
 Primera fase de la experiencia web premium de Jalip Motorsport. Construida con Next.js App Router, React, TypeScript estricto, Tailwind CSS y React Three Fiber.
 
+## Dirección visual vigente
+
+La interfaz utiliza tokens centralizados en `src/app/globals.css`: negro profundo `#080B0E`, superficie `#101419`, grafito `#242A30`, metal `#AEB3B7`, blanco frío `#F4F4F1` y acentos Jalip `#E31B23`/`#FF2028`. El verde tropical aparece únicamente dentro de fotografías. No se incorporó código ni recursos de los configuradores de referencia sin licencia explícita.
+
+El logotipo oficial todavía no está en el repositorio. La cabecera usa un wordmark tipográfico temporal, sin crear un isotipo alternativo. Sustituirlo por `public/assets/brand/jalip-logo.svg` cuando el cliente suministre el archivo original.
+
 ## Funciones incluidas
 
 - Home responsive con hero cinematográfico original y navegación móvil.
