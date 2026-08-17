@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <main className="topo flex min-h-screen flex-col items-center justify-center px-5 text-center"><p className="eyebrow">Error 404</p><h1 className="display mt-4 text-7xl">Ese camino no existe.</h1><p className="mt-4 text-white/50">Regresa al taller y busca una nueva ruta.</p><Link className="btn btn-primary mt-8" href="/">Volver al inicio</Link></main>}
