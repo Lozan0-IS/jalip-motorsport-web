@@ -4,9 +4,9 @@ Primera fase de la experiencia web premium de Jalip Motorsport. Construida con N
 
 ## Dirección visual vigente
 
-La interfaz utiliza tokens centralizados en `src/app/globals.css`: negro profundo `#080B0E`, superficie `#101419`, grafito `#242A30`, metal `#AEB3B7`, blanco frío `#F4F4F1` y acentos Jalip `#E31B23`/`#FF2028`. El verde tropical aparece únicamente dentro de fotografías. No se incorporó código ni recursos de los configuradores de referencia sin licencia explícita.
+La interfaz utiliza tokens centralizados en `src/app/globals.css`: negro `#070908`, superficies `#111410`/`#1A1D18`, rojo Jalip `#D93628`/`#EF3D2E`, hueso `#E7E0D1`, arena `#C6B99F` y metal `#8F918B`. El verde tropical aparece únicamente dentro de fotografías.
 
-El logotipo oficial todavía no está en el repositorio. La cabecera usa un wordmark tipográfico temporal, sin crear un isotipo alternativo. Sustituirlo por `public/assets/brand/jalip-logo.svg` cuando el cliente suministre el archivo original.
+El logotipo oficial todavía no está en el repositorio. La cabecera usa un wordmark tipográfico temporal, sin crear un isotipo alternativo. Sustituirlo por `public/brand/jalip-logo.png` cuando el cliente suministre el archivo original. El hero de demostración está normalizado en `public/images/jalip-hero-mountain.jpg`; debe reemplazarse por el adjunto oficial conservando esa ruta.
 
 ## Funciones incluidas
 

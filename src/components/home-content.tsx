@@ -1,14 +1,441 @@
 "use client";
-import Image from "next/image"; import { useState } from "react"; import { ArrowRight, Check, MessageCircle, ShieldCheck, Wrench, MapPin, Camera, Gauge, Settings2 } from "lucide-react"; import { Configurator } from "./configurator"; import { packages, parts, site, vehicles, wa } from "@/data/site";
-const Head=({tag,title,copy}:{tag:string,title:string,copy:string})=><div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-end"><div><p className="eyebrow">{tag}</p><h2 className="display section-title mt-4">{title}</h2></div><p className="text-sm leading-6 text-white/55">{copy}</p></div>;
-export function HomeContent(){const [filter,setFilter]=useState("Todos"),[sent,setSent]=useState(false);const cats=["Todos",...new Set(parts.map(p=>p.category))];return <>
-<section id="proyectos" className="section industrial"><Head tag="Proyecto destacado · Demo" title="La montaña no perdona. La preparación tampoco." copy="Una construcción se define por su propósito: terreno, control, protección y respuesta. Este caso editorial será sustituido por un proyecto real de Jalip."/><div className="relative mt-12 min-h-[620px] overflow-hidden border border-white/10"><Image src="/assets/jalip-project-mud.png" alt="UTV genérico preparado atravesando lodo en montaña" fill className="object-cover"/><div className="absolute inset-0 bg-[linear-gradient(0deg,#080b0ef5_0%,transparent_62%)]"/><div className="absolute inset-x-0 bottom-0 grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-end md:p-10"><div><span className="status border-[#e31b23]/60 text-[#f4f4f1]">Mountain Build · Concepto</span><h3 className="display mt-5 max-w-2xl text-4xl md:text-6xl">Control donde termina el asfalto.</h3><div className="mt-5 flex flex-wrap gap-x-7 gap-y-2 text-[10px] uppercase tracking-[.16em] text-[#aeb3b7]"><span>Suspensión elevada</span><span>Protección inferior</span><span>Iluminación trail</span></div></div><a href={wa("una construcción similar al proyecto Mountain Build")} className="btn btn-primary" target="_blank" rel="noreferrer">Quiero una similar <ArrowRight size={15}/></a></div></div></section>
-<section id="vehiculos" className="section bg-[#080b0e]"><Head tag="Inventario seleccionado" title="Máquinas con propósito." copy="Inventario demostrativo. Estado, especificaciones y disponibilidad se validarán antes de la publicación oficial."/><div className="metal-rule mt-10"/><div className="divide-y divide-white/10">{vehicles.map((v,i)=><article key={v.name} className="group grid gap-5 py-8 md:grid-cols-[70px_1.2fr_1fr_140px] md:items-center"><span className="display text-4xl text-white/15 transition group-hover:text-[#e31b23]">0{i+1}</span><div><p className="text-[10px] uppercase tracking-[.16em] text-[#aeb3b7]">{v.year} · {v.condition}</p><h3 className="display mt-2 text-3xl">{v.name}</h3></div><div><p className="text-sm text-white/70">{v.spec}</p><p className="mt-1 text-xs text-white/40">{v.mods}</p></div><div className="md:text-right"><span className={`status ${v.status==="Disponible"?"border-[#e31b23]/60":""}`}>{v.status}</span><a aria-label={`Cotizar ${v.name}`} href={wa(`cotizar el vehículo demostrativo ${v.name}`)} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#aeb3b7] hover:text-white md:justify-end">Cotizar <ArrowRight size={14}/></a></div></article>)}</div></section>
-<section id="taller" className="bg-[#101419]"><div className="grid min-h-[680px] lg:grid-cols-2"><div className="relative min-h-[480px]"><Image src="/assets/jalip-workshop-detail.png" alt="Detalle de trabajo mecánico en suspensión off-road" fill className="object-cover"/><div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#101419]/65"/><div className="absolute bottom-7 left-7 border-l-2 border-[#e31b23] pl-4 text-[10px] uppercase tracking-[.18em] text-white/70">Precisión · Prueba · Entrega</div></div><div className="flex items-center p-6 md:p-12 lg:p-16"><div className="max-w-xl"><p className="eyebrow">Taller especializado</p><h2 className="display mt-5 text-4xl leading-none md:text-6xl">Diagnóstico primero. Potencia después.</h2><p className="mt-6 text-sm leading-6 text-white/55">Cada intervención comienza entendiendo la máquina y cómo será usada. Mantenimiento, reparación y construcción con un alcance claro.</p><ol className="mt-8 divide-y divide-white/10 border-y border-white/10">{["Inspección y diagnóstico","Propuesta técnica","Instalación y calibración","Prueba y entrega"].map((x,i)=><li className="flex items-center gap-5 py-4 text-sm" key={x}><span className="text-[#e31b23]">0{i+1}</span>{x}</li>)}</ol><a href="#cita" className="btn btn-primary mt-8">Solicitar cita <ArrowRight size={15}/></a></div></div></div></section>
-<section id="configurador" className="section industrial"><Head tag="Configurador 3D · Beta" title="Decide cada pieza. Mira el conjunto." copy="Un panel técnico procedural inspirado en flujos de configuración automotriz, sin modelos ni recursos externos. La funcionalidad existente se conserva."/><Configurator/></section>
-<section id="piezas" className="section bg-[#080b0e]"><Head tag="Piezas y accesorios" title="Componentes que ganan terreno." copy="Catálogo inicial sin precios públicos. Compatibilidad, disponibilidad e instalación se confirman durante la cotización."/><div className="mt-9 flex gap-1 overflow-x-auto border-b border-white/10 pb-4">{cats.map(c=><button onClick={()=>setFilter(c)} key={c} className={`whitespace-nowrap border-b-2 px-4 py-3 text-[10px] font-bold uppercase tracking-wider ${filter===c?"border-[#e31b23] text-white":"border-transparent text-white/45 hover:text-white"}`}>{c}</button>)}</div><div className="mt-3 divide-y divide-white/10">{parts.filter(p=>filter==="Todos"||p.category===filter).map((p,i)=><article key={p.name} className="grid gap-4 py-6 md:grid-cols-[44px_1fr_1fr_110px] md:items-center"><Settings2 size={18} className={i===0?"text-[#e31b23]":"text-[#aeb3b7]"}/><div><p className="text-[10px] uppercase tracking-wider text-[#aeb3b7]">{p.category}</p><h3 className="mt-1 text-lg font-bold">{p.name}</h3></div><p className="text-sm text-white/45">{p.compat} · {p.install?"Instalación disponible":"Solo pieza"}</p><a className="btn btn-ghost" href={wa(`la pieza ${p.name}`)} target="_blank" rel="noreferrer">Cotizar</a></article>)}</div></section>
-<section className="section bg-[#101419]"><Head tag="Niveles de preparación" title="No vendemos paquetes. Definimos una misión." copy="Cinco bases demostrativas para conversar sobre terreno, uso y exigencia. Cada construcción se ajusta al vehículo."/><div className="mt-12 overflow-x-auto"><div className="flex min-w-max gap-3">{packages.map((p,i)=><article className={`w-[280px] border p-6 ${i===4?"border-[#e31b23] bg-[#e31b23]/5":"border-white/10 bg-[#080b0e]"}`} key={p.name}><span className="text-[10px] tracking-widest text-[#e31b23]">0{i+1}</span><h3 className="display mt-8 text-3xl">{p.name}</h3><p className="mt-3 min-h-10 text-xs text-white/45">{p.for}</p><ul className="mt-6 space-y-3">{p.items.map(x=><li key={x} className="flex gap-2 text-xs text-white/70"><Check size={13} className="text-[#e31b23]"/>{x}</li>)}</ul><a className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider hover:text-[#ff2028]" href={wa(`el paquete ${p.name}`)} target="_blank" rel="noreferrer">Solicitar alcance <ArrowRight size={13}/></a></article>)}</div></div></section>
-<section id="cita" className="section bg-[#080b0e]"><div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="eyebrow">Agenda de taller</p><h2 className="display mt-5 text-4xl md:text-6xl">Cuéntanos qué exige tu máquina.</h2><div className="mt-9 grid gap-4 text-xs text-white/55"><p className="flex gap-3"><Wrench size={17} className="text-[#e31b23]"/>Diagnóstico, reparación y modificación</p><p className="flex gap-3"><Gauge size={17} className="text-[#e31b23]"/>Alcance técnico antes de intervenir</p><p className="flex gap-3"><ShieldCheck size={17} className="text-[#e31b23]"/>Solicitud preparada para Supabase</p></div></div><form className="technical-panel grid gap-4 p-6 md:grid-cols-2 md:p-9" onSubmit={e=>{e.preventDefault();setSent(true)}}>{[["Nombre","text","name"],["Teléfono","tel","phone"],["Vehículo","text","vehicle"],["Año","number","year"]].map(([l,t,n])=><label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]" key={n}>{l}<input required name={n} type={t} className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white focus:border-[#e31b23]"/></label>)}<label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]">Servicio<select name="service" className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"><option>Diagnóstico</option><option>Reparación</option><option>Modificación</option><option>Mantenimiento</option></select></label><label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]">Fecha preferida<input required name="date" type="date" className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"/></label><label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7] md:col-span-2">Descripción<textarea required name="description" rows={4} className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"/></label><label className="flex gap-2 text-xs text-white/60 md:col-span-2"><input required type="checkbox" className="accent-[#e31b23]"/> Acepto ser contactado para coordinar esta solicitud.</label><button className="btn btn-primary md:col-span-2">Enviar solicitud</button>{sent&&<p role="status" className="text-sm font-bold text-white md:col-span-2">Solicitud simulada recibida. La integración con Supabase sigue pendiente.</p>}</form></div></section>
-<section id="nosotros" className="section industrial"><Head tag="Jalip Motorsport" title="Metal, montaña y criterio mecánico." copy="La información institucional oficial está pendiente. La interfaz separa claramente los datos por confirmar para no inventar trayectoria ni estadísticas."/><div className="mt-12 grid gap-px bg-white/10 md:grid-cols-3">{[[ShieldCheck,"Garantía","Cobertura pendiente de confirmar."],[MapPin,"Ubicación",`${site.address} · ${site.hours}`],[Camera,"Instagram","Cuenta oficial pendiente de confirmar."]].map(([Icon,t,c])=><div className="bg-[#101419] p-8" key={String(t)}><Icon className="text-[#e31b23]"/><h3 className="display mt-10 text-2xl">{String(t)}</h3><p className="mt-3 text-xs text-white/45">{String(c)}</p></div>)}</div></section>
-<footer id="contacto" className="border-t border-white/10 bg-[#080b0e] px-5 py-12"><div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-8 md:flex-row md:items-center"><div><p className="display border-l-4 border-[#e31b23] pl-3 text-2xl">JALIP <span className="text-[#aeb3b7]">MOTORSPORT</span></p><p className="mt-3 text-[10px] uppercase tracking-wider text-white/35">República Dominicana · Visuales demostrativos</p></div><a href={wa("hablar con un asesor")} target="_blank" rel="noreferrer" className="btn btn-primary"><MessageCircle size={16}/>WhatsApp 829-765-3173</a></div></footer><a aria-label="Contactar por WhatsApp" href={wa("recibir información")} target="_blank" rel="noreferrer" className="fixed bottom-5 right-5 z-30 border border-[#e31b23] bg-[#101419] p-4 text-white shadow-2xl hover:bg-[#e31b23]"><MessageCircle/></a>
-</>}
+import Image from "next/image";
+import { useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  MessageCircle,
+  ShieldCheck,
+  Wrench,
+  MapPin,
+  Camera,
+  Gauge,
+  Settings2,
+} from "lucide-react";
+import { Configurator } from "./configurator";
+import { packages, parts, site, vehicles, wa } from "@/data/site";
+const Head = ({
+  tag,
+  title,
+  copy,
+}: {
+  tag: string;
+  title: string;
+  copy: string;
+}) => (
+  <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-end">
+    <div>
+      <p className="eyebrow">{tag}</p>
+      <h2 className="display section-title mt-4">{title}</h2>
+    </div>
+    <p className="text-sm leading-6 text-white/55">{copy}</p>
+  </div>
+);
+export function HomeContent() {
+  const [filter, setFilter] = useState("Todos"),
+    [sent, setSent] = useState(false);
+  const cats = ["Todos", ...new Set(parts.map((p) => p.category))];
+  return (
+    <>
+      <section id="proyectos" className="section industrial">
+        <Head
+          tag="Proyecto destacado · Demo"
+          title="La montaña no perdona. La preparación tampoco."
+          copy="Una construcción se define por su propósito: terreno, control, protección y respuesta. Este caso editorial será sustituido por un proyecto real de Jalip."
+        />
+        <div className="relative mt-12 min-h-[620px] overflow-hidden border border-white/10">
+          <Image
+            src="/assets/jalip-project-mud.png"
+            alt="UTV genérico preparado atravesando lodo en montaña"
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(0deg,#080b0ef5_0%,transparent_62%)]" />
+          <div className="absolute inset-x-0 bottom-0 grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-end md:p-10">
+            <div>
+              <span className="status border-[#e31b23]/60 text-[#f4f4f1]">
+                Mountain Build · Concepto
+              </span>
+              <h3 className="display mt-5 max-w-2xl text-4xl md:text-6xl">
+                Control donde termina el asfalto.
+              </h3>
+              <div className="mt-5 flex flex-wrap gap-x-7 gap-y-2 text-[10px] uppercase tracking-[.16em] text-[#aeb3b7]">
+                <span>Suspensión elevada</span>
+                <span>Protección inferior</span>
+                <span>Iluminación trail</span>
+              </div>
+            </div>
+            <a
+              href={wa("una construcción similar al proyecto Mountain Build")}
+              className="btn btn-primary"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Quiero una similar <ArrowRight size={15} />
+            </a>
+          </div>
+        </div>
+      </section>
+      <section id="vehiculos" className="section bg-[#080b0e]">
+        <Head
+          tag="Inventario seleccionado"
+          title="Máquinas con propósito."
+          copy="Inventario demostrativo. Estado, especificaciones y disponibilidad se validarán antes de la publicación oficial."
+        />
+        <div className="metal-rule mt-10" />
+        <div className="divide-y divide-white/10">
+          {vehicles.map((v, i) => (
+            <article
+              key={v.name}
+              className="group grid gap-5 py-8 md:grid-cols-[70px_1.2fr_1fr_140px] md:items-center"
+            >
+              <span className="display text-4xl text-white/15 transition group-hover:text-[#e31b23]">
+                0{i + 1}
+              </span>
+              <div>
+                <p className="text-[10px] uppercase tracking-[.16em] text-[#aeb3b7]">
+                  {v.year} · {v.condition}
+                </p>
+                <h3 className="display mt-2 text-3xl">{v.name}</h3>
+              </div>
+              <div>
+                <p className="text-sm text-white/70">{v.spec}</p>
+                <p className="mt-1 text-xs text-white/40">{v.mods}</p>
+              </div>
+              <div className="md:text-right">
+                <span
+                  className={`status ${v.status === "Disponible" ? "border-[#e31b23]/60" : ""}`}
+                >
+                  {v.status}
+                </span>
+                <a
+                  aria-label={`Cotizar ${v.name}`}
+                  href={wa(`cotizar el vehículo demostrativo ${v.name}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#aeb3b7] hover:text-white md:justify-end"
+                >
+                  Cotizar <ArrowRight size={14} />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section id="taller" className="bg-[#101419]">
+        <div className="grid min-h-[680px] lg:grid-cols-2">
+          <div className="relative min-h-[480px]">
+            <Image
+              src="/assets/jalip-workshop-detail.png"
+              alt="Detalle de trabajo mecánico en suspensión off-road"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#101419]/65" />
+            <div className="absolute bottom-7 left-7 border-l-2 border-[#e31b23] pl-4 text-[10px] uppercase tracking-[.18em] text-white/70">
+              Precisión · Prueba · Entrega
+            </div>
+          </div>
+          <div className="flex items-center p-6 md:p-12 lg:p-16">
+            <div className="max-w-xl">
+              <p className="eyebrow">Taller especializado</p>
+              <h2 className="display mt-5 text-4xl leading-none md:text-6xl">
+                Diagnóstico primero. Potencia después.
+              </h2>
+              <p className="mt-6 text-sm leading-6 text-white/55">
+                Cada intervención comienza entendiendo la máquina y cómo será
+                usada. Mantenimiento, reparación y construcción con un alcance
+                claro.
+              </p>
+              <ol className="mt-8 divide-y divide-white/10 border-y border-white/10">
+                {[
+                  "Inspección y diagnóstico",
+                  "Propuesta técnica",
+                  "Instalación y calibración",
+                  "Prueba y entrega",
+                ].map((x, i) => (
+                  <li className="flex items-center gap-5 py-4 text-sm" key={x}>
+                    <span className="text-[#e31b23]">0{i + 1}</span>
+                    {x}
+                  </li>
+                ))}
+              </ol>
+              <a href="#cita" className="btn btn-primary mt-8">
+                Solicitar cita <ArrowRight size={15} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        id="configurador"
+        className="section bg-[var(--jalip-surface)] [background-image:repeating-linear-gradient(135deg,transparent_0_34px,rgba(231,224,209,.025)_35px_36px)]"
+      >
+        <div className="grid gap-6 lg:grid-cols-[1fr_330px] lg:items-end">
+          <div>
+            <div className="flex items-center gap-4">
+              <span className="display text-4xl text-[var(--jalip-red)]">
+                02
+              </span>
+              <span className="h-px w-10 bg-[var(--jalip-sand)]" />
+              <p className="text-[10px] font-bold tracking-[.22em] text-[var(--jalip-sand)]">
+                CONFIGURADOR DE MONTAÑA
+              </p>
+            </div>
+            <h2 className="display mt-6 max-w-4xl text-[clamp(3.3rem,6.2vw,6rem)] leading-[.86] text-[var(--jalip-bone)]">
+              CONSTRUYE UNA
+              <br />
+              MÁQUINA{" "}
+              <span className="text-[var(--jalip-red)]">SIN MIEDO.</span>
+            </h2>
+          </div>
+          <p className="border-l border-[var(--jalip-line)] pl-6 text-sm leading-6 text-[var(--jalip-metal)]">
+            Selecciona el equipo, define el acabado y gira el concepto en 360°.
+            Cada cambio actualiza la preparación y el resumen de cotización.
+          </p>
+        </div>
+        <Configurator />
+      </section>
+      <section id="piezas" className="section bg-[#080b0e]">
+        <Head
+          tag="Piezas y accesorios"
+          title="Componentes que ganan terreno."
+          copy="Catálogo inicial sin precios públicos. Compatibilidad, disponibilidad e instalación se confirman durante la cotización."
+        />
+        <div className="mt-9 flex gap-1 overflow-x-auto border-b border-white/10 pb-4">
+          {cats.map((c) => (
+            <button
+              onClick={() => setFilter(c)}
+              key={c}
+              className={`whitespace-nowrap border-b-2 px-4 py-3 text-[10px] font-bold uppercase tracking-wider ${filter === c ? "border-[#e31b23] text-white" : "border-transparent text-white/45 hover:text-white"}`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 divide-y divide-white/10">
+          {parts
+            .filter((p) => filter === "Todos" || p.category === filter)
+            .map((p, i) => (
+              <article
+                key={p.name}
+                className="grid gap-4 py-6 md:grid-cols-[44px_1fr_1fr_110px] md:items-center"
+              >
+                <Settings2
+                  size={18}
+                  className={i === 0 ? "text-[#e31b23]" : "text-[#aeb3b7]"}
+                />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[#aeb3b7]">
+                    {p.category}
+                  </p>
+                  <h3 className="mt-1 text-lg font-bold">{p.name}</h3>
+                </div>
+                <p className="text-sm text-white/45">
+                  {p.compat} ·{" "}
+                  {p.install ? "Instalación disponible" : "Solo pieza"}
+                </p>
+                <a
+                  className="btn btn-ghost"
+                  href={wa(`la pieza ${p.name}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Cotizar
+                </a>
+              </article>
+            ))}
+        </div>
+      </section>
+      <section className="section bg-[#101419]">
+        <Head
+          tag="Niveles de preparación"
+          title="No vendemos paquetes. Definimos una misión."
+          copy="Cinco bases demostrativas para conversar sobre terreno, uso y exigencia. Cada construcción se ajusta al vehículo."
+        />
+        <div className="mt-12 overflow-x-auto">
+          <div className="flex min-w-max gap-3">
+            {packages.map((p, i) => (
+              <article
+                className={`w-[280px] border p-6 ${i === 4 ? "border-[#e31b23] bg-[#e31b23]/5" : "border-white/10 bg-[#080b0e]"}`}
+                key={p.name}
+              >
+                <span className="text-[10px] tracking-widest text-[#e31b23]">
+                  0{i + 1}
+                </span>
+                <h3 className="display mt-8 text-3xl">{p.name}</h3>
+                <p className="mt-3 min-h-10 text-xs text-white/45">{p.for}</p>
+                <ul className="mt-6 space-y-3">
+                  {p.items.map((x) => (
+                    <li key={x} className="flex gap-2 text-xs text-white/70">
+                      <Check size={13} className="text-[#e31b23]" />
+                      {x}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider hover:text-[#ff2028]"
+                  href={wa(`el paquete ${p.name}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Solicitar alcance <ArrowRight size={13} />
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section id="cita" className="section bg-[#080b0e]">
+        <div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
+          <div>
+            <p className="eyebrow">Agenda de taller</p>
+            <h2 className="display mt-5 text-4xl md:text-6xl">
+              Cuéntanos qué exige tu máquina.
+            </h2>
+            <div className="mt-9 grid gap-4 text-xs text-white/55">
+              <p className="flex gap-3">
+                <Wrench size={17} className="text-[#e31b23]" />
+                Diagnóstico, reparación y modificación
+              </p>
+              <p className="flex gap-3">
+                <Gauge size={17} className="text-[#e31b23]" />
+                Alcance técnico antes de intervenir
+              </p>
+              <p className="flex gap-3">
+                <ShieldCheck size={17} className="text-[#e31b23]" />
+                Solicitud preparada para Supabase
+              </p>
+            </div>
+          </div>
+          <form
+            className="technical-panel grid gap-4 p-6 md:grid-cols-2 md:p-9"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSent(true);
+            }}
+          >
+            {[
+              ["Nombre", "text", "name"],
+              ["Teléfono", "tel", "phone"],
+              ["Vehículo", "text", "vehicle"],
+              ["Año", "number", "year"],
+            ].map(([l, t, n]) => (
+              <label
+                className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]"
+                key={n}
+              >
+                {l}
+                <input
+                  required
+                  name={n}
+                  type={t}
+                  className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white focus:border-[#e31b23]"
+                />
+              </label>
+            ))}
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]">
+              Servicio
+              <select
+                name="service"
+                className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"
+              >
+                <option>Diagnóstico</option>
+                <option>Reparación</option>
+                <option>Modificación</option>
+                <option>Mantenimiento</option>
+              </select>
+            </label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7]">
+              Fecha preferida
+              <input
+                required
+                name="date"
+                type="date"
+                className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"
+              />
+            </label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#aeb3b7] md:col-span-2">
+              Descripción
+              <textarea
+                required
+                name="description"
+                rows={4}
+                className="mt-2 w-full border border-white/15 bg-[#080b0e] p-3 text-sm text-white"
+              />
+            </label>
+            <label className="flex gap-2 text-xs text-white/60 md:col-span-2">
+              <input required type="checkbox" className="accent-[#e31b23]" />{" "}
+              Acepto ser contactado para coordinar esta solicitud.
+            </label>
+            <button className="btn btn-primary md:col-span-2">
+              Enviar solicitud
+            </button>
+            {sent && (
+              <p
+                role="status"
+                className="text-sm font-bold text-white md:col-span-2"
+              >
+                Solicitud simulada recibida. La integración con Supabase sigue
+                pendiente.
+              </p>
+            )}
+          </form>
+        </div>
+      </section>
+      <section id="nosotros" className="section industrial">
+        <Head
+          tag="Jalip Motorsport"
+          title="Metal, montaña y criterio mecánico."
+          copy="La información institucional oficial está pendiente. La interfaz separa claramente los datos por confirmar para no inventar trayectoria ni estadísticas."
+        />
+        <div className="mt-12 grid gap-px bg-white/10 md:grid-cols-3">
+          {[
+            [ShieldCheck, "Garantía", "Cobertura pendiente de confirmar."],
+            [MapPin, "Ubicación", `${site.address} · ${site.hours}`],
+            [Camera, "Instagram", "Cuenta oficial pendiente de confirmar."],
+          ].map(([Icon, t, c]) => (
+            <div className="bg-[#101419] p-8" key={String(t)}>
+              <Icon className="text-[#e31b23]" />
+              <h3 className="display mt-10 text-2xl">{String(t)}</h3>
+              <p className="mt-3 text-xs text-white/45">{String(c)}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <footer
+        id="contacto"
+        className="border-t border-white/10 bg-[#080b0e] px-5 py-12"
+      >
+        <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-8 md:flex-row md:items-center">
+          <div>
+            <p className="display border-l-4 border-[#e31b23] pl-3 text-2xl">
+              JALIP <span className="text-[#aeb3b7]">MOTORSPORT</span>
+            </p>
+            <p className="mt-3 text-[10px] uppercase tracking-wider text-white/35">
+              República Dominicana · Visuales demostrativos
+            </p>
+          </div>
+          <a
+            href={wa("hablar con un asesor")}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-primary"
+          >
+            <MessageCircle size={16} />
+            WhatsApp 829-765-3173
+          </a>
+        </div>
+      </footer>
+      <a
+        aria-label="Contactar por WhatsApp"
+        href={wa("recibir información")}
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-5 right-5 z-30 border border-[#e31b23] bg-[#101419] p-4 text-white shadow-2xl hover:bg-[#e31b23]"
+      >
+        <MessageCircle />
+      </a>
+    </>
+  );
+}
