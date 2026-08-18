@@ -25,7 +25,7 @@ export default function Home() {
         <div className="mx-auto flex h-20 max-w-[1320px] items-center justify-between px-5">
           <a
             href="#inicio"
-            className="relative flex h-11 w-44 items-center"
+            className="relative flex h-11 w-40 items-center bg-white px-3 sm:h-12 sm:w-48"
             aria-label="Jalip Motorsport, inicio"
           >
             {logoReady ? (
@@ -34,7 +34,7 @@ export default function Home() {
                 alt="Jalip Motorsport"
                 fill
                 priority
-                className="object-contain object-left"
+                className="object-contain px-3 py-2"
               />
             ) : (
               <span className="border border-dashed border-white/30 px-3 py-2 text-[7px] font-black tracking-[.16em] text-white/50">
