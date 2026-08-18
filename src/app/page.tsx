@@ -1,8 +1,15 @@
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { HomeContent } from "@/components/home-content";
-import { ConceptShowcase } from "@/components/concept-showcase";
+import { WorkshopIdentity } from "@/components/workshop-identity";
 
 export default function Home() {
-  return <main><Header /><Hero /><ConceptShowcase /><HomeContent /></main>;
+  return (
+    <main>
+      <Header />
+      <Hero />
+      <WorkshopIdentity />
+      <HomeContent />
+    </main>
+  );
 }

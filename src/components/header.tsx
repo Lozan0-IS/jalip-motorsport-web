@@ -3,9 +3,9 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { wa } from "@/data/site";
 const links = [
-  ["MÁQUINAS", "#vehiculos"],
+  ["MÉTODO JALIP", "#metodo"],
   ["CONSTRUYE LA TUYA", "#configurador"],
-  ["PROYECTOS", "#proyectos"],
+  ["MÁQUINAS", "#vehiculos"],
   ["TALLER", "#taller"],
 ];
 export function Header() {
