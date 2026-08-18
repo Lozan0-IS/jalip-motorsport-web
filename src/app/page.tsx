@@ -1,3 +1,6 @@
+import Image from "next/image";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { ArrowUpRight } from "lucide-react";
 import { wa } from "@/data/site";
 
@@ -9,19 +12,35 @@ const services = [
 ];
 
 export default function Home() {
+  const heroReady = existsSync(
+    join(process.cwd(), "public/images/canam-maverick-x3-hero.webp"),
+  );
+  const logoReady = existsSync(
+    join(process.cwd(), "public/images/jalip-motorsport-logo.png"),
+  );
+
   return (
     <main className="bg-[var(--jalip-black)] text-[var(--jalip-bone)]">
       <header className="absolute inset-x-0 top-0 z-20 border-b border-white/15">
         <div className="mx-auto flex h-20 max-w-[1320px] items-center justify-between px-5">
           <a
             href="#inicio"
-            className="display flex items-center gap-3 text-2xl"
+            className="relative flex h-11 w-44 items-center"
             aria-label="Jalip Motorsport, inicio"
           >
-            <span className="h-7 w-1 bg-[var(--jalip-red)]" /> JALIP
-            <span className="font-sans text-[7px] font-black tracking-[.3em] text-white/45">
-              MOTORSPORT
-            </span>
+            {logoReady ? (
+              <Image
+                src="/images/jalip-motorsport-logo.png"
+                alt="Jalip Motorsport"
+                fill
+                priority
+                className="object-contain object-left"
+              />
+            ) : (
+              <span className="border border-dashed border-white/30 px-3 py-2 text-[7px] font-black tracking-[.16em] text-white/50">
+                LOGOTIPO REAL PENDIENTE
+              </span>
+            )}
           </a>
           <a
             href={wa("iniciar un proyecto")}
@@ -38,11 +57,29 @@ export default function Home() {
         id="inicio"
         className="relative flex min-h-[100svh] items-end overflow-hidden border-b border-white/15 px-5 pb-12 pt-32 lg:pb-16"
       >
+        {heroReady ? (
+          <Image
+            src="/images/canam-maverick-x3-hero.webp"
+            alt="Can-Am Maverick X3 modificado para montaña por Jalip Motorsport"
+            fill
+            priority
+            className="object-cover object-[58%_center]"
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-[#0a0c0b]">
+            <div className="max-w-md border border-dashed border-white/20 px-7 py-6 text-center">
+              <p className="text-[9px] font-black tracking-[.2em] text-[var(--jalip-red)]">
+                FOTOGRAFÍA REAL PENDIENTE
+              </p>
+              <p className="mt-3 text-xs leading-5 text-white/45">
+                public/images/canam-maverick-x3-hero.webp
+              </p>
+            </div>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#070908fa_0%,#070908e8_43%,#07090855_67%,transparent_88%),linear-gradient(0deg,#070908c9_0%,transparent_48%)]" />
         <div className="absolute inset-y-0 right-0 hidden w-[34%] border-l border-white/10 lg:block" />
-        <div className="absolute right-[8%] top-[17%] select-none font-sans text-[38vw] font-black leading-none text-white/[.025]">
-          J
-        </div>
-        <div className="mx-auto grid w-full max-w-[1320px] gap-14 lg:grid-cols-[1fr_31%] lg:items-end">
+        <div className="relative mx-auto grid w-full max-w-[1320px] gap-14 lg:grid-cols-[1fr_31%] lg:items-end">
           <div>
             <p className="mb-7 text-[9px] font-black tracking-[.28em] text-[var(--jalip-red)]">
               PREPARACIÓN OFF-ROAD · REPÚBLICA DOMINICANA
