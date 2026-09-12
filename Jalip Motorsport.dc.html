@@ -87,11 +87,17 @@
   @keyframes jm-strip-scroll { from { transform:translateX(0) } to { transform:translateX(-50%) } }
   @keyframes jm-ticker-scroll { from { transform:translateX(0) } to { transform:translateX(-50%) } }
   .jm-strip-track { animation:jm-strip-scroll 46s linear infinite }
-  .jm-strip-track:hover { animation-play-state:paused }
+  .jm-strip-track:hover, .jm-strip-track.jm-paused { animation-play-state:paused }
   .jm-ticker-track { animation:jm-ticker-scroll 32s linear infinite }
+  .jm-ticker-track.jm-paused { animation-play-state:paused }
   @keyframes jm-strip-progress { from { left:-15% } to { left:100% } }
   .jm-strip-progress-bar { animation:jm-strip-progress 46s linear infinite }
   @media (prefers-reduced-motion:reduce) { .jm-strip-track,.jm-ticker-track,.jm-strip-progress-bar { animation:none; left:0 } }
+  /* el "carrusel" era puramente decorativo (overflow:hidden + animación CSS) —
+     ahora también se puede arrastrar con el dedo/mouse; jm-paused congela la
+     animación mientras el usuario interactúa para que no pelee contra el scroll nativo. */
+  .jm-ticker-mask, .jm-strip-mask { overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; touch-action:pan-x; scrollbar-width:none; }
+  .jm-ticker-mask::-webkit-scrollbar, .jm-strip-mask::-webkit-scrollbar { display:none; }
   [data-reveal] { animation: jm-rise .7s cubic-bezier(.2,.7,.2,1) both; }
   @media (prefers-reduced-motion: reduce) {
     [data-reveal] { animation: jm-fade .2s ease both; }
@@ -222,6 +228,13 @@
      antes era 460px fijo sin importar el ancho de pantalla */
   .jm-feat-img { height:380px; }
   @media (max-width: 640px) { .jm-feat-img { height:260px; } }
+
+  /* "Nuestros valores" siempre son 4 tarjetas fijas (no un catálogo variable) —
+     columnas explícitas en vez de auto-fit para que 4 nunca deje una tarjeta
+     sola en una fila nueva con un hueco vacío al lado (pasaba en ancho iPad). */
+  .jm-values-grid { grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .jm-values-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (min-width: 1024px) { .jm-values-grid { grid-template-columns: repeat(4,1fr); } }
   @media (hover: hover) and (pointer: fine) {
     .jm-mod-filter:hover { color:#F2F3F5; }
     .jm-mod-card:hover { transform:translateY(-5px); border-color:#E11623; }
@@ -355,6 +368,12 @@
   }
 
   .jm-input{transition:border-color .15s ease}
+  /* iOS/Safari ignora background/border/padding en <select> y siempre lo
+     dibuja como píldora redondeada nativa — al lado de los <input> cuadrados
+     de la misma fila se ve como si fueran de dos sitios distintos. Se apaga
+     el estilo nativo en todos los selects del sitio y se agrega una flecha
+     propia, coherente con el resto de los controles. */
+  select { -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:13px; padding-right:34px !important; }
   .jm-input:focus{border-color:#ef4444 !important;outline:none;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
   .jm-input::placeholder{color:#a1a1aa}
 </style>
@@ -492,8 +511,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
      hacia la izquierda. Enlaces reales a Accesorios.dc.html#categoría ══ -->
 <sc-if value="{{ hasHomeStrip }}" hint-placeholder-val="{{ true }}">
   <section style="background:#F2F1EC;overflow:hidden">
-    <div class="jm-ticker-mask" style="border-top:1px solid rgba(10,10,12,.08);border-bottom:1px solid rgba(10,10,12,.08);background:#EAE8E1;padding:12px 0;overflow:hidden">
-      <div class="jm-ticker-track" style="display:inline-flex;gap:36px;white-space:nowrap">
+    <div class="jm-ticker-mask" style="border-top:1px solid rgba(10,10,12,.08);border-bottom:1px solid rgba(10,10,12,.08);background:#EAE8E1;padding:12px 0">
+      <div class="jm-ticker-track" id="jm-ticker-track" style="display:inline-flex;gap:36px;white-space:nowrap">
         <sc-for list="{{ tickerItems }}" as="t" hint-placeholder-count="22">
           <span style="display:inline-flex;align-items:center;gap:9px;font-family:'JetBrains Mono';font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1A1A1C;flex-shrink:0">
             <span style="width:5px;height:5px;border-radius:50%;background:#E11623;flex-shrink:0"></span>{{ t }}
@@ -510,8 +529,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <a href="Accesorios.dc.html" style="color:#0A0A0C;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0" data-en="Full catalog">Todo el catálogo <i data-lucide="arrow-right" style="width:14px;height:14px;color:#E11623"></i></a>
       </div>
     </div>
-    <div class="jm-strip-mask" style="overflow:hidden;padding:2px 0 26px">
-      <div class="jm-strip-track" style="display:inline-flex;gap:18px;padding:0 24px">
+    <div class="jm-strip-mask" style="padding:2px 0 26px">
+      <div class="jm-strip-track" id="jm-strip-track" style="display:inline-flex;gap:18px;padding:0 24px">
         <sc-for list="{{ homeStripItems }}" as="p" hint-placeholder-count="22">
           <a href="{{ p.href }}" style="flex-shrink:0;width:216px;background:#fff;border:1px solid rgba(10,10,12,.1);text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 14px 30px -18px rgba(10,10,12,.25)">
             <div style="position:relative;aspect-ratio:1;background:#F7F6F2;overflow:hidden">
@@ -557,9 +576,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         </div>
         <a href="Vehiculos.dc.html" class="jm-h6" style="display:flex;align-items:center;gap:9px;background:#1B1C21;border:1px solid #2A2C31;color:#F2F3F5;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 18px;border-radius:999px" data-en="See all vehicles">Ver todos <i data-lucide="arrow-right" style="width:14px;height:14px;color:#E11623"></i></a>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1px;background:#26282E;border:1px solid #26282E">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;background:#0A0A0C">
         <sc-for list="{{ featuredVehicles }}" as="fv" hint-placeholder-count="4">
-          <article class="jm-tilt" onClick="{{ fv.open }}" style="background:#0D0E10;cursor:pointer">
+          <article class="jm-tilt" onClick="{{ fv.open }}" style="background:#0D0E10;border:1px solid #26282E;cursor:pointer">
             <div style="aspect-ratio:4/3;padding:28px;display:flex;align-items:center;justify-content:center;overflow:hidden">
               <sc-if value="{{ fv.hasImg }}" hint-placeholder-val="{{ false }}">
                 <img src="{{ fv.img }}" alt="{{ fv.model }}" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain">
@@ -892,8 +911,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     </sc-if>
 
     <sc-if value="{{ apptOpen }}" hint-placeholder-val="{{ true }}">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1px;background:#1E1F24;border:1px solid #1E1F24">
-        <div style="background:#0D0E10;padding:32px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;background:#0A0A0C">
+        <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px;display:flex;flex-direction:column;gap:18px">
           <span style="font:600 10px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#FF3B47" data-en="Your data">Tus datos</span>
           <label style="display:flex;flex-direction:column;gap:7px;font:600 10px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#A1A1AA">
             <span data-en="Full name *">Nombre completo *</span>
@@ -923,7 +942,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           </label>
         </div>
 
-        <div style="background:#0D0E10;padding:32px;display:flex;flex-direction:column;gap:18px">
+        <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px;display:flex;flex-direction:column;gap:18px">
           <span style="font:600 10px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#FF3B47" data-en="Your UTV">Tu UTV</span>
           <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
             <label style="display:flex;flex-direction:column;gap:7px;font:600 10px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#A1A1AA">
@@ -971,7 +990,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           </label>
         </div>
 
-        <div style="background:#0D0E10;padding:32px;display:flex;flex-direction:column;gap:18px">
+        <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px;display:flex;flex-direction:column;gap:18px">
           <span style="font:600 10px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#FF3B47" data-en="Preferred slot">Fecha preferida</span>
           <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
             <label style="display:flex;flex-direction:column;gap:7px;font:600 10px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#A1A1AA">
@@ -1074,7 +1093,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <span style="font:800 12.5px/1 Barlow;letter-spacing:.16em;text-transform:uppercase;color:#C81120" data-en="What defines us">Lo que nos define</span>
       <h3 style="font-family:Saira;font-weight:900;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;margin-top:10px;color:#0A0A0C" data-en="Our values">Nuestros valores</h3>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:#E2E1DB;border:1px solid #E2E1DB">
+    <div class="jm-values-grid" style="display:grid;gap:1px;background:#E2E1DB;border:1px solid #E2E1DB">
       <sc-for list="{{ values }}" as="v" hint-placeholder-count="4">
         <div class="jm-val-card jm-spotlight" style="background:#fff;padding:34px 28px 32px;display:flex;flex-direction:column;gap:12px">
           <span style="position:absolute;top:16px;right:18px;font-family:'JetBrains Mono';font-size:30px;font-weight:600;color:#D9D7CC">{{ v.index }}</span>
@@ -1095,21 +1114,41 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <span style="font:700 11px/1 Barlow;letter-spacing:.14em;text-transform:uppercase;color:#FF3B47" data-en="The people behind it">Las personas detrás</span>
       <h3 style="font-family:Saira;font-weight:900;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;margin-top:10px" data-en="Our team">Nuestro equipo</h3>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(50%,160px),1fr));gap:14px;margin-bottom:16px">
-      <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
-        <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
-        <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
+    <sc-if value="{{ hasEquipoMembers }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(50%,160px),1fr));gap:14px">
+        <sc-for list="{{ equipoMembers }}" as="em" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="position:relative;aspect-ratio:1/1;border:1px solid #26282E;background:#0D0E10;display:flex;align-items:center;justify-content:center;overflow:hidden">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#5C5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+              <sc-if value="{{ em.hasPhoto }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ em.photo }}" alt="{{ em.nombre }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-family:Saira;font-weight:700;font-size:14px;color:#F2F3F5">{{ em.nombre }}</div>
+              <div style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:#6B6D75;margin-top:3px">{{ em.cargo }}</div>
+            </div>
+          </div>
+        </sc-for>
       </div>
-      <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
-        <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
-        <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
+    </sc-if>
+    <sc-if value="{{ !hasEquipoMembers }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(50%,160px),1fr));gap:14px;margin-bottom:16px">
+        <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+          <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
+          <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
+        </div>
+        <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+          <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
+          <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
+        </div>
+        <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+          <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
+          <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
+        </div>
       </div>
-      <div style="aspect-ratio:1/1;border:1px dashed #26282E;background:#0D0E10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
-        <i data-lucide="user" style="width:24px;height:24px;color:#5C5E66"></i>
-        <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Pending">Pendiente</span>
-      </div>
-    </div>
-    <p style="font-family:'JetBrains Mono';font-size:11.5px;line-height:1.7;color:#6B6D75;max-width:62ch;margin:0" data-en="We're still preparing team photos and bios — meanwhile, anyone at the shop can help you directly.">Todavía estamos preparando las fotos y perfiles del equipo — mientras tanto, cualquier persona del taller puede atenderte directo.</p>
+      <p style="font-family:'JetBrains Mono';font-size:11.5px;line-height:1.7;color:#6B6D75;max-width:62ch;margin:0" data-en="We're still preparing team photos and bios — meanwhile, anyone at the shop can help you directly.">Todavía estamos preparando las fotos y perfiles del equipo — mientras tanto, cualquier persona del taller puede atenderte directo.</p>
+    </sc-if>
   </div>
 </section>
 
@@ -1120,16 +1159,16 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <span style="font:700 11px/1 Barlow;letter-spacing:.14em;text-transform:uppercase;color:#FF3B47" data-en="Brands we work with">Marcas que trabajamos</span>
       <h3 style="font-family:Saira;font-weight:900;font-size:clamp(22px,2.8vw,30px);letter-spacing:-.02em;margin-top:10px" data-en="Our brands">Nuestras marcas</h3>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:1px;background:#1E1F24;border:1px solid #1E1F24">
-      <div style="background:#0D0E10;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;background:#0A0A0C">
+      <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
         <span style="font-family:Saira;font-weight:800;font-size:19px">Can-Am</span>
         <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6B6D75" data-en="Sales · Service · Parts">Venta · Servicio · Piezas</span>
       </div>
-      <div style="background:#0D0E10;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
+      <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
         <span style="font-family:Saira;font-weight:800;font-size:19px">Polaris</span>
         <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6B6D75" data-en="Sales · Service · Parts">Venta · Servicio · Piezas</span>
       </div>
-      <div style="background:#0D0E10;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
+      <div style="background:#0D0E10;border:1px solid #1E1F24;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center">
         <span style="font-family:Saira;font-weight:800;font-size:19px" data-en="+ Others">+ Otras</span>
         <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6B6D75" data-en="On request">Bajo consulta</span>
       </div>
@@ -1721,13 +1760,23 @@ class Component extends DCLogic {
       if (e.key === 'Tab') trapDialogTab(e);
     });
     this.initPremiumEffects();
+    // Fase 6R: el ticker de categorías y la franja de accesorios eran
+    // puramente decorativos (overflow:hidden) — ahora que se puede arrastrar
+    // con el dedo/mouse, la animación se congela mientras el usuario toca el
+    // carrusel para que el scroll nativo no compita contra el transform.
+    document.addEventListener('pointerdown', (e) => {
+      const mask = e.target.closest?.('.jm-ticker-mask, .jm-strip-mask');
+      if (!mask) return;
+      const track = mask.querySelector('.jm-ticker-track, .jm-strip-track');
+      if (track) track.classList.add('jm-paused');
+    });
     // si Panel Admin cambia algo en otra pestaña (foto, catálogo, overrides,
     // ajustes o proyectos), esta página se refresca sola
     window.addEventListener('storage', (e) => {
       if (e.key && (e.key.indexOf('jm_photo_') === 0 || e.key === 'jm_extra_vehicles' || e.key === 'jm_extra_products'
         || e.key === 'jm_admin_vehicle_overrides' || e.key === 'jm_admin_product_overrides'
         || e.key === 'jm_admin_settings' || e.key === 'jm_extra_proyectos' || e.key === 'jm_extra_servicios'
-        || e.key === 'jm_admin_service_overrides')) this.forceUpdate();
+        || e.key === 'jm_admin_service_overrides' || e.key === 'jm_extra_equipo')) this.forceUpdate();
     });
   }
 
@@ -2000,6 +2049,13 @@ class Component extends DCLogic {
         : () => this.startQuote(s.title, s.title + ' — solicitado desde Servicios', 'Hola Jalip Motorsport, quiero información sobre ' + s.title.toLowerCase() + '.'),
     }));
     const valuesFull = VALUES.map((v, i) => ({ ...v, index: String(i + 1).padStart(2, '0') }));
+    // Fase 6R: equipo real publicado desde Panel Admin.dc.html (jm_extra_equipo)
+    // — foto + nombre + cargo. Sin nadie publicado, se sigue mostrando el
+    // aviso honesto de "fotos pendientes" en vez de inventar personas.
+    const equipoMembers = getExtraList('equipo').filter((m) => m && m.publicado).map((m) => ({
+      nombre: m.nombre, cargo: m.cargo && m.cargo.trim() ? m.cargo : '',
+      photo: getStoredPhoto('team_' + m.id), hasPhoto: !!getStoredPhoto('team_' + m.id),
+    }));
     return {
       // menú móvil
       menuOpenStr: st.menuOpen ? 'true' : 'false',
@@ -2024,6 +2080,8 @@ class Component extends DCLogic {
       servicesToggleRotate: st.servicesExpanded ? '180deg' : '0deg',
       toggleServices: () => this.setState((s) => ({ servicesExpanded: !s.servicesExpanded })),
       values: valuesFull,
+      equipoMembers,
+      hasEquipoMembers: equipoMembers.length > 0,
 
       // Fase 6J: datos de negocio (Ajustes reales del panel, con el texto
       // original del sitio como respaldo cuando el admin no los ha cargado)

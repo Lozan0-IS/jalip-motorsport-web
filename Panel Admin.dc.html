@@ -96,6 +96,12 @@
        quede ilegible ni recortado. */
     .pa-shell { grid-template-columns: 1fr !important; }
   }
+  /* iOS/Safari ignora background/border/padding en <select> y siempre lo
+     dibuja como píldora redondeada nativa — al lado de los <input> cuadrados
+     de la misma fila se ve como si fueran de dos sitios distintos. Se apaga
+     el estilo nativo en todos los selects del panel y se agrega una flecha
+     propia, coherente con el resto de los controles. */
+  select { -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:12px; padding-right:30px !important; }
 </style>
 <script>
 /**
@@ -393,6 +399,49 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     <sc-if value="{{ noProyectoResults }}" hint-placeholder-val="{{ false }}">
       <div style="padding:40px 20px;text-align:center;color:#8B8D93;font-size:13px">No se encontraron proyectos.</div>
     </sc-if>
+    </sc-if>
+    </sc-if>
+
+    <!-- Fase 6R: Equipo real — vista propia (isEquipoSection), foto + nombre + cargo -->
+    <sc-if value="{{ isEquipoSection }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-start;gap:10px;background:#101114;border:1px solid #24262B;border-left:2px solid #7A4DFF;padding:14px 18px;margin-bottom:18px">
+      <i data-lucide="info" style="width:16px;height:16px;color:#7A4DFF;flex-shrink:0;margin-top:2px"></i>
+      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Solo las personas marcadas "Publicado" aparecen en la sección "Nuestro equipo" de Inicio. Sin nadie publicado, el sitio muestra el aviso honesto de "fotos pendientes" en vez de inventar personas.</p>
+    </div>
+    <sc-if value="{{ noEquipo }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px dashed #24262B;background:#0D0E10;padding:48px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <i data-lucide="contact" style="width:28px;height:28px;color:#3A3C42"></i>
+        <p style="margin:0;color:#8B8D93;font-size:13.5px">No hay personas registradas todavía.</p>
+        <button onClick="{{ openAdd }}" class="pa-h6" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px;cursor:pointer;display:flex;align-items:center;gap:8px"><i data-lucide="plus" style="width:14px;height:14px"></i>Agregar persona</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ !noEquipo }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+      <sc-for list="{{ equipoRows }}" as="em" hint-placeholder-count="3">
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:14px;display:flex;gap:12px;align-items:center">
+          <div style="width:60px;height:60px;flex-shrink:0;background:#111214;border:1px solid #24262B;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;border-radius:50%">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3A3C42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+            <sc-if value="{{ em.hasPhoto }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ em.thumb }}" alt="{{ em.nombre }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            </sc-if>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font:600 13px/1.3 Barlow;color:#F2F3F5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ em.nombre }}</div>
+            <div style="font:500 10px/1 Barlow;color:#8B8D93;margin-top:5px">{{ em.cargo }}</div>
+            <span style="display:inline-block;margin-top:6px;font:700 8.5px/1 Barlow;letter-spacing:.06em;text-transform:uppercase;color:{{ em.publicadoFg }}">{{ em.publicadoLabel }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <label for="{{ em.inputId }}" style="background:none;border:1px solid #24262B;color:#F2F3F5;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer;text-align:center">{{ em.uploadLabelText }}</label>
+            <input id="{{ em.inputId }}" type="file" accept="image/*" onChange="{{ em.onUpload }}" disabled="{{ em.isUploading }}" style="display:none">
+            <sc-if value="{{ em.hasPhoto }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ em.onRemovePhoto }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Quitar foto</button>
+            </sc-if>
+            <button onClick="{{ em.edit }}" style="background:none;border:1px solid #24262B;color:#F2F3F5;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Editar</button>
+            <button onClick="{{ em.remove }}" style="background:none;border:1px solid #3A1416;color:#FF8A92;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Eliminar</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
     </sc-if>
     </sc-if>
 
@@ -1381,6 +1430,26 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             </div>
           </sc-if>
 
+          <sc-if value="{{ isAddEquipo }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Nombre <span style="color:#FF8A92">*</span>
+                <input id="equipo-nombre-input" value="{{ equipoForm.nombre }}" onInput="{{ setEquipoNombre }}" placeholder="Ej. Juan Pérez" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+                <sc-if value="{{ equipoErrors.nombre }}" hint-placeholder-val="{{ false }}">
+                  <span style="color:#FF8A92;font-size:12px">{{ equipoErrors.nombre }}</span>
+                </sc-if>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Cargo <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional</span>
+                <input value="{{ equipoForm.cargo }}" onInput="{{ setEquipoCargo }}" placeholder="Ej. Mecánico principal" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#B9BBC1">
+                <input type="checkbox" checked="{{ equipoForm.publicado }}" onChange="{{ setEquipoPublicado }}" style="accent-color:#E11623;width:16px;height:16px;cursor:pointer">
+                Publicado (visible en el sitio público)
+              </label>
+              <button onClick="{{ submitEquipo }}" style="margin-top:8px;background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer">{{ equipoSubmitLabel }}</button>
+              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">La foto se sube después desde esta misma lista.</p>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ isAddServicio }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:12px">
               <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Título <span style="color:#FF8A92">*</span>
@@ -2108,6 +2177,20 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </div>
     </sc-if>
 
+    <!-- Fase 6R: confirmar eliminación de una persona del equipo -->
+    <sc-if value="{{ equipoDeleteConfirmOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;z-index:300;background:rgba(4,4,6,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ cancelDeleteEquipo }}">
+        <div role="dialog" aria-modal="true" aria-label="Confirmar eliminación de persona" style="background:#0D0E10;border:1px solid #24262B;max-width:400px;width:100%;padding:26px" onClick="{{ stopProp }}">
+          <h3 style="font-family:Saira;font-weight:700;font-size:17px;margin:0 0 12px">Eliminar persona</h3>
+          <p style="margin:0 0 20px;font-size:13.5px;line-height:1.6;color:#B9BBC1">¿Deseas eliminar a "{{ equipoDeleteTargetNombre }}" del equipo? Esta acción no se puede deshacer.</p>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button onClick="{{ cancelDeleteEquipo }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Volver</button>
+            <button onClick="{{ confirmDeleteEquipo }}" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Eliminar persona</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- Fase 6M/6N: confirmar eliminación (extra) u ocultamiento (servicio de
          fábrica) — mismo diálogo, texto según servicioDeleteIsExtra -->
     <sc-if value="{{ servicioDeleteConfirmOpen }}" hint-placeholder-val="{{ false }}">
@@ -2481,6 +2564,14 @@ const SECTIONS = {
     rows: [['—', '—', '—', 'Sin datos aún', '—']],
     note: 'Hoy las configuraciones se guardan en el navegador del cliente. Con backend se guardan en la tabla configurations y quedan visibles aquí.',
   },
+  equipo: {
+    // Fase 6R: módulo real (jm_extra_equipo) — vista propia (isEquipoSection),
+    // mismo patrón que Proyectos (getExtraList/setExtraList) pero solo con
+    // foto + nombre + cargo, sin búsqueda (lista corta de personas del taller).
+    label: 'Equipo', icon: 'contact', badge: '', title: 'Nuestro equipo', add: 'Agregar persona',
+    stats: [], cols: [], rows: [],
+    note: 'Solo las personas marcadas "Publicado" aparecen en la sección "Nuestro equipo" de Inicio. Sin nadie publicado, el sitio sigue mostrando el aviso honesto de "fotos pendientes" en vez de inventar personas.',
+  },
   ajustes: {
     // Fase 6J: módulo real (jm_admin_settings) — vista propia (isAjustesSection).
     label: 'Ajustes', icon: 'settings', badge: '', title: 'Datos del negocio', add: 'Guardar cambios',
@@ -2489,7 +2580,7 @@ const SECTIONS = {
   },
 };
 
-const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv', 'accesorios', 'proyectos', 'servicios', 'guardadas', 'ajustes'];
+const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv', 'accesorios', 'proyectos', 'servicios', 'equipo', 'guardadas', 'ajustes'];
 
 // price y description faltaban aquí — submitVehicle() llama f.description.trim()
 // sin protección, así que publicar un UTV nuevo sin tocar esos dos campos
@@ -2531,6 +2622,7 @@ const BLANK_SETTINGS_FORM = { businessName: '', phone: '', whatsapp: '', email: 
 // Accesorios desde Fase 6C, con foto de portada vía jm_photo_pr_<id> (mismo
 // helper getStoredPhoto/setStoredPhoto/clearStoredPhoto, sin clave nueva).
 const BLANK_PROYECTO_FORM = { titulo: '', marca: 'Can-Am', modelo: '', anio: '', descripcion: '', tags: '', publicado: false };
+const BLANK_EQUIPO_FORM = { nombre: '', cargo: '', publicado: false };
 // Fase 6M: Servicios reales — mismo patrón "extra" (jm_extra_servicios) que
 // Proyectos, pero sin foto: el ícono es de una lista fija (los mismos nombres
 // de Lucide que ya usan los 9 servicios de fábrica en Jalip Motorsport.dc.html),
@@ -2613,6 +2705,9 @@ class Component extends DCLogic {
     // Fase 6J: Proyectos reales
     proyectoForm: { ...BLANK_PROYECTO_FORM }, proyectoErrors: {},
     proyectoSearch: '', editingProyectoId: '', proyectoDeleteConfirmId: '',
+    // Fase 6R: Equipo real (fotos + nombre + cargo de quienes trabajan en el taller)
+    equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {},
+    editingEquipoId: '', equipoDeleteConfirmId: '',
     // Fase 6M: Servicios reales
     servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {},
     editingServicioId: '', servicioDeleteConfirm: null,
@@ -2636,6 +2731,7 @@ class Component extends DCLogic {
         else if (this.state.pedidoCancelConfirmId) this.cancelCancelPedido();
         else if (this.state.pedidoDetailId) this.closePedidoDetail();
         else if (this.state.proyectoDeleteConfirmId) this.cancelDeleteProyecto();
+        else if (this.state.equipoDeleteConfirmId) this.cancelDeleteEquipo();
         else if (this.state.servicioDeleteConfirm) this.cancelDeleteServicio();
         else if (this.state.editingSettings) this.cancelEditSettings();
         return;
@@ -2749,7 +2845,7 @@ class Component extends DCLogic {
 
   openAdd() {
     const sec = this.state.sec;
-    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios') {
+    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios' && sec !== 'equipo') {
       this.showAdminNotice('Esta sección todavía no tiene formulario de alta.', 'info');
       return;
     }
@@ -2761,6 +2857,7 @@ class Component extends DCLogic {
       addOpen: true, vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {}, proyectoErrors: {}, servicioErrors: {},
       vehForm: { ...BLANK_VEH_FORM }, citaForm: { ...BLANK_CITA_FORM }, prodForm: { ...BLANK_PROD_FORM }, cotizForm: { ...BLANK_COTIZ_FORM },
       proyectoForm: { ...BLANK_PROYECTO_FORM }, editingProyectoId: '', proyectoStep: 1,
+      equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {}, editingEquipoId: '',
       servicioForm: { ...BLANK_SERVICIO_FORM }, editingServicioId: '', editingServicioBaseId: '',
       editingVehIsExtra: false, editingVehBaseId: '', editingVehExtraId: '', vehStep: 1,
       editingProdIsExtra: false, editingProdBaseId: '', editingProdExtraId: '',
@@ -2779,7 +2876,7 @@ class Component extends DCLogic {
       addOpen: false, vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {}, proyectoErrors: {}, servicioErrors: {},
       editingVehIsExtra: false, editingVehBaseId: '', editingVehExtraId: '', vehStep: 1,
       editingProdIsExtra: false, editingProdBaseId: '', editingProdExtraId: '',
-      editingCitaId: '', editingCotizId: '', editingProyectoId: '', proyectoStep: 1, editingServicioId: '', editingServicioBaseId: '',
+      editingCitaId: '', editingCotizId: '', editingProyectoId: '', proyectoStep: 1, editingEquipoId: '', editingServicioId: '', editingServicioBaseId: '',
       clientErrors: {}, editingClientId: '', clientDuplicate: null, clientDuplicateConfirmed: false,
       clientQuickCreateFor: '', citaClientId: '', citaClientQuery: '', cotizClientId: '', cotizClientQuery: '',
       pedidoClientId: '', pedidoClientQuery: '', editingPedidoId: '', pedidoConvertFromCotizId: '',
@@ -4091,6 +4188,87 @@ class Component extends DCLogic {
   }
   setProyectoSearch(e) { this.setState({ proyectoSearch: e.target.value }); }
 
+  // Fase 6R: Equipo real — foto + nombre + cargo de quienes trabajan en el
+  // taller, mismo patrón que Proyectos (getExtraList/setExtraList('equipo')).
+  setEquipoField(k) {
+    return (e) => {
+      const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      this.setState((s) => ({ equipoForm: { ...s.equipoForm, [k]: val }, equipoErrors: { ...s.equipoErrors, [k]: '' } }));
+    };
+  }
+  findEquipoById(id) { return getExtraList('equipo').find((m) => m && m.id === id) || null; }
+  editEquipo(id) {
+    const m = this.findEquipoById(id);
+    if (!m) return;
+    this.setState({
+      addOpen: true, equipoErrors: {}, editingEquipoId: id,
+      equipoForm: { nombre: m.nombre || '', cargo: m.cargo || '', publicado: !!m.publicado },
+    });
+  }
+  submitEquipo() {
+    if (this._submittingEquipo) return;
+    const f = this.state.equipoForm;
+    if (!f.nombre.trim()) {
+      this.setState({ equipoErrors: { nombre: 'El nombre es obligatorio.' } });
+      const el = document.getElementById('equipo-nombre-input');
+      if (el) el.focus();
+      return;
+    }
+    this._submittingEquipo = true;
+    try {
+      const now = new Date().toISOString();
+      const fields = { nombre: f.nombre.trim(), cargo: f.cargo.trim(), publicado: !!f.publicado };
+      const editingId = this.state.editingEquipoId;
+      const list = getExtraList('equipo');
+      if (editingId) {
+        const idx = list.findIndex((m) => m && m.id === editingId);
+        if (idx === -1) { this.showAdminNotice('Esta persona ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
+        list[idx] = { ...list[idx], ...fields, updatedAt: now };
+        if (setExtraList('equipo', list)) {
+          this.setState({ addOpen: false, equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {}, editingEquipoId: '' });
+          this.showAdminNotice('Persona actualizada.', 'success');
+        } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+      } else {
+        list.push({ id: 'equipo' + Date.now(), ...fields, createdAt: now, updatedAt: now });
+        if (setExtraList('equipo', list)) {
+          this.setState({ addOpen: false, equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {} });
+          this.showAdminNotice('"' + fields.nombre + '" agregado al equipo.', 'success');
+        } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+      }
+    } finally { this._submittingEquipo = false; }
+  }
+  requestDeleteEquipo(id) { this.setState({ equipoDeleteConfirmId: id }); }
+  cancelDeleteEquipo() { this.setState({ equipoDeleteConfirmId: '' }); }
+  confirmDeleteEquipo() {
+    const id = this.state.equipoDeleteConfirmId;
+    const list = getExtraList('equipo').filter((x) => !x || x.id !== id);
+    if (setExtraList('equipo', list)) {
+      clearStoredPhoto('team_' + id);
+      this.setState({ equipoDeleteConfirmId: '' });
+      this.bump();
+      this.showAdminNotice('Persona eliminada.', 'success');
+    } else {
+      this.setState({ equipoDeleteConfirmId: '' });
+      this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+    }
+  }
+  uploadEquipoPhoto(id, file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      this.showAdminNotice('"' + file.name + '" no es un archivo de imagen. Elige un JPG, PNG o WEBP.', 'error');
+      return;
+    }
+    this.setState((s) => ({ uploadingIds: { ...s.uploadingIds, ['team_' + id]: true } }));
+    readAndResizeImage(file, 800, (dataUrl) => {
+      this.setState((s) => { const u = { ...s.uploadingIds }; delete u['team_' + id]; return { uploadingIds: u }; });
+      if (!dataUrl) { this.showAdminNotice('No se pudo procesar "' + file.name + '".', 'error'); return; }
+      if (!setStoredPhoto('team_' + id, dataUrl)) { this.showAdminNotice(STORAGE_QUOTA_MSG, 'error'); return; }
+      this.bump();
+      this.showAdminNotice('Foto guardada.', 'success');
+    });
+  }
+  removeEquipoPhoto(id) { clearStoredPhoto('team_' + id); this.bump(); }
+
   // Fase 6M: Servicios reales — mismo patrón que Proyectos (getExtraList/
   // setExtraList('servicios')), sin foto: el ícono es texto fijo de SERVICE_ICONS.
   setServicioField(k) {
@@ -4361,6 +4539,7 @@ class Component extends DCLogic {
         : (st.sec === 'utv' && (st.editingVehIsExtra || st.editingVehBaseId)) ? 'Editar UTV'
         : (st.sec === 'accesorios' && (st.editingProdIsExtra || st.editingProdBaseId)) ? 'Editar accesorio'
         : (st.sec === 'proyectos' && st.editingProyectoId) ? 'Editar proyecto'
+        : (st.sec === 'equipo' && st.editingEquipoId) ? 'Editar persona'
         : (st.sec === 'servicios' && (st.editingServicioId || st.editingServicioBaseId)) ? 'Editar servicio'
         : s.add,
       openAdd: st.sec === 'ajustes' ? () => this.openEditSettings() : () => this.openAdd(),
@@ -4412,6 +4591,7 @@ class Component extends DCLogic {
       ...this.buildDashboardViewModel(st),
       ...this.buildAjustesViewModel(st),
       ...this.buildProyectosViewModel(st),
+      ...this.buildEquipoViewModel(st),
       ...this.buildServiciosViewModel(st),
     };
   }
@@ -4496,6 +4676,50 @@ class Component extends DCLogic {
       proyectoDeleteTargetTitulo: deleteTarget ? deleteTarget.titulo : '',
       cancelDeleteProyecto: () => this.cancelDeleteProyecto(),
       confirmDeleteProyecto: () => this.confirmDeleteProyecto(),
+    };
+  }
+
+  // Fase 6R: Equipo real — vista propia (isEquipoSection), mismo patrón que
+  // Proyectos, sin búsqueda (lista corta de personas del taller).
+  buildEquipoViewModel(st) {
+    const isEquipoSection = st.sec === 'equipo';
+    const allEquipo = getExtraList('equipo').filter(isRealRecord);
+    const sorted = allEquipo.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    const equipoStats = [
+      ['Total', String(allEquipo.length)],
+      ['Publicados', String(allEquipo.filter((m) => m.publicado).length)],
+      ['Borradores', String(allEquipo.filter((m) => !m.publicado).length)],
+    ];
+    const equipoRows = sorted.map((m) => {
+      const photo = getStoredPhoto('team_' + m.id);
+      const isUploading = !!this.state.uploadingIds['team_' + m.id];
+      return {
+        id: m.id,
+        nombre: m.nombre,
+        cargo: m.cargo || '—',
+        publicadoLabel: m.publicado ? 'Publicado' : 'Borrador',
+        publicadoFg: m.publicado ? COLOR_SUCCESS : '#E0B063',
+        hasPhoto: !!photo,
+        thumb: photo,
+        inputId: 'equipo-photo-' + m.id,
+        isUploading,
+        uploadLabelText: isUploading ? 'Procesando…' : 'Foto',
+        onUpload: (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; this.uploadEquipoPhoto(m.id, f); },
+        onRemovePhoto: () => this.removeEquipoPhoto(m.id),
+        edit: () => this.editEquipo(m.id),
+        remove: () => this.requestDeleteEquipo(m.id),
+      };
+    });
+    const deleteTarget = st.equipoDeleteConfirmId ? this.findEquipoById(st.equipoDeleteConfirmId) : null;
+    return {
+      isEquipoSection,
+      ...(isEquipoSection ? { stats: equipoStats.map(([k, v]) => ({ k, v })) } : {}),
+      equipoRows,
+      noEquipo: allEquipo.length === 0,
+      equipoDeleteConfirmOpen: !!deleteTarget,
+      equipoDeleteTargetNombre: deleteTarget ? deleteTarget.nombre : '',
+      cancelDeleteEquipo: () => this.cancelDeleteEquipo(),
+      confirmDeleteEquipo: () => this.confirmDeleteEquipo(),
     };
   }
 
@@ -5625,6 +5849,16 @@ class Component extends DCLogic {
       },
       proyectoWizardOnRemove: () => { if (proyectoWizardId) this.removeProyectoPhoto(proyectoWizardId); },
       proyectoGallerySlots,
+      // Fase 6R
+      isAddEquipo: !st.clientQuickCreateFor && st.sec === 'equipo',
+      equipoForm: st.equipoForm,
+      equipoErrors: st.equipoErrors,
+      isEditingEquipo: !!st.editingEquipoId,
+      equipoSubmitLabel: st.editingEquipoId ? 'Guardar cambios' : 'Agregar persona',
+      setEquipoNombre: this.setEquipoField('nombre'),
+      setEquipoCargo: this.setEquipoField('cargo'),
+      setEquipoPublicado: this.setEquipoField('publicado'),
+      submitEquipo: () => this.submitEquipo(),
       // Fase 6M
       isAddServicio: !st.clientQuickCreateFor && st.sec === 'servicios',
       servicioForm: st.servicioForm,
