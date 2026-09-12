@@ -95,7 +95,22 @@
        en una sola columna (sidebar arriba, contenido abajo) para que nada
        quede ilegible ni recortado. */
     .pa-shell { grid-template-columns: 1fr !important; }
+    /* Fase 6S: el <aside> de escritorio (menú vertical completo) se
+       reemplaza en móvil por una barra de chips horizontal fija arriba —
+       antes había que hacer scroll por los 12 botones del menú para
+       llegar al Dashboard. */
+    .pa-aside-desktop { display: none !important; }
+    .pa-mobile-header { display: block !important; margin: 0 -30px !important; }
+    main { padding-top: 0 !important; }
   }
+  .pa-mobile-header { display: none; position: sticky; top: 0; z-index: 15; background: #0A0A0C; border-bottom: 1px solid #1A1B1F; }
+  .pa-mobile-topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; }
+  .pa-mobile-chipbar { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 12px; scrollbar-width: thin; scrollbar-color: #E11623 transparent; }
+  .pa-mobile-chipbar::-webkit-scrollbar { height: 4px; }
+  .pa-mobile-chipbar::-webkit-scrollbar-track { background: transparent; }
+  .pa-mobile-chipbar::-webkit-scrollbar-thumb { background: #E11623; border-radius: 2px; }
+  .pa-chip { flex-shrink: 0; display: flex; align-items: center; gap: 7px; padding: 9px 13px; border-radius: 20px; font: 600 12px/1 Barlow; white-space: nowrap; cursor: pointer; }
+  .pa-chip-badge { font: 700 9px/1 'JetBrains Mono'; padding: 2px 5px; border-radius: 7px; }
   /* iOS/Safari ignora background/border/padding en <select> y siempre lo
      dibuja como píldora redondeada nativa — al lado de los <input> cuadrados
      de la misma fila se ve como si fueran de dos sitios distintos. Se apaga
@@ -152,8 +167,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
   </sc-for>
 </div>
 <div data-pa-view="1" class="pa-shell" style="display:grid;grid-template-columns:minmax(0,240px) 1fr;min-height:100vh">
-  <!-- sidebar -->
-  <aside style="background:#0A0A0C;border-right:1px solid #1A1B1F;padding:22px 16px;display:flex;flex-direction:column;gap:26px">
+  <!-- sidebar (solo escritorio — en móvil la reemplaza .pa-mobile-header) -->
+  <aside class="pa-aside-desktop" style="background:#0A0A0C;border-right:1px solid #1A1B1F;padding:22px 16px;display:flex;flex-direction:column;gap:26px">
     <a href="Jalip Motorsport.dc.html" class="pa-h3" style="display:flex;align-items:baseline;gap:2px;color:#F2F3F5">
       <span style="font-family:Saira;font-weight:900;font-size:20px;font-style:italic">JAL</span>
       <span style="font-family:Saira;font-weight:900;font-size:20px;font-style:italic;color:#E11623">IP</span>
@@ -177,6 +192,32 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 
   <!-- main -->
   <main style="padding:26px 30px 60px;min-width:0">
+    <!-- Fase 6S: header móvil — logo + salir arriba, chips de navegación
+         horizontal debajo, ambos "sticky" para que el Dashboard (o la
+         sección activa) esté siempre visible al entrar, sin tener que
+         hacer scroll por un menú vertical largo primero. Solo escritorio
+         usa el <aside>; esto reemplaza al aside en móvil (ver @media 640px). -->
+    <div class="pa-mobile-header">
+      <div class="pa-mobile-topbar">
+        <a href="Jalip Motorsport.dc.html" style="display:flex;align-items:baseline;gap:2px;color:#F2F3F5;text-decoration:none">
+          <span style="font-family:Saira;font-weight:900;font-size:18px;font-style:italic">JAL</span>
+          <span style="font-family:Saira;font-weight:900;font-size:18px;font-style:italic;color:#E11623">IP</span>
+          <span style="font-family:Saira;font-weight:600;font-size:7px;letter-spacing:.32em;color:#8B8D93;margin-left:4px">ADMIN</span>
+        </a>
+        <button onClick="{{ lock }}" aria-label="Salir" style="background:none;border:1px solid #24262B;color:#8B8D93;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="log-out" style="width:15px;height:15px"></i></button>
+      </div>
+      <nav class="pa-mobile-chipbar">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="12">
+          <button id="pa-chip-{{ n.key }}" onClick="{{ n.pick }}" class="pa-chip" style="background:{{ n.chipBg }};border:1px solid {{ n.chipBorder }};color:{{ n.chipFg }}">
+            <i data-lucide="{{ n.icon }}" style="width:14px;height:14px"></i>{{ n.label }}
+            <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}">
+              <span class="pa-chip-badge" style="background:{{ n.chipBadgeBg }};color:{{ n.chipBadgeFg }}">{{ n.badge }}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </nav>
+    </div>
+
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:26px">
       <h1 style="font-family:Saira;font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0">{{ title }}</h1>
       <span style="flex:1;height:1px;background:#1A1B1F;min-width:30px"></span>
@@ -2657,7 +2698,7 @@ const ADMIN_PASSWORD = 'jalip2026';
 
 class Component extends DCLogic {
   state = {
-    locked: true, sec: 'citas', tick: 0, photoSearch: '',
+    locked: true, sec: 'dashboard', tick: 0, photoSearch: '',
     // Fase 6K: sub-vista de UTV — Inventario (fotos/precio, ya existía) vs
     // Evaluaciones (solicitudes reales de "Venta de tu UTV" del sitio público)
     utvSubTab: 'inventario',
@@ -2757,6 +2798,13 @@ class Component extends DCLogic {
       sec: key, photoSearch: '', clientSearch: '', pedidoSearch: '', pedidoStatusFilter: '',
       citaSearch: '', citaStatusFilter: '', cotizSearch: '', cotizStatusFilter: '', utvSubTab: 'inventario',
       clientPage: 1, pedidoPage: 1,
+    });
+    // Fase 6S: el chip del nav móvil puede quedar fuera de vista si la fila
+    // scrollea horizontalmente — se centra automáticamente al cambiar de
+    // sección, igual que una barra de pestañas nativa.
+    requestAnimationFrame(() => {
+      const el = document.getElementById('pa-chip-' + key);
+      if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     });
   }
 
@@ -4521,12 +4569,21 @@ class Component extends DCLogic {
       ...this.buildNoticesViewModel(st),
       ...this.buildAuthViewModel(st),
       nav: ORDER.map((k) => ({
+        key: k,
         label: SECTIONS[k].label,
         icon: SECTIONS[k].icon,
         badge: SECTIONS[k].badge || false,
         bg: st.sec === k ? '#131418' : 'transparent',
         bar: st.sec === k ? '#E11623' : 'transparent',
         fg: st.sec === k ? '#F2F3F5' : '#8B8D93',
+        // Fase 6S: chip horizontal del nav móvil — activo en rojo sólido
+        // (más visible en una píldora que el tinte sutil de la barra lateral
+        // de escritorio), inactivo en tono oscuro neutro.
+        chipBg: st.sec === k ? '#E11623' : '#0D0E10',
+        chipBorder: st.sec === k ? '#E11623' : '#24262B',
+        chipFg: st.sec === k ? '#fff' : '#8B8D93',
+        chipBadgeBg: st.sec === k ? 'rgba(255,255,255,.25)' : '#E11623',
+        chipBadgeFg: '#fff',
         pick: () => this.goToSection(k),
       })),
       title: s.title,
