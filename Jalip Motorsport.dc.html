@@ -191,9 +191,17 @@
 
   .jm-hero-img { object-position: center center; }
   .jm-hero-ov { background: linear-gradient(90deg, rgba(4,5,6,.96) 0%, rgba(4,5,6,.82) 25%, rgba(4,5,6,.35) 52%, rgba(4,5,6,.05) 100%); }
+  .jm-hero-base-ov { background: linear-gradient(180deg,rgba(8,8,10,.72) 0%,rgba(8,8,10,.35) 35%,rgba(8,8,10,.92) 82%,#08080A 100%); }
   @media (max-width: 768px) {
-    .jm-hero-img { object-position: 80% center; }
-    .jm-hero-ov { background: linear-gradient(0deg, rgba(4,5,6,.97) 0%, rgba(4,5,6,.72) 55%, rgba(4,5,6,.18) 100%); }
+    /* el UTV queda casi invisible detrás de dos capas de degradado oscuro
+       pensadas para desktop — en móvil se aclaran para que el Can-Am se
+       distinga, y se recorta un poco menos hacia el borde (80%→65%). */
+    .jm-hero-img { object-position: 65% center; }
+    .jm-hero-ov { background: linear-gradient(0deg, rgba(4,5,6,.85) 0%, rgba(4,5,6,.5) 55%, rgba(4,5,6,.08) 100%); }
+    .jm-hero-base-ov { background: linear-gradient(180deg,rgba(8,8,10,.55) 0%,rgba(8,8,10,.2) 35%,rgba(8,8,10,.85) 82%,#08080A 100%); }
+    .jm-hero-sec { min-height: 82vh !important; }
+    .jm-hero-inner { padding-top: 88px !important; }
+    .jm-hero-title { font-size: clamp(30px,9vw,38px) !important; }
   }
 
   .jm-mod-hero { display:grid; grid-template-columns: 2.125fr 1fr; gap:24px; align-items:stretch; margin-bottom:32px; }
@@ -458,17 +466,17 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 </sc-if>
 
 <!-- ══ HERO ══ -->
-<section id="inicio" style="position:relative;min-height:calc(100vh - 113px);display:flex;align-items:flex-end;overflow:hidden;border-bottom:1px solid #191A1E">
+<section id="inicio" class="jm-hero-sec" style="position:relative;min-height:calc(100vh - 113px);display:flex;align-items:flex-end;overflow:hidden;border-bottom:1px solid #191A1E">
   <img src="assets/hero-utv-jalip.webp" alt="Can-Am UTV modificado por Jalip Motorsport en pista de tierra al atardecer" class="jm-hero-img" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.72) 0%,rgba(8,8,10,.35) 35%,rgba(8,8,10,.92) 82%,#08080A 100%)"></div>
+  <div class="jm-hero-base-ov" style="position:absolute;inset:0"></div>
   <div class="jm-hero-ov" style="position:absolute;inset:0"></div>
   <div style="position:absolute;inset:0;opacity:.35;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 6px)"></div>
-  <div style="position:relative;z-index:2;max-width:1360px;margin:0 auto;padding:120px 24px 72px;width:100%" data-reveal>
+  <div class="jm-hero-inner" style="position:relative;z-index:2;max-width:1360px;margin:0 auto;padding:120px 24px 72px;width:100%" data-reveal>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
       <span style="height:2px;width:44px;background:#E11623"></span>
       <span style="font:600 11px/1 Barlow;letter-spacing:.28em;text-transform:uppercase;color:#FF3B47" data-en="Tamboril · Santiago · Dominican Republic">Tamboril · Santiago · Rep. Dominicana</span>
     </div>
-    <h1 style="font-family:Saira;font-weight:900;font-size:clamp(40px,7.2vw,92px);line-height:.94;letter-spacing:-.03em;margin:0 0 24px;max-width:16ch;text-wrap:balance">
+    <h1 class="jm-hero-title" style="font-family:Saira;font-weight:900;font-size:clamp(40px,7.2vw,92px);line-height:.94;letter-spacing:-.03em;margin:0 0 24px;max-width:16ch;text-wrap:balance">
       <span data-en="Take your UTV">Lleva tu UTV</span><br><span style="color:#E11623" data-en="to the next level">al próximo nivel</span>
     </h1>
     <p style="font-size:clamp(16px,1.5vw,20px);line-height:1.6;color:#B9BBC1;max-width:56ch;margin:0 0 26px;text-wrap:pretty" data-en="Sales, service, parts and custom fabrication to turn your UTV into a one-of-a-kind machine.">Venta, mantenimiento, accesorios y modificaciones personalizadas para convertir tu UTV en una máquina única.</p>
