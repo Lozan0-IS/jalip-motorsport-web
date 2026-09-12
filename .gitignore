@@ -1,0 +1,16 @@
+# Claude Code / Design Canvas internal files — not part of the deployed site
+.claude/
+canvas.json
+.thumbnail
+
+# Internal working notes — never published (unrelated business/reference notes)
+Notas y Referencias - Repuesto Facturacion.md
+
+# Stale pre-built exports — superseded by the live .dc.html source files
+dist/
+
+# Describes the old, now-replaced Next.js scaffold — not accurate for this site
+github.md
+
+# Unused/stale local uploads not referenced by the site
+uploads/
