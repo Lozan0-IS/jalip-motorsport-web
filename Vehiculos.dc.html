@@ -169,7 +169,7 @@
       transition:opacity .18s ease-out,transform .18s ease-out,visibility 0s linear .18s }
     [data-nav][data-open="true"] { opacity:1; transform:none; visibility:visible; pointer-events:auto;
       transition:opacity .18s ease-out,transform .18s ease-out,visibility 0s linear 0s }
-    [data-nav] > a { padding:15px 6px; border-bottom:1px solid #16171B; font-size:14px !important }
+    [data-nav] > a, [data-nav] > button { padding:15px 6px; border-bottom:1px solid #16171B; font-size:14px !important; text-align:left; width:100% }
     [data-desktop-only] { display:none !important }
   }
   @media (max-width: 1180px) and (prefers-reduced-motion: reduce) {
@@ -386,7 +386,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <a href="Accesorios.dc.html" class="jm-h7" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Parts">Accesorios</a>
       <a href="Jalip%20Motorsport.dc.html#modificaciones" class="jm-h8" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Portfolio">Portafolio</a>
       <a href="Jalip%20Motorsport.dc.html#servicios" class="jm-h9" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Services">Servicios</a>
-      <a href="Jalip%20Motorsport.dc.html#servicios" class="jm-h10" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Quote">Cotizar</a>
+      <button type="button" onClick="{{ navOpenQuote }}" class="jm-h10" style="background:none;border:none;cursor:pointer;font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Quote">Cotizar</button>
       <a href="Jalip%20Motorsport.dc.html#contacto" class="jm-h12" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Contact">Contacto</a>
     </nav>
     <button type="button" data-desktop-only="1" onClick="{{ toggleCart }}" aria-label="Carrito de cotización" style="position:relative;flex-shrink:0;background:none;border:1px solid #3A3C42;border-radius:999px;color:#F2F3F5;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer">
@@ -1648,6 +1648,11 @@ class Component extends DCLogic {
       menuIcon: st.menuOpen ? 'x' : 'menu',
       toggleMenu: () => this.setState((s) => ({ menuOpen: !s.menuOpen })),
       closeMenu: () => { if (this.state.menuOpen) this.setState({ menuOpen: false }); },
+
+      // "Cotizar" en el nav principal abre el modal de cotización real
+      // directo — antes apuntaba a la misma sección de Servicios que el
+      // link "Servicios" del nav, que solo hacía scroll en la home.
+      navOpenQuote: () => this.startQuote('Sitio web', 'Cotización general solicitada desde el menú principal', 'Hola Jalip Motorsport, quiero cotizar.'),
 
       // i18n
       langLabel: st.en ? 'ES' : 'EN',

@@ -427,7 +427,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <a href="Accesorios.dc.html" class="jm-h7" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Parts">Accesorios</a>
       <a href="#modificaciones" class="jm-h8" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Portfolio">Portafolio</a>
       <a href="#servicios" class="jm-h9" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Services">Servicios</a>
-      <a href="#servicios" class="jm-h10" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Quote">Cotizar</a>
+      <button type="button" onClick="{{ navOpenQuote }}" class="jm-h10" style="background:none;border:none;cursor:pointer;font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Quote">Cotizar</button>
       <a href="#contacto" class="jm-h12" style="font:600 13px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;color:#E4E4E7;padding:10px 10px" data-en="Contact">Contacto</a>
     </nav>
     <button type="button" data-desktop-only="1" onClick="{{ toggleCart }}" aria-label="Carrito de cotización" style="position:relative;flex-shrink:0;background:none;border:1px solid #3A3C42;border-radius:999px;color:#F2F3F5;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer">
@@ -2062,6 +2062,11 @@ class Component extends DCLogic {
       menuIcon: st.menuOpen ? 'x' : 'menu',
       toggleMenu: () => this.setState((s) => ({ menuOpen: !s.menuOpen })),
       closeMenu: () => { if (this.state.menuOpen) this.setState({ menuOpen: false }); },
+
+      // "Cotizar" en el nav principal abre el modal de cotización real
+      // directo, sin vehículo/producto/servicio de origen — antes apuntaba
+      // al mismo #servicios que el link "Servicios", que solo hace scroll.
+      navOpenQuote: () => this.startQuote('Sitio web', 'Cotización general solicitada desde el menú principal', 'Hola Jalip Motorsport, quiero cotizar.'),
 
       // i18n
       langLabel: st.en ? 'ES' : 'EN',
