@@ -609,6 +609,41 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     </div>
     </sc-if>
 
+    <!-- Fase 6W: Usuarios del panel — vista propia (isUsuariosSection) -->
+    <sc-if value="{{ isUsuariosSection }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-start;gap:10px;background:#101114;border:1px solid #24262B;border-left:2px solid #7A4DFF;padding:14px 18px;margin-bottom:18px">
+      <i data-lucide="info" style="width:16px;height:16px;color:#7A4DFF;flex-shrink:0;margin-top:2px"></i>
+      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Cada persona aquí puede entrar al Panel Admin con su nombre y su propia contraseña. Todos tienen el mismo acceso — esto es solo para saber quién hizo cada cambio, no para restringir nada. Debe quedar siempre al menos un usuario, y no puedes eliminar el que tiene la sesión iniciada ahora mismo.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+      <sc-for list="{{ usuarioRows }}" as="ur" hint-placeholder-count="2">
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:14px;display:flex;gap:12px;align-items:center">
+          <div style="width:40px;height:40px;flex-shrink:0;background:#111214;border:1px solid #24262B;border-radius:50%;display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8B8D93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font:600 13px/1.3 Barlow;color:#F2F3F5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ur.nombre }}</span>
+              <sc-if value="{{ ur.isMe }}" hint-placeholder-val="{{ false }}">
+                <span style="font:700 8.5px/1 Barlow;letter-spacing:.06em;text-transform:uppercase;color:#7BE29A;background:#1F2B22;padding:2px 6px;flex-shrink:0">{{ ur.meBadge }}</span>
+              </sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <span style="font:500 11px/1 'JetBrains Mono';color:#8B8D93">{{ ur.passwordDisplay }}</span>
+              <button onClick="{{ ur.toggleReveal }}" style="background:none;border:none;color:#5C5E66;font:600 9.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;padding:2px">{{ ur.revealLabel }}</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button onClick="{{ ur.edit }}" style="background:none;border:1px solid #24262B;color:#F2F3F5;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Editar</button>
+            <sc-if value="{{ ur.canDelete }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ ur.remove }}" style="background:none;border:1px solid #3A1416;color:#FF8A92;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Eliminar</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
     <!-- Fase 6J (sección 11): Ajustes — vista real, lectura + edición -->
     <sc-if value="{{ isAjustesSection }}" hint-placeholder-val="{{ false }}">
     <sc-if value="{{ !editingSettings }}" hint-placeholder-val="{{ true }}">
@@ -1635,6 +1670,25 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             </div>
           </sc-if>
 
+          <sc-if value="{{ isAddUsuario }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Nombre <span style="color:#FF8A92">*</span>
+                <input id="usuario-nombre-input" value="{{ usuarioForm.name }}" onInput="{{ setUsuarioNombre }}" placeholder="Ej. Israel" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+                <sc-if value="{{ usuarioErrors.name }}" hint-placeholder-val="{{ false }}">
+                  <span style="color:#FF8A92;font-size:12px">{{ usuarioErrors.name }}</span>
+                </sc-if>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Contraseña <span style="color:#FF8A92">*</span>
+                <input value="{{ usuarioForm.password }}" onInput="{{ setUsuarioPassword }}" placeholder="Elige una contraseña" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px;font-family:'JetBrains Mono'">
+                <sc-if value="{{ usuarioErrors.password }}" hint-placeholder-val="{{ false }}">
+                  <span style="color:#FF8A92;font-size:12px">{{ usuarioErrors.password }}</span>
+                </sc-if>
+              </label>
+              <button onClick="{{ submitUsuario }}" style="margin-top:8px;background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer">{{ usuarioSubmitLabel }}</button>
+              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Esta persona podrá iniciar sesión en este Panel Admin eligiendo su nombre en la pantalla de acceso. La contraseña queda guardada en este navegador tal cual la escribas — no es seguridad real, es solo para saber quién hizo cada cambio.</p>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ isAddCliente }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:12px">
               <sc-if value="{{ isQuickCreatingClient }}" hint-placeholder-val="{{ false }}">
@@ -2334,6 +2388,20 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </div>
     </sc-if>
 
+    <!-- Fase 6W: confirmar eliminación de un usuario del panel -->
+    <sc-if value="{{ usuarioDeleteConfirmOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;z-index:300;background:rgba(4,4,6,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ cancelDeleteUsuario }}">
+        <div role="dialog" aria-modal="true" aria-label="Confirmar eliminación de usuario" style="background:#0D0E10;border:1px solid #24262B;max-width:400px;width:100%;padding:26px" onClick="{{ stopProp }}">
+          <h3 style="font-family:Saira;font-weight:700;font-size:17px;margin:0 0 12px">Eliminar usuario</h3>
+          <p style="margin:0 0 20px;font-size:13.5px;line-height:1.6;color:#B9BBC1">¿Deseas quitarle el acceso al panel a "{{ usuarioDeleteTargetNombre }}"? Esta acción no se puede deshacer.</p>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button onClick="{{ cancelDeleteUsuario }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Volver</button>
+            <button onClick="{{ confirmDeleteUsuario }}" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Eliminar usuario</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- Fase 6M/6N: confirmar eliminación (extra) u ocultamiento (servicio de
          fábrica) — mismo diálogo, texto según servicioDeleteIsExtra -->
     <sc-if value="{{ servicioDeleteConfirmOpen }}" hint-placeholder-val="{{ false }}">
@@ -2721,9 +2789,18 @@ const SECTIONS = {
     stats: [], cols: [], rows: [],
     note: 'Estos datos se guardan en este navegador (jm_admin_settings) y el sitio público los usa donde corresponda si tienen un valor propio — si un campo queda vacío, el sitio sigue mostrando su texto original.',
   },
+  usuarios: {
+    // Fase 6W: módulo real (jm_extra_usuarios) — vista propia (isUsuariosSection),
+    // mismo patrón que Equipo (getExtraList/setExtraList), sin foto. Reemplaza
+    // la lista ADMIN_USERS fija en el código: ahora se puede agregar/editar/
+    // quitar usuarios desde aquí mismo, sin tocar el código fuente.
+    label: 'Usuarios', icon: 'users', badge: '', title: 'Usuarios del panel', add: 'Agregar usuario',
+    stats: [], cols: [], rows: [],
+    note: 'Cada persona aquí puede iniciar sesión en este Panel Admin con su nombre y su propia contraseña. Todos tienen el mismo acceso — esto es solo para saber quién hizo cada cambio, no para restringir nada. Sigue sin ser seguridad real: la contraseña vive en este navegador, cualquiera que abra el código fuente puede leerla.',
+  },
 };
 
-const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv', 'accesorios', 'proyectos', 'servicios', 'equipo', 'guardadas', 'ajustes'];
+const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv', 'accesorios', 'proyectos', 'servicios', 'equipo', 'guardadas', 'ajustes', 'usuarios'];
 
 // price y description faltaban aquí — submitVehicle() llama f.description.trim()
 // sin protección, así que publicar un UTV nuevo sin tocar esos dos campos
@@ -2815,6 +2892,18 @@ const ADMIN_USERS = [
   { name: 'Israel', password: 'jalip2026' },
   { name: 'Taller', password: 'taller2026' },
 ];
+// Fase 6W: gestión real de usuarios desde el panel (jm_extra_usuarios) — antes
+// ADMIN_USERS era la única fuente, fija en el código, sin forma de agregar o
+// quitar a nadie sin editar el archivo. Ahora ADMIN_USERS es solo la semilla
+// inicial: en cuanto se crea/edita/elimina un usuario desde el panel, la
+// lista completa (semilla + cambios) queda guardada en localStorage y
+// getEffectiveUsers() la usa de ahí en adelante en vez de la constante.
+function getEffectiveUsers() {
+  const stored = getExtraList('usuarios').filter(isRealRecord);
+  if (stored.length) return stored;
+  return ADMIN_USERS.map((u, i) => ({ id: 'user_seed_' + i, name: u.name, password: u.password }));
+}
+const BLANK_USUARIO_FORM = { name: '', password: '' };
 
 class Component extends DCLogic {
   state = {
@@ -2822,7 +2911,10 @@ class Component extends DCLogic {
     // Fase 6K: sub-vista de UTV — Inventario (fotos/precio, ya existía) vs
     // Evaluaciones (solicitudes reales de "Venta de tu UTV" del sitio público)
     utvSubTab: 'inventario',
-    loginPassword: '', loginError: '', loginUserName: ADMIN_USERS[0].name, loggedInUser: '',
+    loginPassword: '', loginError: '', loginUserName: (getEffectiveUsers()[0] || {}).name || '', loggedInUser: '',
+    // módulo Usuarios (Fase 6W)
+    usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {}, editingUsuarioId: '',
+    usuarioDeleteConfirmId: '', usuarioRevealed: {},
     addOpen: false, vehForm: { ...BLANK_VEH_FORM }, citaForm: { ...BLANK_CITA_FORM },
     prodForm: { ...BLANK_PROD_FORM }, cotizForm: { ...BLANK_COTIZ_FORM },
     vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {},
@@ -3016,20 +3108,21 @@ class Component extends DCLogic {
 
   openAdd() {
     const sec = this.state.sec;
-    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios' && sec !== 'equipo') {
+    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios' && sec !== 'equipo' && sec !== 'usuarios') {
       this.showAdminNotice('Esta sección todavía no tiene formulario de alta.', 'info');
       return;
     }
     // sec === 'clientes' entra aquí siempre en modo "crear" — editar un cliente
     // existente pasa por openEditClient(), que arma su propio addOpen:true.
     // Lo mismo aplica a 'pedidos' con openEditPedido(), 'proyectos' con
-    // editProyecto() y 'servicios' con editServicio().
+    // editProyecto(), 'servicios' con editServicio() y 'usuarios' con editUsuario().
     this.setState({
       addOpen: true, vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {}, proyectoErrors: {}, servicioErrors: {},
       vehForm: { ...BLANK_VEH_FORM }, citaForm: { ...BLANK_CITA_FORM }, prodForm: { ...BLANK_PROD_FORM }, cotizForm: { ...BLANK_COTIZ_FORM },
       proyectoForm: { ...BLANK_PROYECTO_FORM }, editingProyectoId: '', proyectoStep: 1,
       equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {}, editingEquipoId: '',
       servicioForm: { ...BLANK_SERVICIO_FORM }, editingServicioId: '', editingServicioBaseId: '',
+      usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {}, editingUsuarioId: '',
       editingVehIsExtra: false, editingVehBaseId: '', editingVehExtraId: '', vehStep: 1,
       editingProdIsExtra: false, editingProdBaseId: '', editingProdExtraId: '',
       editingCitaId: '', editingCotizId: '', citaClientId: '', citaClientQuery: '', cotizClientId: '', cotizClientQuery: '',
@@ -3044,10 +3137,10 @@ class Component extends DCLogic {
   }
   closeAdd() {
     this.setState({
-      addOpen: false, vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {}, proyectoErrors: {}, servicioErrors: {},
+      addOpen: false, vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {}, proyectoErrors: {}, servicioErrors: {}, usuarioErrors: {},
       editingVehIsExtra: false, editingVehBaseId: '', editingVehExtraId: '', vehStep: 1,
       editingProdIsExtra: false, editingProdBaseId: '', editingProdExtraId: '',
-      editingCitaId: '', editingCotizId: '', editingProyectoId: '', proyectoStep: 1, editingEquipoId: '', editingServicioId: '', editingServicioBaseId: '',
+      editingCitaId: '', editingCotizId: '', editingProyectoId: '', proyectoStep: 1, editingEquipoId: '', editingServicioId: '', editingServicioBaseId: '', editingUsuarioId: '',
       clientErrors: {}, editingClientId: '', clientDuplicate: null, clientDuplicateConfirmed: false,
       clientQuickCreateFor: '', citaClientId: '', citaClientQuery: '', cotizClientId: '', cotizClientQuery: '',
       pedidoClientId: '', pedidoClientQuery: '', editingPedidoId: '', pedidoConvertFromCotizId: '',
@@ -3530,11 +3623,11 @@ class Component extends DCLogic {
 
   attemptUnlock() {
     const name = this.state.loginUserName;
-    const user = ADMIN_USERS.find((u) => u.name === name);
+    const user = getEffectiveUsers().find((u) => u.name === name);
     if (user && this.state.loginPassword === user.password) {
       this.setState({ locked: false, loginPassword: '', loginError: '', loggedInUser: user.name });
     } else {
-      this.setState({ loginError: 'Contraseña incorrecta.' });
+      this.setState({ loginError: 'Usuario o contraseña incorrectos.' });
     }
   }
 
@@ -4487,6 +4580,105 @@ class Component extends DCLogic {
   }
   removeEquipoPhoto(id) { clearStoredPhoto('team_' + id); this.bump(); }
 
+  // Fase 6W: Usuarios del panel — mismo patrón que Equipo (getExtraList/
+  // setExtraList('usuarios')), sin foto. Reemplaza la constante ADMIN_USERS
+  // fija en el código: getEffectiveUsers() usa lo guardado aquí en cuanto
+  // exista algo, y cae de vuelta a ADMIN_USERS solo si nunca se ha tocado.
+  setUsuarioField(k) {
+    return (e) => {
+      const val = e.target.value;
+      this.setState((s) => ({ usuarioForm: { ...s.usuarioForm, [k]: val }, usuarioErrors: { ...s.usuarioErrors, [k]: '' } }));
+    };
+  }
+  findUsuarioById(id) { return getEffectiveUsers().find((u) => u && u.id === id) || null; }
+  editUsuario(id) {
+    const u = this.findUsuarioById(id);
+    if (!u) return;
+    this.setState({
+      addOpen: true, usuarioErrors: {}, editingUsuarioId: id,
+      usuarioForm: { name: u.name || '', password: u.password || '' },
+    });
+  }
+  submitUsuario() {
+    if (this._submittingUsuario) return;
+    const f = this.state.usuarioForm;
+    const name = f.name.trim();
+    if (!name) {
+      this.setState({ usuarioErrors: { name: 'El nombre es obligatorio.' } });
+      const el = document.getElementById('usuario-nombre-input');
+      if (el) el.focus();
+      return;
+    }
+    if (!f.password.trim()) {
+      this.setState({ usuarioErrors: { password: 'La contraseña es obligatoria.' } });
+      return;
+    }
+    const editingId = this.state.editingUsuarioId;
+    const list = getEffectiveUsers();
+    const duplicate = list.find((u) => u.id !== editingId && u.name.trim().toLowerCase() === name.toLowerCase());
+    if (duplicate) {
+      this.setState({ usuarioErrors: { name: 'Ya existe un usuario con ese nombre.' } });
+      return;
+    }
+    this._submittingUsuario = true;
+    try {
+      const now = new Date().toISOString();
+      const fields = { name, password: f.password.trim() };
+      if (editingId) {
+        const idx = list.findIndex((u) => u.id === editingId);
+        if (idx === -1) { this.showAdminNotice('Este usuario ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
+        const wasMe = list[idx].name === this.state.loggedInUser;
+        list[idx] = { ...list[idx], ...fields, updatedAt: now, updatedBy: this.state.loggedInUser };
+        if (setExtraList('usuarios', list)) {
+          this.setState({
+            addOpen: false, usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {}, editingUsuarioId: '',
+            // si te editaste a ti mismo (ej. cambiaste tu propio nombre), la
+            // sesión actual y el selector de login se actualizan con el nombre
+            // nuevo, para que la atribución del resto de esta sesión no quede
+            // apuntando a un nombre que ya no existe.
+            ...(wasMe ? { loggedInUser: name, loginUserName: name } : {}),
+          });
+          this.showAdminNotice('Usuario actualizado.', 'success');
+        } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+      } else {
+        list.push({ id: 'user' + Date.now(), ...fields, createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
+        if (setExtraList('usuarios', list)) {
+          this.setState({ addOpen: false, usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {} });
+          this.showAdminNotice('"' + name + '" ahora tiene acceso al panel.', 'success');
+        } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+      }
+    } finally { this._submittingUsuario = false; }
+  }
+  requestDeleteUsuario(id) {
+    const target = this.findUsuarioById(id);
+    if (!target) return;
+    if (target.name === this.state.loggedInUser) {
+      this.showAdminNotice('No puedes eliminar tu propio usuario mientras tienes la sesión iniciada.', 'error');
+      return;
+    }
+    if (getEffectiveUsers().length <= 1) {
+      this.showAdminNotice('Debe quedar al menos un usuario con acceso al panel.', 'error');
+      return;
+    }
+    this.setState({ usuarioDeleteConfirmId: id });
+  }
+  cancelDeleteUsuario() { this.setState({ usuarioDeleteConfirmId: '' }); }
+  confirmDeleteUsuario() {
+    const id = this.state.usuarioDeleteConfirmId;
+    const list = getEffectiveUsers().filter((u) => u.id !== id);
+    if (setExtraList('usuarios', list)) {
+      this.setState({ usuarioDeleteConfirmId: '' });
+      this.bump();
+      this.showAdminNotice('Usuario eliminado.', 'success');
+    } else {
+      this.setState({ usuarioDeleteConfirmId: '' });
+      this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+    }
+  }
+  toggleUsuarioPasswordReveal(id) {
+    this.setState((s) => ({ usuarioRevealed: { ...s.usuarioRevealed, [id]: !s.usuarioRevealed[id] } }));
+  }
+
   // Fase 6M: Servicios reales — mismo patrón que Proyectos (getExtraList/
   // setExtraList('servicios')), sin foto: el ícono es texto fijo de SERVICE_ICONS.
   setServicioField(k) {
@@ -4768,6 +4960,7 @@ class Component extends DCLogic {
         : (st.sec === 'proyectos' && st.editingProyectoId) ? 'Editar proyecto'
         : (st.sec === 'equipo' && st.editingEquipoId) ? 'Editar persona'
         : (st.sec === 'servicios' && (st.editingServicioId || st.editingServicioBaseId)) ? 'Editar servicio'
+        : (st.sec === 'usuarios' && st.editingUsuarioId) ? 'Editar usuario'
         : s.add,
       openAdd: st.sec === 'ajustes' ? () => this.openEditSettings() : () => this.openAdd(),
       stats: statsLive.map(([k, v]) => ({ k, v })),
@@ -4820,6 +5013,7 @@ class Component extends DCLogic {
       ...this.buildProyectosViewModel(st),
       ...this.buildEquipoViewModel(st),
       ...this.buildServiciosViewModel(st),
+      ...this.buildUsuariosViewModel(st),
     };
   }
 
@@ -5039,6 +5233,47 @@ class Component extends DCLogic {
     };
   }
 
+  // Fase 6W: Usuarios del panel — vista propia (isUsuariosSection), mismo
+  // patrón que Equipo pero sin foto. getEffectiveUsers() ya resuelve
+  // semilla (ADMIN_USERS) vs. lista guardada — esta vista solo la muestra.
+  buildUsuariosViewModel(st) {
+    const isUsuariosSection = st.sec === 'usuarios';
+    const allUsuarios = getEffectiveUsers();
+    const usuarioStats = [['Con acceso al panel', String(allUsuarios.length)]];
+    const usuarioRows = allUsuarios.map((u) => {
+      const isMe = u.name === st.loggedInUser;
+      const revealed = !!st.usuarioRevealed[u.id];
+      return {
+        id: u.id,
+        nombre: u.name,
+        isMe,
+        meBadge: isMe ? 'Tú' : '',
+        passwordDisplay: revealed ? u.password : '••••••••',
+        toggleReveal: () => this.toggleUsuarioPasswordReveal(u.id),
+        revealLabel: revealed ? 'Ocultar' : 'Mostrar',
+        edit: () => this.editUsuario(u.id),
+        canDelete: !isMe && allUsuarios.length > 1,
+        remove: () => this.requestDeleteUsuario(u.id),
+      };
+    });
+    const deleteTarget = st.usuarioDeleteConfirmId ? this.findUsuarioById(st.usuarioDeleteConfirmId) : null;
+    return {
+      isUsuariosSection,
+      ...(isUsuariosSection ? { stats: usuarioStats.map(([k, v]) => ({ k, v })) } : {}),
+      usuarioRows,
+      usuarioDeleteConfirmOpen: !!deleteTarget,
+      usuarioDeleteTargetNombre: deleteTarget ? deleteTarget.name : '',
+      cancelDeleteUsuario: () => this.cancelDeleteUsuario(),
+      confirmDeleteUsuario: () => this.confirmDeleteUsuario(),
+      usuarioForm: st.usuarioForm,
+      usuarioErrors: st.usuarioErrors,
+      setUsuarioNombre: this.setUsuarioField('name'),
+      setUsuarioPassword: this.setUsuarioField('password'),
+      submitUsuario: () => this.submitUsuario(),
+      usuarioSubmitLabel: st.editingUsuarioId ? 'Guardar cambios' : 'Agregar usuario',
+    };
+  }
+
   // avisos internos (reemplazo de alert()) — icono/color/role según tipo
   buildNoticesViewModel(st) {
     const NOTICE_META = {
@@ -5068,7 +5303,7 @@ class Component extends DCLogic {
       hasLoginError: !!st.loginError,
       loginUserName: st.loginUserName,
       setLoginUserName: (e) => this.setState({ loginUserName: e.target.value, loginError: '' }),
-      loginUserOptions: ADMIN_USERS.map((u) => u.name),
+      loginUserOptions: getEffectiveUsers().map((u) => u.name),
       loggedInUser: st.loggedInUser,
       loggedInUserInitial: st.loggedInUser ? st.loggedInUser.charAt(0).toUpperCase() : '—',
     };
@@ -6211,6 +6446,8 @@ class Component extends DCLogic {
       setServicioIcono: this.setServicioField('icono'),
       setServicioPublicado: this.setServicioField('publicado'),
       submitServicio: () => this.submitServicio(),
+      // Fase 6W
+      isAddUsuario: !st.clientQuickCreateFor && st.sec === 'usuarios',
     };
   }
 }
