@@ -144,6 +144,11 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <h1 style="font-family:Saira;font-weight:800;font-size:22px;margin:0 0 8px">Panel administrativo</h1>
       <p style="font-size:13.5px;line-height:1.6;color:#8B8D93;margin:0 0 26px">Prototipo de interfaz con candado básico del lado del cliente — no es autenticación real.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
+        <select value="{{ loginUserName }}" onChange="{{ setLoginUserName }}" aria-label="Usuario" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:13px 14px;font-size:14.5px;cursor:pointer">
+          <sc-for list="{{ loginUserOptions }}" as="un" hint-placeholder-count="2">
+            <option value="{{ un }}">{{ un }}</option>
+          </sc-for>
+        </select>
         <input type="password" value="{{ loginPassword }}" onInput="{{ setLoginPassword }}" onKeyDown="{{ loginPasswordKeyDown }}" placeholder="Contraseña" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:13px 14px;font-size:14.5px">
         <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}">
           <span style="color:#FF8A92;font-size:12.5px">{{ loginError }}</span>
@@ -186,6 +191,10 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     </nav>
     <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
       <div style="border:1px solid #1E1F24;padding:14px;font-size:12px;line-height:1.6;color:#8B8D93">Prototipo sin base de datos. Los cambios no se guardan.</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 2px">
+        <span style="width:22px;height:22px;border-radius:50%;background:#1D1D20;color:#B9BBC1;font:700 10px/22px 'JetBrains Mono';text-align:center;flex-shrink:0">{{ loggedInUserInitial }}</span>
+        <span style="font:600 12px/1 Barlow;color:#B9BBC1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ loggedInUser }}</span>
+      </div>
       <button onClick="{{ lock }}" class="pa-h5" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 11px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i data-lucide="log-out" style="width:14px;height:14px"></i>Salir</button>
     </div>
   </aside>
@@ -204,7 +213,10 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           <span style="font-family:Saira;font-weight:900;font-size:18px;font-style:italic;color:#E11623">IP</span>
           <span style="font-family:Saira;font-weight:600;font-size:7px;letter-spacing:.32em;color:#8B8D93;margin-left:4px">ADMIN</span>
         </a>
-        <button onClick="{{ lock }}" aria-label="Salir" style="background:none;border:1px solid #24262B;color:#8B8D93;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="log-out" style="width:15px;height:15px"></i></button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1D1D20;color:#B9BBC1;font:700 10px/22px 'JetBrains Mono';text-align:center;flex-shrink:0">{{ loggedInUserInitial }}</span>
+          <button onClick="{{ lock }}" aria-label="Salir" style="background:none;border:1px solid #24262B;color:#8B8D93;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="log-out" style="width:15px;height:15px"></i></button>
+        </div>
       </div>
       <nav class="pa-mobile-chipbar">
         <sc-for list="{{ nav }}" as="n" hint-placeholder-count="12">
@@ -275,6 +287,72 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </div>
     </sc-if>
     <sc-if value="{{ !noCitas }}" hint-placeholder-val="{{ true }}">
+    <!-- Fase 6U: toggle Calendario/Lista — el calendario es la vista principal
+         nueva, la tabla con búsqueda/filtro/orden de siempre sigue intacta
+         para cuando haga falta buscar algo puntual. -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button onClick="{{ setCitaViewCalendar }}" style="background:{{ citaViewCalBg }};border:1px solid {{ citaViewCalBorder }};color:{{ citaViewCalFg }};font:700 11px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px"><i data-lucide="calendar-days" style="width:14px;height:14px"></i>Calendario</button>
+      <button onClick="{{ setCitaViewList }}" style="background:{{ citaViewListBg }};border:1px solid {{ citaViewListBorder }};color:{{ citaViewListFg }};font:700 11px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px"><i data-lucide="list" style="width:14px;height:14px"></i>Lista</button>
+    </div>
+
+    <sc-if value="{{ citaViewIsCalendar }}" hint-placeholder-val="{{ true }}">
+    <div style="border:1px solid #1A1B1F;background:#0D0E10;padding:18px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h3 style="font-family:Saira;font-weight:800;font-size:18px;margin:0">{{ citaCalMonthLabel }}</h3>
+        <div style="display:flex;gap:6px">
+          <button onClick="{{ citaCalToday }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 10px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer">Hoy</button>
+          <button onClick="{{ citaCalPrevMonth }}" aria-label="Mes anterior" style="background:none;border:1px solid #24262B;color:#8B8D93;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="chevron-left" style="width:15px;height:15px"></i></button>
+          <button onClick="{{ citaCalNextMonth }}" aria-label="Mes siguiente" style="background:none;border:1px solid #24262B;color:#8B8D93;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="chevron-right" style="width:15px;height:15px"></i></button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#1A1B1F;border:1px solid #1A1B1F;margin-bottom:1px">
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">D</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">L</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">M</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">M</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">J</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">V</div>
+        <div style="background:#0D0E10;padding:8px 4px;text-align:center;font:700 9.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;color:#5C5E66">S</div>
+      </div>
+      <sc-for list="{{ citaCalWeeks }}" as="wk" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#1A1B1F;margin-bottom:1px">
+          <sc-for list="{{ wk.days }}" as="dy" hint-placeholder-count="7">
+            <div style="background:{{ dy.bgColor }};min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px;cursor:pointer" onClick="{{ dy.openPopover }}">
+              <span style="font:700 11px/1 'JetBrains Mono';color:{{ dy.numColor }}">{{ dy.dayNum }}</span>
+              <sc-for list="{{ dy.pills }}" as="pl" hint-placeholder-count="2">
+                <span style="font-size:9.5px;line-height:1.4;color:#0A0A0C;background:{{ pl.color }};border-radius:3px;padding:1px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pl.label }}</span>
+              </sc-for>
+              <sc-if value="{{ dy.hasExtra }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:9px;color:#5C5E66">+{{ dy.extraCount }} más</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- popover: todas las citas de un día -->
+    <sc-if value="{{ citaCalPopoverOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;z-index:300;background:rgba(4,4,6,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ closeCitaCalDayPopover }}">
+        <div role="dialog" aria-modal="true" aria-label="Citas de {{ citaCalPopoverDayLabel }}" style="background:#0D0E10;border:1px solid #24262B;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;padding:24px" onClick="{{ stopProp }}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h3 style="font-family:Saira;font-weight:700;font-size:16px;margin:0">{{ citaCalPopoverDayLabel }}</h3>
+            <button onClick="{{ closeCitaCalDayPopover }}" aria-label="Cerrar" style="background:none;border:none;color:#8B8D93;cursor:pointer"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ citaCalPopoverCitas }}" as="pc" hint-placeholder-count="3">
+              <button onClick="{{ pc.open }}" style="text-align:left;background:#101114;border:none;border-left:3px solid {{ pc.color }};color:#F2F3F5;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:4px">
+                <span style="font:600 13px/1.3 Barlow">{{ pc.label }}</span>
+                <span style="font-size:11.5px;color:#8B8D93">{{ pc.sub }} · {{ pc.estado }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ citaViewIsList }}" hint-placeholder-val="{{ false }}">
     <div style="border:1px solid #1A1B1F;background:#0D0E10;overflow-x:auto">
       <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid #16171B;flex-wrap:wrap">
         <i data-lucide="search" style="width:15px;height:15px;color:#8B8D93"></i>
@@ -327,6 +405,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <div style="padding:40px 20px;text-align:center;color:#8B8D93;font-size:13px">No se encontraron citas.</div>
       </sc-if>
     </div>
+    </sc-if>
     </sc-if>
     </sc-if>
 
@@ -958,14 +1037,18 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           </sc-if>
         </div>
 
-        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:20px;display:flex;flex-direction:column;gap:10px">
-          <span style="font:600 9.5px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#8B8D93">Actividad reciente</span>
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:20px;display:flex;flex-direction:column;gap:10px;max-height:420px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <i data-lucide="bell" style="width:13px;height:13px;color:#E11623"></i>
+            <span style="font:600 9.5px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#8B8D93">Centro de notificaciones</span>
+          </div>
           <sc-if value="{{ dashHasActivity }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;flex-direction:column;gap:2px">
-              <sc-for list="{{ dashActivityItems }}" as="ai" hint-placeholder-count="4">
-                <button type="button" onClick="{{ ai.view }}" style="text-align:left;background:none;border:none;border-bottom:1px solid #16171B;color:#B9BBC1;padding:9px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px">
-                  <span style="font-size:12.5px;color:#F2F3F5">{{ ai.label }}</span>
-                  <span style="font-size:11px;color:#8B8D93;font-family:'JetBrains Mono';white-space:nowrap">{{ ai.dateLabel }}</span>
+            <div style="display:flex;flex-direction:column;gap:2px;overflow-y:auto">
+              <sc-for list="{{ dashActivityItems }}" as="ai" hint-placeholder-count="6">
+                <button type="button" onClick="{{ ai.view }}" style="text-align:left;background:none;border:none;border-bottom:1px solid #16171B;color:#B9BBC1;padding:9px 0;cursor:pointer;display:flex;align-items:center;gap:10px">
+                  <span style="width:7px;height:7px;border-radius:50%;background:{{ ai.dotColor }};flex-shrink:0"></span>
+                  <span style="font-size:12.5px;color:#F2F3F5;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ai.label }}</span>
+                  <span style="font-size:11px;color:#8B8D93;font-family:'JetBrains Mono';white-space:nowrap;flex-shrink:0">{{ ai.dateLabel }}</span>
                 </button>
               </sc-for>
             </div>
@@ -973,7 +1056,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           <sc-if value="{{ dashNoActivity }}" hint-placeholder-val="{{ true }}">
             <span style="color:#5C5E66;font-size:13px">Sin actividad registrada todavía.</span>
           </sc-if>
-          <p style="margin:4px 0 0;font-size:11px;color:#5C5E66;line-height:1.5">Las citas creadas antes de esta función no aparecen aquí: no guardan fecha de creación, solo la fecha del servicio solicitado.</p>
+          <p style="margin:4px 0 0;font-size:11px;color:#5C5E66;line-height:1.5">Citas y clientes nuevos, cambios de estado en pedidos y citas, cotizaciones nuevas. Las citas creadas antes de esta función no aparecen: no guardan fecha de creación.</p>
         </div>
       </div>
     </sc-if>
@@ -1482,12 +1565,28 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
               <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Cargo <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional</span>
                 <input value="{{ equipoForm.cargo }}" onInput="{{ setEquipoCargo }}" placeholder="Ej. Mecánico principal" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
               </label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Foto <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional</span>
+                <div style="display:flex;gap:14px;align-items:center;margin-top:2px">
+                  <div style="width:60px;height:60px;flex-shrink:0;background:#101114;border:1px solid #24262B;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#3A3C42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                    <sc-if value="{{ equipoPhotoHasPhoto }}" hint-placeholder-val="{{ false }}">
+                      <img src="{{ equipoPhotoThumb }}" alt="Foto de la persona" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <label for="equipo-photo-input" style="background:#E11623;border:none;color:#fff;font:700 10.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:fit-content"><i data-lucide="upload" style="width:12px;height:12px"></i>{{ equipoPhotoUploadLabel }}</label>
+                    <input id="equipo-photo-input" type="file" accept="image/*" onChange="{{ equipoPhotoOnUpload }}" disabled="{{ equipoPhotoIsUploading }}" style="display:none">
+                    <sc-if value="{{ equipoPhotoHasPhoto }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ equipoPhotoOnRemove }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 10px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;cursor:pointer;width:fit-content">Quitar foto</button>
+                    </sc-if>
+                  </div>
+                </div>
+              </label>
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#B9BBC1">
                 <input type="checkbox" checked="{{ equipoForm.publicado }}" onChange="{{ setEquipoPublicado }}" style="accent-color:#E11623;width:16px;height:16px;cursor:pointer">
                 Publicado (visible en el sitio público)
               </label>
               <button onClick="{{ submitEquipo }}" style="margin-top:8px;background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer">{{ equipoSubmitLabel }}</button>
-              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">La foto se sube después desde esta misma lista.</p>
             </div>
           </sc-if>
 
@@ -1895,6 +1994,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             <div><span style="color:#8B8D93">Servicio:</span> {{ citaDetail.servicio }}</div>
             <div><span style="color:#8B8D93">Fecha:</span> {{ citaDetail.fecha }} · {{ citaDetail.hora }}</div>
             <div><span style="color:#8B8D93">Estado actual:</span> {{ citaDetail.estado }}</div>
+            <sc-if value="{{ citaDetailHasByLabel }}" hint-placeholder-val="{{ false }}">
+              <div style="color:#5C5E66;font-size:11px">{{ citaDetailByLabel }}</div>
+            </sc-if>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;padding:14px;background:#101114;border:1px solid #1E1F24;margin-bottom:12px">
             <span style="color:#8B8D93;font:600 9.5px/1 Barlow;letter-spacing:.14em;text-transform:uppercase">Cambiar estado</span>
@@ -2639,6 +2741,14 @@ const BLANK_CLIENT_VEHICLE_FORM = { marca: '', modelo: '', anio: '', color: '', 
 // acción real de cambio de estado (changeCitaStatus), así que el conjunto
 // deja de ser aspiracional.
 const CITA_STATUSES = ['Pendiente', 'Confirmada', 'Reprogramada', 'Completada', 'Cancelada'];
+// Fase 6U: colores del calendario de citas — reutiliza tonos que el propio
+// archivo ya usa para el mismo significado (verde = éxito/confirmado,
+// ámbar = pendiente/borrador, violeta = destacado/reprogramado, rojo =
+// error/cancelado, gris = neutro/completado) en vez de inventar una paleta.
+const CITA_STATUS_COLORS = {
+  Pendiente: '#E0B063', Confirmada: COLOR_SUCCESS, Reprogramada: '#B8A6FF',
+  Completada: '#8B8D93', Cancelada: '#FF8A92',
+};
 const CITA_TERMINAL_STATUSES = ['Completada', 'Cancelada'];
 // Fase 6I (sección 14): registro administrativo LOCAL de abonos — no es una
 // pasarela de pago, no procesa tarjetas, no cobra nada. Es solo el mismo tipo
@@ -2663,7 +2773,7 @@ const BLANK_SETTINGS_FORM = { businessName: '', phone: '', whatsapp: '', email: 
 // Accesorios desde Fase 6C, con foto de portada vía jm_photo_pr_<id> (mismo
 // helper getStoredPhoto/setStoredPhoto/clearStoredPhoto, sin clave nueva).
 const BLANK_PROYECTO_FORM = { titulo: '', marca: 'Can-Am', modelo: '', anio: '', descripcion: '', tags: '', publicado: false };
-const BLANK_EQUIPO_FORM = { nombre: '', cargo: '', publicado: false };
+const BLANK_EQUIPO_FORM = { nombre: '', cargo: '', publicado: false, photoDraft: '' };
 // Fase 6M: Servicios reales — mismo patrón "extra" (jm_extra_servicios) que
 // Proyectos, pero sin foto: el ícono es de una lista fija (los mismos nombres
 // de Lucide que ya usan los 9 servicios de fábrica en Jalip Motorsport.dc.html),
@@ -2694,7 +2804,17 @@ const PRODUCT_CATEGORIES = [
 // Candado básico del lado del cliente — no es seguridad real (cualquiera que
 // vea el código fuente puede leer esta contraseña). Solo evita que un visitante
 // casual entre con un clic. La autenticación real necesita backend.
-const ADMIN_PASSWORD = 'jalip2026';
+// Fase 6V: antes era una sola contraseña compartida (ADMIN_PASSWORD) sin
+// ningún concepto de identidad — nadie podía saber quién hizo qué cambio.
+// Ahora cada persona entra con su nombre + su propia clave. Sigue sin ser
+// seguridad real (mismo aviso ya mostrado en pantalla: esto vive en el
+// código del sitio, cualquiera que lo abra puede leerlo) — el objetivo es
+// solo atribuir cada registro a quien lo creó, no restringir acceso.
+// Nombres/claves de ejemplo — cámbialos aquí por los reales del equipo.
+const ADMIN_USERS = [
+  { name: 'Israel', password: 'jalip2026' },
+  { name: 'Taller', password: 'taller2026' },
+];
 
 class Component extends DCLogic {
   state = {
@@ -2702,7 +2822,7 @@ class Component extends DCLogic {
     // Fase 6K: sub-vista de UTV — Inventario (fotos/precio, ya existía) vs
     // Evaluaciones (solicitudes reales de "Venta de tu UTV" del sitio público)
     utvSubTab: 'inventario',
-    loginPassword: '', loginError: '',
+    loginPassword: '', loginError: '', loginUserName: ADMIN_USERS[0].name, loggedInUser: '',
     addOpen: false, vehForm: { ...BLANK_VEH_FORM }, citaForm: { ...BLANK_CITA_FORM },
     prodForm: { ...BLANK_PROD_FORM }, cotizForm: { ...BLANK_COTIZ_FORM },
     vehErrors: {}, citaErrors: {}, prodErrors: {}, cotizErrors: {},
@@ -2725,6 +2845,9 @@ class Component extends DCLogic {
     // Fase 6I: búsqueda/filtro/orden real + edición/eliminación/estado de Cita
     citaSearch: '', citaStatusFilter: '', citaSort: 'fecha_asc',
     editingCitaId: '', citaDeleteConfirmId: '', citaStatusDraft: '',
+    // Fase 6U: calendario mensual de citas — mes actual por defecto
+    citaViewMode: 'calendar', citaCalYear: new Date().getFullYear(), citaCalMonth: new Date().getMonth(),
+    citaCalDayOpen: '', citaCalPopoverDay: '',
     // Fase 6I: búsqueda/filtro real + edición/eliminación de Cotización
     cotizSearch: '', cotizStatusFilter: '',
     editingCotizId: '', cotizDeleteConfirmId: '',
@@ -2748,7 +2871,7 @@ class Component extends DCLogic {
     proyectoSearch: '', editingProyectoId: '', proyectoDeleteConfirmId: '',
     // Fase 6R: Equipo real (fotos + nombre + cargo de quienes trabajan en el taller)
     equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {},
-    editingEquipoId: '', equipoDeleteConfirmId: '',
+    editingEquipoId: '', equipoDeleteConfirmId: '', equipoPhotoDraftBusy: false,
     // Fase 6M: Servicios reales
     servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {},
     editingServicioId: '', servicioDeleteConfirm: null,
@@ -3044,7 +3167,7 @@ class Component extends DCLogic {
         const list = getExtraList('vehicles');
         const idx = list.findIndex((v) => v && v.id === this.state.editingVehExtraId);
         if (idx === -1) { this.showAdminNotice('Este UTV ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
-        list[idx] = { ...list[idx], ...fields };
+        list[idx] = { ...list[idx], ...fields, updatedBy: this.state.loggedInUser };
         if (setExtraList('vehicles', list)) {
           this.setState({ addOpen: false, vehForm: { ...BLANK_VEH_FORM }, vehErrors: {}, editingVehIsExtra: false, editingVehExtraId: '', vehStep: 1 });
           this.showAdminNotice('"' + fields.model + '" actualizado.', 'success');
@@ -3052,14 +3175,15 @@ class Component extends DCLogic {
       } else if (this.state.editingVehBaseId) {
         const m = getOverridesMap(VEHICLE_OVERRIDES_KEY);
         const wasHidden = isRealRecord(m[this.state.editingVehBaseId]) && m[this.state.editingVehBaseId].hidden;
-        m[this.state.editingVehBaseId] = wasHidden ? { ...fields, hidden: true } : fields;
+        const fieldsWithUser = { ...fields, updatedBy: this.state.loggedInUser };
+        m[this.state.editingVehBaseId] = wasHidden ? { ...fieldsWithUser, hidden: true } : fieldsWithUser;
         if (setOverridesMap(VEHICLE_OVERRIDES_KEY, m)) {
           this.setState({ addOpen: false, vehForm: { ...BLANK_VEH_FORM }, vehErrors: {}, editingVehIsExtra: false, editingVehBaseId: '', vehStep: 1 });
           this.showAdminNotice('"' + fields.model + '" actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
         const list = getExtraList('vehicles');
-        list.push({ id: 'extra' + Date.now(), ...fields });
+        list.push({ id: 'extra' + Date.now(), ...fields, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('vehicles', list)) {
           this.setState({ addOpen: false, vehForm: { ...BLANK_VEH_FORM }, vehErrors: {}, vehStep: 1 });
           this.showAdminNotice('"' + fields.model + '" agregado al catálogo de UTV.', 'success');
@@ -3145,12 +3269,30 @@ class Component extends DCLogic {
     const idx = list.findIndex((c) => c && c.numero === numero);
     if (idx === -1) { this.showAdminNotice('Esta cita ya no existe.', 'error'); return; }
     if (list[idx].estado === status) return;
-    list[idx] = { ...list[idx], estado: status, updatedAt: new Date().toISOString() };
+    list[idx] = { ...list[idx], estado: status, updatedAt: new Date().toISOString(), updatedBy: this.state.loggedInUser };
     if (setExtraList('citas', list)) {
       this.bump();
       this.showAdminNotice('Cita ' + numero + ' → ' + status + '.', 'success');
     } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
   }
+
+  // Fase 6U: calendario mensual de Citas (vista de mes tipo Notion, con hora).
+  setCitaViewMode(mode) { this.setState({ citaViewMode: mode, citaCalPopoverDay: '' }); }
+  citaCalPrevMonth() {
+    this.setState((s) => {
+      const m = s.citaCalMonth - 1;
+      return m < 0 ? { citaCalMonth: 11, citaCalYear: s.citaCalYear - 1 } : { citaCalMonth: m };
+    });
+  }
+  citaCalNextMonth() {
+    this.setState((s) => {
+      const m = s.citaCalMonth + 1;
+      return m > 11 ? { citaCalMonth: 0, citaCalYear: s.citaCalYear + 1 } : { citaCalMonth: m };
+    });
+  }
+  citaCalToday() { const t = new Date(); this.setState({ citaCalYear: t.getFullYear(), citaCalMonth: t.getMonth() }); }
+  openCitaCalDayPopover(dateKey) { this.setState({ citaCalPopoverDay: dateKey }); }
+  closeCitaCalDayPopover() { this.setState({ citaCalPopoverDay: '' }); }
 
   submitCita() {
     if (this._submittingCita) return;
@@ -3181,7 +3323,7 @@ class Component extends DCLogic {
           utv: f.utv.trim() || 'Por definir', servicio: f.servicio.trim() || 'Por definir',
           fecha: f.fecha, hora: f.hora.trim() || 'Por definir',
           estado: nextEstado, clientId: this.state.citaClientId || '',
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(), updatedBy: this.state.loggedInUser,
         };
         if (setExtraList('citas', list)) {
           this.setState({ addOpen: false, citaForm: { ...BLANK_CITA_FORM }, citaErrors: {}, citaClientId: '', citaClientQuery: '', editingCitaId: '' });
@@ -3196,7 +3338,7 @@ class Component extends DCLogic {
           utv: f.utv.trim() || 'Por definir', servicio: f.servicio.trim() || 'Por definir',
           fecha: f.fecha, hora: f.hora.trim() || 'Por definir',
           estado: 'Pendiente', clientId: this.state.citaClientId || '',
-          createdAt: now, updatedAt: now,
+          createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser,
         });
         if (setExtraList('citas', list)) {
           this.setState({ addOpen: false, citaForm: { ...BLANK_CITA_FORM }, citaErrors: {}, citaClientId: '', citaClientQuery: '' });
@@ -3261,7 +3403,7 @@ class Component extends DCLogic {
         const list = getExtraList('products');
         const idx = list.findIndex((p) => p && p.id === this.state.editingProdExtraId);
         if (idx === -1) { this.showAdminNotice('Este accesorio ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
-        list[idx] = { ...list[idx], ...fields };
+        list[idx] = { ...list[idx], ...fields, updatedBy: this.state.loggedInUser };
         if (setExtraList('products', list)) {
           this.setState({ addOpen: false, prodForm: { ...BLANK_PROD_FORM }, prodErrors: {}, editingProdIsExtra: false, editingProdExtraId: '' });
           this.showAdminNotice('"' + fields.name + '" actualizado.', 'success');
@@ -3269,14 +3411,15 @@ class Component extends DCLogic {
       } else if (this.state.editingProdBaseId) {
         const m = getOverridesMap(PRODUCT_OVERRIDES_KEY);
         const wasHidden = isRealRecord(m[this.state.editingProdBaseId]) && m[this.state.editingProdBaseId].hidden;
-        m[this.state.editingProdBaseId] = wasHidden ? { ...fields, hidden: true } : fields;
+        const fieldsWithUser = { ...fields, updatedBy: this.state.loggedInUser };
+        m[this.state.editingProdBaseId] = wasHidden ? { ...fieldsWithUser, hidden: true } : fieldsWithUser;
         if (setOverridesMap(PRODUCT_OVERRIDES_KEY, m)) {
           this.setState({ addOpen: false, prodForm: { ...BLANK_PROD_FORM }, prodErrors: {}, editingProdIsExtra: false, editingProdBaseId: '' });
           this.showAdminNotice('"' + fields.name + '" actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
         const list = getExtraList('products');
-        list.push({ id: 'extra' + Date.now(), ...fields });
+        list.push({ id: 'extra' + Date.now(), ...fields, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('products', list)) {
           this.setState({ addOpen: false, prodForm: { ...BLANK_PROD_FORM }, prodErrors: {} });
           this.showAdminNotice('"' + fields.name + '" agregado al catálogo de accesorios.', 'success');
@@ -3357,7 +3500,7 @@ class Component extends DCLogic {
           ...list[idx],
           cliente: f.cliente.trim(), telefono: f.telefono.trim(), origen: f.origen,
           detalle: f.detalle.trim() || 'Por definir', clientId: this.state.cotizClientId || '',
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(), updatedBy: this.state.loggedInUser,
         };
         if (setExtraList('cotizaciones', list)) {
           this.setState({ addOpen: false, cotizForm: { ...BLANK_COTIZ_FORM }, cotizErrors: {}, cotizClientId: '', cotizClientQuery: '', editingCotizId: '' });
@@ -3375,6 +3518,7 @@ class Component extends DCLogic {
           fecha: String(hoy.getDate()).padStart(2, '0') + '/' + String(hoy.getMonth() + 1).padStart(2, '0') + '/' + hoy.getFullYear(),
           estado: 'Nueva',
           clientId: this.state.cotizClientId || '',
+          createdBy: this.state.loggedInUser,
         });
         if (setExtraList('cotizaciones', list)) {
           this.setState({ addOpen: false, cotizForm: { ...BLANK_COTIZ_FORM }, cotizErrors: {}, cotizClientId: '', cotizClientQuery: '' });
@@ -3385,8 +3529,10 @@ class Component extends DCLogic {
   }
 
   attemptUnlock() {
-    if (this.state.loginPassword === ADMIN_PASSWORD) {
-      this.setState({ locked: false, loginPassword: '', loginError: '' });
+    const name = this.state.loginUserName;
+    const user = ADMIN_USERS.find((u) => u.name === name);
+    if (user && this.state.loginPassword === user.password) {
+      this.setState({ locked: false, loginPassword: '', loginError: '', loggedInUser: user.name });
     } else {
       this.setState({ loginError: 'Contraseña incorrecta.' });
     }
@@ -3772,7 +3918,7 @@ class Component extends DCLogic {
     const next = this.nextPedidoStatus(list[idx].status);
     if (!next) return;
     const now = new Date().toISOString();
-    list[idx] = { ...list[idx], status: next, updatedAt: now, statusHistory: this.appendStatusHistory(list[idx], next, now) };
+    list[idx] = { ...list[idx], status: next, updatedAt: now, updatedBy: this.state.loggedInUser, statusHistory: this.appendStatusHistory(list[idx], next, now) };
     if (setExtraList('pedidos', list)) {
       this.bump();
       this.showAdminNotice('Pedido ' + id + ' → ' + next + '.', 'success');
@@ -3791,7 +3937,7 @@ class Component extends DCLogic {
       return;
     }
     const now = new Date().toISOString();
-    list[idx] = { ...list[idx], status: 'Cancelado', updatedAt: now, statusHistory: this.appendStatusHistory(list[idx], 'Cancelado', now) };
+    list[idx] = { ...list[idx], status: 'Cancelado', updatedAt: now, updatedBy: this.state.loggedInUser, statusHistory: this.appendStatusHistory(list[idx], 'Cancelado', now) };
     if (setExtraList('pedidos', list)) {
       this.setState({ pedidoCancelConfirmId: '' });
       this.showAdminNotice('Pedido ' + id + ' cancelado.', 'success');
@@ -3832,7 +3978,7 @@ class Component extends DCLogic {
       totalPaid: newPaid, status: newStatus,
       history: [...history, { id: 'pay' + Date.now(), amount, date: now, method: f.method, note: f.note.trim() }],
     };
-    list[idx] = { ...pedido, payment: newPayment, updatedAt: now };
+    list[idx] = { ...pedido, payment: newPayment, updatedAt: now, updatedBy: this.state.loggedInUser };
     if (setExtraList('pedidos', list)) {
       this.setState({ paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '' });
       this.bump();
@@ -3935,7 +4081,7 @@ class Component extends DCLogic {
     const list = getExtraList('pedidos');
     const idx = list.findIndex((p) => p && p.id === id);
     if (idx === -1) return;
-    list[idx] = { ...list[idx], clientId, updatedAt: new Date().toISOString() };
+    list[idx] = { ...list[idx], clientId, updatedAt: new Date().toISOString(), updatedBy: this.state.loggedInUser };
     if (setExtraList('pedidos', list)) {
       const c = this.findClientById(clientId);
       this.setState({ pedidoLinkQuery: '' });
@@ -4005,7 +4151,7 @@ class Component extends DCLogic {
           }
           list[idx] = {
             ...list[idx], clientId: this.state.pedidoClientId || '', items: f.items,
-            subtotal, discount, total, notes: f.notes.trim(), updatedAt: now, payment,
+            subtotal, discount, total, notes: f.notes.trim(), updatedAt: now, updatedBy: this.state.loggedInUser, payment,
           };
         }
         if (setExtraList('pedidos', list)) {
@@ -4024,7 +4170,7 @@ class Component extends DCLogic {
           // administrativo local de abonos, sin ninguna pasarela de pago.
           statusHistory: [{ status: 'Nuevo', changedAt: now }],
           payment: { totalPaid: 0, status: 'Pendiente', history: [] },
-          createdAt: now, updatedAt: now,
+          createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser,
         });
         if (setExtraList('pedidos', list)) {
           if (quoteId) {
@@ -4067,13 +4213,13 @@ class Component extends DCLogic {
       const patch = { name, phone: f.phone.trim(), whatsapp: f.whatsapp.trim(), email: f.email.trim(), address: f.address.trim(), notes: f.notes.trim() };
       if (editingId) {
         const idx = list.findIndex((c) => c && c.id === editingId);
-        if (idx !== -1) list[idx] = { ...list[idx], ...patch, updatedAt: now };
+        if (idx !== -1) list[idx] = { ...list[idx], ...patch, updatedAt: now, updatedBy: this.state.loggedInUser };
         if (setExtraList('clientes', list)) {
           this.closeAdd();
           this.showAdminNotice('Cliente "' + name + '" actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
-        const newClient = { id: 'cli' + Date.now(), ...patch, createdAt: now, updatedAt: now };
+        const newClient = { id: 'cli' + Date.now(), ...patch, createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser };
         list.push(newClient);
         if (!setExtraList('clientes', list)) { this.showAdminNotice(STORAGE_QUOTA_MSG, 'error'); return; }
         const quickFor = this.state.clientQuickCreateFor;
@@ -4205,13 +4351,13 @@ class Component extends DCLogic {
       if (editingId) {
         const idx = list.findIndex((p) => p && p.id === editingId);
         if (idx === -1) { this.showAdminNotice('Este proyecto ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
-        list[idx] = { ...list[idx], ...fields, updatedAt: now };
+        list[idx] = { ...list[idx], ...fields, updatedAt: now, updatedBy: this.state.loggedInUser };
         if (setExtraList('proyectos', list)) {
           this.setState({ addOpen: false, proyectoForm: { ...BLANK_PROYECTO_FORM }, proyectoErrors: {}, editingProyectoId: '', proyectoStep: 1 });
           this.showAdminNotice('Proyecto actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
-        list.push({ id: 'proy' + Date.now(), ...fields, createdAt: now, updatedAt: now });
+        list.push({ id: 'proy' + Date.now(), ...fields, createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('proyectos', list)) {
           this.setState({ addOpen: false, proyectoForm: { ...BLANK_PROYECTO_FORM }, proyectoErrors: {}, proyectoStep: 1 });
           this.showAdminNotice('Proyecto "' + fields.titulo + '" creado.', 'success');
@@ -4271,14 +4417,20 @@ class Component extends DCLogic {
       if (editingId) {
         const idx = list.findIndex((m) => m && m.id === editingId);
         if (idx === -1) { this.showAdminNotice('Esta persona ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
-        list[idx] = { ...list[idx], ...fields, updatedAt: now };
+        list[idx] = { ...list[idx], ...fields, updatedAt: now, updatedBy: this.state.loggedInUser };
         if (setExtraList('equipo', list)) {
           this.setState({ addOpen: false, equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {}, editingEquipoId: '' });
           this.showAdminNotice('Persona actualizada.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
-        list.push({ id: 'equipo' + Date.now(), ...fields, createdAt: now, updatedAt: now });
+        const newId = 'equipo' + Date.now();
+        list.push({ id: newId, ...fields, createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('equipo', list)) {
+          // Fase 6T: la foto se pudo elegir en el mismo formulario, antes de
+          // que existiera un id real — se guardaba solo en memoria
+          // (equipoForm.photoDraft) y recién ahora, con el id ya creado, se
+          // persiste de verdad en localStorage.
+          if (f.photoDraft) setStoredPhoto('team_' + newId, f.photoDraft);
           this.setState({ addOpen: false, equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {} });
           this.showAdminNotice('"' + fields.nombre + '" agregado al equipo.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
@@ -4300,6 +4452,24 @@ class Component extends DCLogic {
       this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
     }
   }
+  // Fase 6T: foto elegida ANTES de que exista un id real (formulario de
+  // "Agregar persona") — se procesa igual (readAndResizeImage) pero el
+  // resultado queda solo en equipoForm.photoDraft (memoria) hasta que
+  // submitEquipo() cree el id y la persista de verdad.
+  setEquipoPhotoDraft(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      this.showAdminNotice('"' + file.name + '" no es un archivo de imagen. Elige un JPG, PNG o WEBP.', 'error');
+      return;
+    }
+    this.setState({ equipoPhotoDraftBusy: true });
+    readAndResizeImage(file, 800, (dataUrl) => {
+      this.setState({ equipoPhotoDraftBusy: false });
+      if (!dataUrl) { this.showAdminNotice('No se pudo procesar "' + file.name + '".', 'error'); return; }
+      this.setState((s) => ({ equipoForm: { ...s.equipoForm, photoDraft: dataUrl } }));
+    });
+  }
+  clearEquipoPhotoDraft() { this.setState((s) => ({ equipoForm: { ...s.equipoForm, photoDraft: '' } })); }
   uploadEquipoPhoto(id, file) {
     if (!file) return;
     if (!file.type || !file.type.startsWith('image/')) {
@@ -4382,7 +4552,7 @@ class Component extends DCLogic {
       if (editingBaseId) {
         const m = getOverridesMap(SERVICE_OVERRIDES_KEY);
         const wasHidden = isRealRecord(m[editingBaseId]) && m[editingBaseId].hidden;
-        const patch = { titulo: fields.titulo, descripcion: fields.descripcion, icono: fields.icono };
+        const patch = { titulo: fields.titulo, descripcion: fields.descripcion, icono: fields.icono, updatedBy: this.state.loggedInUser };
         m[editingBaseId] = wasHidden ? { ...patch, hidden: true } : patch;
         if (setOverridesMap(SERVICE_OVERRIDES_KEY, m)) {
           this.setState({ addOpen: false, servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {}, editingServicioBaseId: '' });
@@ -4394,13 +4564,13 @@ class Component extends DCLogic {
       if (editingId) {
         const idx = list.findIndex((x) => x && x.id === editingId);
         if (idx === -1) { this.showAdminNotice('Este servicio ya no existe.', 'error'); this.setState({ addOpen: false }); return; }
-        list[idx] = { ...list[idx], ...fields, updatedAt: now };
+        list[idx] = { ...list[idx], ...fields, updatedAt: now, updatedBy: this.state.loggedInUser };
         if (setExtraList('servicios', list)) {
           this.setState({ addOpen: false, servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {}, editingServicioId: '' });
           this.showAdminNotice('Servicio actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
-        list.push({ id: 'serv' + Date.now(), ...fields, createdAt: now, updatedAt: now });
+        list.push({ id: 'serv' + Date.now(), ...fields, createdAt: now, updatedAt: now, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('servicios', list)) {
           this.setState({ addOpen: false, servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {} });
           this.showAdminNotice('Servicio "' + fields.titulo + '" creado.', 'success');
@@ -4890,12 +5060,17 @@ class Component extends DCLogic {
       locked: st.locked,
       open: !st.locked,
       unlock: () => this.attemptUnlock(),
-      lock: () => this.setState({ locked: true, loginPassword: '', loginError: '' }),
+      lock: () => this.setState({ locked: true, loginPassword: '', loginError: '', loggedInUser: '' }),
       loginPassword: st.loginPassword,
       setLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
       loginPasswordKeyDown: (e) => { if (e.key === 'Enter') this.attemptUnlock(); },
       loginError: st.loginError,
       hasLoginError: !!st.loginError,
+      loginUserName: st.loginUserName,
+      setLoginUserName: (e) => this.setState({ loginUserName: e.target.value, loginError: '' }),
+      loginUserOptions: ADMIN_USERS.map((u) => u.name),
+      loggedInUser: st.loggedInUser,
+      loggedInUserInitial: st.loggedInUser ? st.loggedInUser.charAt(0).toUpperCase() : '—',
     };
   }
 
@@ -5139,6 +5314,10 @@ class Component extends DCLogic {
     const cotizSelected = st.cotizClientId ? this.findClientById(st.cotizClientId) : null;
 
     const cita = st.citaDetailKey ? this.findCitaByNumero(st.citaDetailKey) : null;
+    const citaByLabel = cita ? [
+      cita.createdBy ? 'Creada por ' + cita.createdBy : '',
+      (cita.updatedBy && cita.updatedAt !== cita.createdAt) ? 'Actualizada por ' + cita.updatedBy : '',
+    ].filter(Boolean).join(' · ') : '';
     const citaLinkedClient = cita ? this.findClientById(cita.clientId) : null;
     const citaLinkResults = this.searchClientsBrief(st.citaLinkQuery).map((c) => ({ ...c, select: () => this.linkCitaToClient(c.id) }));
 
@@ -5176,6 +5355,8 @@ class Component extends DCLogic {
       // detalle de Cita
       citaDetailOpen: !!cita,
       citaDetail: cita || {},
+      citaDetailByLabel: citaByLabel,
+      citaDetailHasByLabel: !!citaByLabel,
       closeCitaDetail: () => this.closeCitaDetail(),
       citaHasLinkedClient: !!citaLinkedClient,
       citaNoLinkedClient: !citaLinkedClient,
@@ -5265,9 +5446,73 @@ class Component extends DCLogic {
       edit: () => this.editCita(c.numero),
       remove: () => this.requestDeleteCita(c.numero),
     }));
+    // Fase 6U: calendario mensual de citas (vista de mes tipo Notion, con
+    // hora) — usa TODAS las citas reales (allCitas), no el filtro de
+    // búsqueda de la lista, para que el mes nunca se vea vacío por un texto
+    // de búsqueda activo en la otra vista.
+    const calYear = st.citaCalYear, calMonth = st.citaCalMonth;
+    const startWeekday = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
+    const gridStart = new Date(calYear, calMonth, 1 - startWeekday);
+    const dateKeyOf = (dt) => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    const todayKey = dateKeyOf(new Date());
+    const citasByDate = {};
+    allCitas.forEach((c) => { if (c.fecha) (citasByDate[c.fecha] = citasByDate[c.fecha] || []).push(c); });
+    Object.values(citasByDate).forEach((arr) => arr.sort((a, b) => (a.hora || '').localeCompare(b.hora || '')));
+    const hourAbbrev = (hora) => { const m = /^(\d{1,2}):\d{2}/.exec(hora || ''); return m ? m[1] + 'h' : (hora || ''); };
+    const pillFor = (c) => ({
+      numero: c.numero, label: hourAbbrev(c.hora) + ' ' + c.cliente,
+      color: CITA_STATUS_COLORS[c.estado] || '#8B8D93',
+      open: () => this.openCitaDetail(c.numero),
+    });
+    const dayCells = [];
+    for (let i = 0; i < totalCells; i++) {
+      const dt = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+      const key = dateKeyOf(dt);
+      const dayCitas = citasByDate[key] || [];
+      dayCells.push({
+        key, dayNum: dt.getDate(), inMonth: dt.getMonth() === calMonth, isToday: key === todayKey,
+        numColor: key === todayKey ? '#E11623' : (dt.getMonth() === calMonth ? '#B9BBC1' : '#3A3C42'),
+        bgColor: dt.getMonth() === calMonth ? '#0D0E10' : '#08090A',
+        pills: dayCitas.slice(0, 3).map(pillFor),
+        extraCount: Math.max(0, dayCitas.length - 3),
+        hasExtra: dayCitas.length > 3,
+        openPopover: () => this.openCitaCalDayPopover(key),
+      });
+    }
+    const calWeeks = [];
+    for (let i = 0; i < dayCells.length; i += 7) calWeeks.push({ days: dayCells.slice(i, i + 7) });
+    const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const popoverKey = st.citaCalPopoverDay;
+    const popoverCitas = popoverKey ? (citasByDate[popoverKey] || []).map((c) => ({
+      numero: c.numero, label: c.hora + ' — ' + c.cliente, sub: c.servicio,
+      color: CITA_STATUS_COLORS[c.estado] || '#8B8D93', estado: c.estado || 'Sin estado',
+      open: () => this.openCitaDetail(c.numero),
+    })) : [];
+
     return {
       isCitasSection,
       ...(isCitasSection ? { stats: citaStats.map(([k, v]) => ({ k, v })) } : {}),
+      citaViewIsCalendar: st.citaViewMode === 'calendar',
+      citaViewIsList: st.citaViewMode !== 'calendar',
+      setCitaViewCalendar: () => this.setCitaViewMode('calendar'),
+      setCitaViewList: () => this.setCitaViewMode('list'),
+      citaViewCalBg: st.citaViewMode === 'calendar' ? '#E11623' : 'transparent',
+      citaViewCalBorder: st.citaViewMode === 'calendar' ? '#E11623' : '#24262B',
+      citaViewCalFg: st.citaViewMode === 'calendar' ? '#fff' : '#8B8D93',
+      citaViewListBg: st.citaViewMode !== 'calendar' ? '#E11623' : 'transparent',
+      citaViewListBorder: st.citaViewMode !== 'calendar' ? '#E11623' : '#24262B',
+      citaViewListFg: st.citaViewMode !== 'calendar' ? '#fff' : '#8B8D93',
+      citaCalMonthLabel: MONTH_NAMES[calMonth] + ' ' + calYear,
+      citaCalWeeks: calWeeks,
+      citaCalPrevMonth: () => this.citaCalPrevMonth(),
+      citaCalNextMonth: () => this.citaCalNextMonth(),
+      citaCalToday: () => this.citaCalToday(),
+      citaCalPopoverOpen: !!popoverKey,
+      citaCalPopoverCitas: popoverCitas,
+      citaCalPopoverDayLabel: popoverKey || '',
+      closeCitaCalDayPopover: () => this.closeCitaCalDayPopover(),
       citaSearch: st.citaSearch,
       setCitaSearch: (e) => this.setState({ citaSearch: e.target.value }),
       citaStatusFilter: st.citaStatusFilter,
@@ -5438,19 +5683,36 @@ class Component extends DCLogic {
     // (submitCita, sección 1.3) y por lo tanto ya pueden aparecer aquí — las
     // citas legacy sin createdAt simplemente no producen un timestamp válido
     // y quedan fuera del filtro isNaN de abajo, sin inventar nada.
+    // Fase 6U: centro de notificaciones — además de "creado", ahora también
+    // suma "cambió de estado" para Citas y Pedidos, que sí tienen un ciclo de
+    // estados real (changeCitaStatus / PEDIDO_STATUS_CHAIN). Cotizaciones no
+    // suma cambio de estado aparte: hoy solo pasan de 'Nueva' a "convertida en
+    // pedido" (ya cubierto por el evento de Pedido nuevo), no inventar otro.
+    // dotColor en vez de un ícono lucide dinámico a propósito: esta lista se
+    // reordena/recorta por completo en cada render (actividad nueva entra al
+    // tope) — un <i data-lucide> dentro de un sc-for que cambia de tamaño ya
+    // causó el crash de removeChild que se corrigió esta sesión (lucide muta
+    // el nodo fuera del control del framework). Un punto de color evita ese
+    // riesgo por completo sin perder la distinción visual por tipo.
     const activityItems = [
-      ...allClients.map((c) => ({ label: 'Cliente nuevo: ' + c.name, ts: new Date(c.createdAt).getTime(), view: () => this.viewClientDetail(c.id) })),
+      ...allClients.map((c) => ({ dotColor: '#7BE29A', label: 'Cliente nuevo: ' + c.name, by: c.createdBy, ts: new Date(c.createdAt).getTime(), view: () => this.viewClientDetail(c.id) })),
       ...allPedidos.map((p) => {
         const c = p.clientId ? this.findClientById(p.clientId) : null;
-        return { label: p.id + ' — ' + (c ? c.name : 'cliente no vinculado'), ts: new Date(p.createdAt).getTime(), view: () => this.viewPedidoDetail(p.id) };
+        return { dotColor: '#E0B063', label: 'Pedido ' + p.id + ' — ' + (c ? c.name : 'cliente no vinculado'), by: p.createdBy, ts: new Date(p.createdAt).getTime(), view: () => this.viewPedidoDetail(p.id) };
       }),
-      ...allCotiz.map((c, idx) => ({ label: 'Cotización de ' + c.cliente, ts: parseFechaDMY(c.fecha), view: () => this.openCotizDetail(c.id || ('idx:' + idx)) })),
-      ...allCitas.map((c) => ({ label: 'Cita de ' + c.cliente + ' (' + c.numero + ')', ts: c.createdAt ? new Date(c.createdAt).getTime() : NaN, view: () => this.openCitaDetail(c.numero) })),
+      ...allPedidos.filter((p) => p.updatedAt && p.updatedAt !== p.createdAt).map((p) => ({
+        dotColor: '#E0B063', label: 'Pedido ' + p.id + ' → ' + p.status, by: p.updatedBy, ts: new Date(p.updatedAt).getTime(), view: () => this.viewPedidoDetail(p.id),
+      })),
+      ...allCotiz.map((c, idx) => ({ dotColor: '#B8A6FF', label: 'Cotización de ' + c.cliente, by: c.createdBy, ts: parseFechaDMY(c.fecha), view: () => this.openCotizDetail(c.id || ('idx:' + idx)) })),
+      ...allCitas.map((c) => ({ dotColor: '#E11623', label: 'Cita de ' + c.cliente + ' (' + c.numero + ')', by: c.createdBy, ts: c.createdAt ? new Date(c.createdAt).getTime() : NaN, view: () => this.openCitaDetail(c.numero) })),
+      ...allCitas.filter((c) => c.updatedAt && c.createdAt && c.updatedAt !== c.createdAt).map((c) => ({
+        dotColor: '#E11623', label: 'Cita ' + c.numero + ' → ' + c.estado, by: c.updatedBy, ts: new Date(c.updatedAt).getTime(), view: () => this.openCitaDetail(c.numero),
+      })),
     ]
       .filter((it) => !isNaN(it.ts))
       .sort((a, b) => b.ts - a.ts)
-      .slice(0, 8)
-      .map((it) => ({ label: it.label, dateLabel: fmtDate(new Date(it.ts).toISOString()), view: it.view }));
+      .slice(0, 15)
+      .map((it) => ({ dotColor: it.dotColor, label: it.label + (it.by ? ' · ' + it.by : ''), dateLabel: fmtDate(new Date(it.ts).toISOString()), view: it.view }));
 
     return {
       isDashboardSection,
@@ -5731,6 +5993,11 @@ class Component extends DCLogic {
     // galería del proceso solo se pueden subir cuando el proyecto ya existe
     // (tiene id real), igual que el resto del panel ("se sube después de guardar").
     const proyectoWizardId = st.editingProyectoId || '';
+    // Fase 6T: widget de foto del formulario de Equipo — si ya existe un id
+    // real (editando), sube directo a localStorage como siempre; si es una
+    // persona nueva (sin id todavía), usa el borrador en memoria
+    // (equipoForm.photoDraft) y recién se persiste al guardar.
+    const equipoPhotoThumb = st.editingEquipoId ? getStoredPhoto('team_' + st.editingEquipoId) : st.equipoForm.photoDraft;
     const proyectoGalleryUpload = (slot) => (e) => {
       const file = e.target.files && e.target.files[0];
       e.target.value = '';
@@ -5916,6 +6183,21 @@ class Component extends DCLogic {
       setEquipoCargo: this.setEquipoField('cargo'),
       setEquipoPublicado: this.setEquipoField('publicado'),
       submitEquipo: () => this.submitEquipo(),
+      equipoPhotoThumb,
+      equipoPhotoHasPhoto: !!equipoPhotoThumb,
+      equipoPhotoIsUploading: st.editingEquipoId ? !!st.uploadingIds['team_' + st.editingEquipoId] : st.equipoPhotoDraftBusy,
+      equipoPhotoUploadLabel: (st.editingEquipoId ? !!st.uploadingIds['team_' + st.editingEquipoId] : st.equipoPhotoDraftBusy) ? 'Procesando…' : (equipoPhotoThumb ? 'Cambiar foto' : 'Subir foto'),
+      equipoPhotoOnUpload: (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+        if (st.editingEquipoId) this.uploadEquipoPhoto(st.editingEquipoId, file);
+        else this.setEquipoPhotoDraft(file);
+      },
+      equipoPhotoOnRemove: () => {
+        if (st.editingEquipoId) this.removeEquipoPhoto(st.editingEquipoId);
+        else this.clearEquipoPhotoDraft();
+      },
       // Fase 6M
       isAddServicio: !st.clientQuickCreateFor && st.sec === 'servicios',
       servicioForm: st.servicioForm,
