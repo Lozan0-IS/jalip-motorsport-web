@@ -1456,6 +1456,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                   <input value="{{ prodForm.compatible }}" onInput="{{ setProdCompatible }}" placeholder="Ej. Can-Am, Polaris" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
                 </label>
               </div>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Descripción <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional</span>
+                <textarea value="{{ prodForm.description }}" onInput="{{ setProdDescription }}" rows="3" placeholder="Qué es, para qué sirve, código de referencia si tiene." style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px;resize:vertical"></textarea>
+              </label>
               <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
                 <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Disponibilidad
                   <select value="{{ prodForm.availability }}" onChange="{{ setProdAvailability }}" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
@@ -2899,7 +2902,7 @@ const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv
 // lanzaba un TypeError y perdía el formulario completo.
 const BLANK_VEH_FORM = { model: '', brand: 'Can-Am', year: '2025', condition: 'Nuevo', availability: 'Disponible', stock: '', price: '', description: '', destacado: false, hp: '', pax: '', motor: '', suspension: '', color: '', tech: '', caracteristicas: '' };
 const BLANK_CITA_FORM = { cliente: '', telefono: '', email: '', utv: '', servicio: '', fecha: '', hora: '', estado: 'Pendiente' };
-const BLANK_PROD_FORM = { name: '', category: 'aros', price: '', compatible: '', availability: 'Disponible', stock: '', photoDraft: '' };
+const BLANK_PROD_FORM = { name: '', category: 'aros', price: '', compatible: '', availability: 'Disponible', stock: '', description: '', photoDraft: '' };
 const BLANK_COTIZ_FORM = { cliente: '', telefono: '', origen: 'Catálogo UTV', detalle: '' };
 const BLANK_CLIENT_FORM = { name: '', phone: '', whatsapp: '', email: '', address: '', notes: '' };
 const BLANK_CLIENT_VEHICLE_FORM = { marca: '', modelo: '', anio: '', color: '', vin: '', notas: '' };
@@ -3541,6 +3544,7 @@ class Component extends DCLogic {
         prodForm: {
           name: raw.name || '', category: raw.category || 'aros', price: raw.price != null ? String(raw.price) : '',
           compatible: raw.compatible || '', availability: raw.availability || 'Disponible', stock: raw.stock != null ? String(raw.stock) : '',
+          description: raw.description || '',
         },
       });
     } else {
@@ -3552,6 +3556,7 @@ class Component extends DCLogic {
         prodForm: {
           name: o.name || base.name, category: o.category || 'aros', price: o.price != null ? String(o.price) : '',
           compatible: o.compatible || '', availability: o.availability || 'Disponible', stock: o.stock != null ? String(o.stock) : '',
+          description: o.description || '',
         },
       });
     }
@@ -3619,6 +3624,7 @@ class Component extends DCLogic {
       const fields = {
         name: f.name.trim(), category: f.category, price: price.value,
         compatible: f.compatible.trim() || 'Universal', availability: f.availability, stock: stock.value,
+        description: f.description.trim(),
       };
       if (this.state.editingProdExtraId) {
         const list = getExtraList('products');
@@ -6544,6 +6550,7 @@ class Component extends DCLogic {
       setProdCategory: this.setProdField('category'),
       setProdPrice: this.setProdField('price'),
       setProdCompatible: this.setProdField('compatible'),
+      setProdDescription: this.setProdField('description'),
       setProdAvailability: this.setProdField('availability'),
       setProdStock: this.setProdField('stock'),
       submitProduct: () => this.submitProduct(),

@@ -401,52 +401,77 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
   </header>
 </div>
 
-<!-- ══ CARRITO DE COTIZACIÓN (global, disponible desde el header en cualquier
-     página) — se comparte entre páginas por localStorage (jm_cart) ══ -->
+<!-- ══ Fase 6ZD: CARRITO — vista de pantalla completa (global, disponible
+     desde el header en cualquier página, se comparte por localStorage
+     'jm_cart'). No procesa ningún pago; sigue terminando en una cotización
+     real por WhatsApp. ══ -->
 <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;inset:0;z-index:200;background:rgba(4,4,6,.72);backdrop-filter:blur(4px);display:flex;justify-content:flex-end;animation:jm-fade .2s ease-out both" onClick="{{ closeCart }}">
-    <div role="dialog" aria-modal="true" aria-label="Carrito de cotización" style="background:#0D0E10;border-left:1px solid #24262B;width:100%;max-width:400px;height:100%;overflow-y:auto;display:flex;flex-direction:column;animation:jm-pop .22s cubic-bezier(.23,1,.32,1) both" onClick="{{ stopProp }}">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #1E1F24;position:sticky;top:0;background:#0D0E10">
-        <h3 style="font-family:Saira;font-weight:700;font-size:18px;margin:0">Tu solicitud</h3>
-        <button onClick="{{ closeCart }}" aria-label="Cerrar" data-en-aria="Close" style="background:none;border:none;color:#A1A1AA;cursor:pointer;padding:4px"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+  <div role="dialog" aria-modal="true" aria-label="Tu carrito" style="position:fixed;inset:0;z-index:200;background:#08080A;overflow-y:auto;animation:jm-fade .2s ease-out both">
+    <div style="max-width:1180px;margin:0 auto;padding:28px 24px 80px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onClick="{{ closeCart }}" aria-label="Volver a la tienda" style="background:none;border:1px solid #24262B;color:#F2F3F5;width:42px;height:42px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i data-lucide="arrow-left" style="width:18px;height:18px"></i></button>
+        <div>
+          <div style="font:600 10px/1 'JetBrains Mono';letter-spacing:.12em;text-transform:uppercase;color:#5C5E66">Inicio · Vehículos</div>
+          <h2 style="font-family:Saira;font-weight:800;font-size:24px;margin:6px 0 0">Tu carrito</h2>
+        </div>
       </div>
-      <div style="flex:1;padding:10px 22px;display:flex;flex-direction:column;gap:4px">
-        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="padding:48px 12px;text-align:center;color:#A1A1AA;font-size:13.5px;display:flex;flex-direction:column;align-items:center;gap:10px">
-            <i data-lucide="shopping-cart" style="width:26px;height:26px;color:#3A3C42"></i>
-            Todavía no agregas accesorios.
-            <a href="Accesorios.dc.html" style="color:#F2F3F5;font:700 12px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;margin-top:6px" data-en="See catalog">Ver catálogo</a>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-top:26px;align-items:start">
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:8px 24px;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #1E1F24">
+            <span style="font:700 9.5px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#8B8D93">{{ cartCountLabel }}</span>
+            <sc-if value="{{ cartHasEntries }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ clearCart }}" style="background:none;border:none;color:#FF8A92;font:600 11px/1 Barlow;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;gap:6px"><i data-lucide="trash-2" style="width:13px;height:13px"></i>Vaciar</button>
+            </sc-if>
           </div>
-        </sc-if>
-        <sc-for list="{{ cartItems }}" as="ci" hint-placeholder-count="2">
-          <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #18191D">
-            <div style="flex:1;min-width:0">
-              <div style="font:600 13.5px/1.3 Barlow;color:#F2F3F5">{{ ci.name }}</div>
-              <div style="font-family:'JetBrains Mono';font-size:11.5px;color:#7A7C83;margin-top:3px">{{ ci.priceLabel }}</div>
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:64px 12px;text-align:center;color:#A1A1AA;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:12px">
+              <i data-lucide="shopping-cart" style="width:32px;height:32px;color:#3A3C42"></i>
+              Tu carrito está vacío.
+              <a href="Accesorios.dc.html" style="color:#F2F3F5;font:700 12px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;margin-top:6px" data-en="See catalog">Ver catálogo</a>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-              <button onClick="{{ ci.dec }}" aria-label="Quitar uno" style="background:none;border:1px solid #24262B;color:#E4E4E7;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center">–</button>
-              <span style="font-family:'JetBrains Mono';font-size:12.5px;min-width:22px;text-align:center">{{ ci.qtyLabel }}</span>
-              <button onClick="{{ ci.inc }}" aria-label="Agregar uno más" style="background:none;border:1px solid #24262B;color:#E4E4E7;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+          </sc-if>
+          <sc-for list="{{ cartItems }}" as="ci" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:1px solid #18191D">
+              <div style="flex:1;min-width:0">
+                <div style="font:600 14.5px/1.3 Barlow;color:#F2F3F5">{{ ci.name }}</div>
+                <div style="font-family:'JetBrains Mono';font-size:12px;color:#7A7C83;margin-top:4px">{{ ci.priceLabel }}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                <button onClick="{{ ci.dec }}" aria-label="Quitar uno" style="background:none;border:1px solid #24262B;color:#E4E4E7;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">–</button>
+                <span style="font-family:'JetBrains Mono';font-size:13px;min-width:24px;text-align:center">{{ ci.qtyLabel }}</span>
+                <button onClick="{{ ci.inc }}" aria-label="Agregar uno más" style="background:none;border:1px solid #24262B;color:#E4E4E7;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+              </div>
             </div>
-          </div>
-        </sc-for>
-      </div>
-      <div style="padding:16px 22px 4px;border-top:1px solid #1E1F24;display:flex;flex-direction:column;gap:12px">
-        <div style="font:600 9.5px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#8B8D93">Método de pago preferido <span style="font-family:'JetBrains Mono';font-weight:400;color:#5C5E66;font-size:9px;text-transform:none;letter-spacing:0">(opcional)</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <sc-for list="{{ paymentMethodOptions }}" as="pm" hint-placeholder-count="4">
-            <button type="button" onClick="{{ pm.pick }}" style="background:{{ pm.bg }};border:1px solid {{ pm.border }};color:{{ pm.fg }};padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-align:center">
-              <i data-lucide="{{ pm.icon }}" style="width:17px;height:17px"></i>
-              <span style="font:600 10.5px/1.3 Barlow">{{ pm.label }}</span>
-            </button>
           </sc-for>
         </div>
-        <p style="margin:0;font-size:10.5px;line-height:1.5;color:#5C5E66">Esto no procesa ningún pago — solo le dice al taller cómo prefieres pagar para coordinar contigo por WhatsApp.</p>
-      </div>
-      <div style="padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px">
-        <div style="font-family:'JetBrains Mono';font-size:12.5px;color:#7A7C83">{{ cartEstimateLabel }}</div>
-        <button type="button" onClick="{{ openCartQuote }}" disabled="{{ !cartHasEntries }}" class="jm-h23" style="background:#25D366;border:none;color:#08080A;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:16px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;cursor:pointer"><i data-lucide="message-circle" style="width:15px;height:15px"></i><span data-en="Quote via WhatsApp">Solicitar cotización</span></button>
+
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:24px;display:flex;flex-direction:column;gap:18px;min-width:0">
+          <div style="font:600 9.5px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#8B8D93">Resumen</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:#C9CBD1;border-bottom:1px solid #1E1F24;padding-bottom:16px">
+            <div style="display:flex;justify-content:space-between;gap:10px"><span>Estimado</span><span style="font-family:'JetBrains Mono';color:#F2F3F5;text-align:right">{{ cartEstimateLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span>Envío</span><span style="color:#7A7C83">Por coordinar</span></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="font:600 9.5px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#8B8D93">Método de pago preferido <span style="font-family:'JetBrains Mono';font-weight:400;color:#5C5E66;font-size:9px;text-transform:none;letter-spacing:0">(opcional)</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <sc-for list="{{ paymentMethodOptions }}" as="pm" hint-placeholder-count="4">
+                <button type="button" onClick="{{ pm.pick }}" style="background:{{ pm.bg }};border:1px solid {{ pm.border }};color:{{ pm.fg }};padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-align:center">
+                  <i data-lucide="{{ pm.icon }}" style="width:17px;height:17px"></i>
+                  <span style="font:600 10.5px/1.3 Barlow">{{ pm.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <p style="margin:0;font-size:10.5px;line-height:1.5;color:#5C5E66">Esto no procesa ningún pago — solo le dice al taller cómo prefieres pagar para coordinar contigo por WhatsApp.</p>
+          </div>
+
+          <button type="button" onClick="{{ openCartQuote }}" disabled="{{ !cartHasEntries }}" style="background:#25D366;border:none;color:#08080A;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:16px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;cursor:pointer"><i data-lucide="message-circle" style="width:15px;height:15px"></i>Solicitar cotización</button>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;color:#5C5E66">
+            <div style="display:flex;align-items:center;gap:8px"><i data-lucide="shield-check" style="width:13px;height:13px;color:#7BE29A"></i>Coordinación directa con el taller</div>
+            <div style="display:flex;align-items:center;gap:8px"><i data-lucide="message-circle" style="width:13px;height:13px;color:#7BE29A"></i>Confirmación por WhatsApp, sin cobro en línea</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -2063,6 +2088,9 @@ class Component extends DCLogic {
       })),
       cartEstimateLabel: cartHasEstimate ? ('Estimado: $' + cartEstimate.toFixed(2) + ' USD (sujeto a confirmación)') : 'Precio sujeto a confirmación con el taller',
       cartHasEntries: cartEntries.length > 0,
+      // Fase 6ZD: vista de carrito a pantalla completa — contador + vaciar.
+      cartCountLabel: cartCount + (cartCount === 1 ? ' producto' : ' productos'),
+      clearCart: () => { try { localStorage.removeItem('jm_cart'); } catch (err) {} this.setState({ cart: {} }); },
       // Fase 6J (sección 6/8/10): abre el modal de cotización real — la lista
       // completa de accesorios elegidos (la "configuración") queda guardada
       // como detalle de la cotización, no solo como mensaje de WhatsApp.
