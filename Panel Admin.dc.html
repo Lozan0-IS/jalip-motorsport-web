@@ -578,8 +578,14 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Los 9 servicios de fábrica (Venta de UTV, Mantenimiento, Reparación, etc.) se pueden editar u ocultar desde aquí igual que UTV/Accesorios — no se borran de verdad porque son parte del código, pero "Ocultar del sitio" los quita del sitio público hasta que los restaures. "Publicar servicio" agrega uno adicional encima de esos 9.</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+      <sc-if value="{{ hasHiddenServicios }}" hint-placeholder-val="{{ false }}">
+        <div style="grid-column:1/-1;order:2;display:flex;align-items:center;gap:12px;margin:6px 0 2px">
+          <span style="font:700 9.5px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#5C5E66;white-space:nowrap">{{ hiddenServiciosLabel }}</span>
+          <span style="flex:1;height:1px;background:#1E1F24"></span>
+        </div>
+      </sc-if>
       <sc-for list="{{ servicioRows }}" as="sv" hint-placeholder-count="2">
-        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:14px;display:flex;gap:12px;align-items:center">
+        <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:14px;display:flex;gap:12px;align-items:center;order:{{ sv.gridOrder }}">
           <div style="position:relative;width:44px;height:44px;flex-shrink:0;background:#111214;border:1px solid #24262B;display:flex;align-items:center;justify-content:center;overflow:hidden">
             <i data-lucide="{{ sv.icono }}" style="width:20px;height:20px;color:#8B8D93"></i>
             <sc-if value="{{ sv.hasPhoto }}" hint-placeholder-val="{{ false }}">
@@ -5035,15 +5041,16 @@ class Component extends DCLogic {
     const q = st.photoSearch.trim().toLowerCase();
     const photoItemsAll = photoSource.map((it) => this.makePhotoItem(it));
     const photoItemsFiltered = q ? photoItemsAll.filter((it) => it.name.toLowerCase().includes(q) || it.cat.toLowerCase().includes(q)) : photoItemsAll;
-    // Fase 6Y: en Accesorios, los productos ocultados del sitio se mandan al
-    // final de la lista con una línea divisoria — antes se quedaban mezclados
-    // en su posición original de categoría, difícil de distinguir de los
-    // publicados. Solo aplica a Accesorios (lo que se pidió); UTV se queda
-    // igual. El divisor solo aparece si hay AMBOS grupos (si todo está oculto
-    // o nada lo está, no hace falta separar nada).
+    // Fase 6Y/6ZA: los ítems ocultados del sitio se mandan al final de la
+    // lista con una línea divisoria — antes se quedaban mezclados en su
+    // posición original de categoría, difícil de distinguir de los
+    // publicados. Aplica a Accesorios y UTV (los 2 módulos que comparten esta
+    // misma grilla de fotos con concepto real de "ocultar del sitio"). El
+    // divisor solo aparece si hay AMBOS grupos (si todo está oculto o nada lo
+    // está, no hace falta separar nada).
     const photoVisible = photoItemsFiltered.filter((it) => !it.isHidden);
     const photoHidden = photoItemsFiltered.filter((it) => it.isHidden);
-    const photoItems = st.sec === 'accesorios' && photoVisible.length && photoHidden.length
+    const photoItems = (st.sec === 'accesorios' || st.sec === 'utv') && photoVisible.length && photoHidden.length
       ? photoVisible.concat([{ isDivider: true, dividerLabel: 'Ocultados del sitio', dividerCount: photoHidden.length }], photoHidden)
       : photoItemsFiltered;
     const withPhotoCount = photoItemsAll.filter((it) => it.hasPhoto).length;
@@ -5368,13 +5375,23 @@ class Component extends DCLogic {
         restore: b.overridden ? () => this.restoreServiceOverride(b.id) : () => {},
         remove: () => this.requestDeleteServicio(b.id, b.titulo, false),
         deleteLabel: 'Ocultar del sitio',
+        // Fase 6ZA: los ocultos se mandan visualmente al final con CSS
+        // order (no se reordena el arreglo en sí) — la tarjeta con su ícono
+        // dinámico de lucide se queda siempre en el mismo nodo del DOM, así
+        // que nunca dispara el crash de removeChild que sí exige evitar el
+        // ícono dinámico dentro de una lista que se reordena de verdad
+        // (Accesorios/UTV, que sí reordenan el arreglo).
+        gridOrder: b.hidden ? 3 : 1,
       };
-    }).concat(extraServicioRows);
+    }).concat(extraServicioRows.map((s) => ({ ...s, gridOrder: 1 })));
+    const hiddenServiciosCount = baseServiceRows.filter((b) => b.hidden).length;
     const deleteTarget = st.servicioDeleteConfirm;
     return {
       isServiciosSection,
       ...(isServiciosSection ? { stats: servicioStats.map(([k, v]) => ({ k, v })) } : {}),
       servicioRows,
+      hasHiddenServicios: hiddenServiciosCount > 0 && servicioRows.length > hiddenServiciosCount,
+      hiddenServiciosLabel: 'Ocultados del sitio (' + hiddenServiciosCount + ')',
       servicioDeleteConfirmOpen: !!deleteTarget,
       servicioDeleteTitle: deleteTarget && deleteTarget.isExtra ? 'Eliminar' : 'Ocultar',
       servicioDeleteBody: deleteTarget
