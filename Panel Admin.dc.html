@@ -811,6 +811,13 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px">
       <sc-for list="{{ photoItems }}" as="pi" hint-placeholder-count="6">
+        <sc-if value="{{ pi.isDivider }}" hint-placeholder-val="{{ false }}">
+          <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;margin:6px 0 2px">
+            <span style="font:700 9.5px/1 Barlow;letter-spacing:.18em;text-transform:uppercase;color:#5C5E66;white-space:nowrap">{{ pi.dividerLabel }} ({{ pi.dividerCount }})</span>
+            <span style="flex:1;height:1px;background:#1E1F24"></span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ !pi.isDivider }}" hint-placeholder-val="{{ true }}">
         <div style="background:#0D0E10;border:1px solid #1A1B1F;padding:14px;display:flex;gap:12px;align-items:center">
           <div style="width:60px;height:60px;flex-shrink:0;background:#111214;border:1px solid #24262B;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
             <sc-if value="{{ pi.hasPhoto }}" hint-placeholder-val="{{ false }}">
@@ -841,7 +848,15 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <label for="{{ pi.inputId }}" style="background:#E11623;border:none;color:#fff;font:700 9.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:8px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;transition:opacity var(--jm-duration-fast) ease;{{ pi.uploadLabelStyle }}"><i data-lucide="{{ pi.uploadIcon }}" style="width:11px;height:11px"></i>{{ pi.uploadLabelText }}</label>
+            <label for="{{ pi.inputId }}" style="background:#E11623;border:none;color:#fff;font:700 9.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:8px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;transition:opacity var(--jm-duration-fast) ease;{{ pi.uploadLabelStyle }}">
+              <sc-if value="{{ pi.isUploading }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-loader-circle" style="width:11px;height:11px"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              </sc-if>
+              <sc-if value="{{ !pi.isUploading }}" hint-placeholder-val="{{ true }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              </sc-if>
+              {{ pi.uploadLabelText }}
+            </label>
             <input id="{{ pi.inputId }}" type="file" accept="image/*" onChange="{{ pi.onUpload }}" disabled="{{ pi.isUploading }}" style="display:none">
             <sc-if value="{{ pi.hasPhoto }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pi.onRemove }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Quitar</button>
@@ -855,6 +870,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             </sc-if>
           </div>
         </div>
+        </sc-if>
       </sc-for>
       <sc-if value="{{ noPhotoItems }}" hint-placeholder-val="{{ false }}">
         <div style="grid-column:1/-1;padding:40px 20px;text-align:center;color:#8B8D93;font-size:13px;border:1px dashed #24262B">Sin resultados para esa búsqueda.</div>
@@ -3093,6 +3109,7 @@ class Component extends DCLogic {
       statusBg: photo ? '#1F2B22' : '#241D10',
       statusFg: photo ? COLOR_SUCCESS : '#E0B063',
       isExtra: !!it.isExtra,
+      isDivider: false,
       // Fase 6I (sección 7/8): metadata editable — precio/stock/descripción son
       // opcionales y solo existen si el administrador los cargó (no se inventan).
       availabilityLabel: availLabel,
@@ -3115,7 +3132,6 @@ class Component extends DCLogic {
       isUploading,
       uploadLabelText: isUploading ? 'Procesando…' : 'Subir',
       uploadLabelStyle: isUploading ? 'opacity:.55;pointer-events:none' : '',
-      uploadIcon: isUploading ? 'loader-circle' : 'upload',
       onUpload: (e) => {
         const file = e.target.files && e.target.files[0];
         e.target.value = '';
@@ -4945,7 +4961,18 @@ class Component extends DCLogic {
     const photoSource = st.sec === 'utv' ? baseVehicles.concat(extraVehicles) : st.sec === 'accesorios' ? baseProducts.concat(extraProducts) : [];
     const q = st.photoSearch.trim().toLowerCase();
     const photoItemsAll = photoSource.map((it) => this.makePhotoItem(it));
-    const photoItems = q ? photoItemsAll.filter((it) => it.name.toLowerCase().includes(q) || it.cat.toLowerCase().includes(q)) : photoItemsAll;
+    const photoItemsFiltered = q ? photoItemsAll.filter((it) => it.name.toLowerCase().includes(q) || it.cat.toLowerCase().includes(q)) : photoItemsAll;
+    // Fase 6Y: en Accesorios, los productos ocultados del sitio se mandan al
+    // final de la lista con una línea divisoria — antes se quedaban mezclados
+    // en su posición original de categoría, difícil de distinguir de los
+    // publicados. Solo aplica a Accesorios (lo que se pidió); UTV se queda
+    // igual. El divisor solo aparece si hay AMBOS grupos (si todo está oculto
+    // o nada lo está, no hace falta separar nada).
+    const photoVisible = photoItemsFiltered.filter((it) => !it.isHidden);
+    const photoHidden = photoItemsFiltered.filter((it) => it.isHidden);
+    const photoItems = st.sec === 'accesorios' && photoVisible.length && photoHidden.length
+      ? photoVisible.concat([{ isDivider: true, dividerLabel: 'Ocultados del sitio', dividerCount: photoHidden.length }], photoHidden)
+      : photoItemsFiltered;
     const withPhotoCount = photoItemsAll.filter((it) => it.hasPhoto).length;
     // "Disponibles" y "Con precio"/"Precios confirmados" quedaban fijos en el
     // número semilla del catálogo demo sin importar los datos reales — solo
