@@ -656,7 +656,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           </tr>
         </thead>
         <tbody>
-          <sc-for list="{{ settingsRows }}" as="sr" hint-placeholder-count="7">
+          <sc-for list="{{ settingsRows }}" as="sr" hint-placeholder-count="11">
             <tr style="border-bottom:1px solid #131418">
               <td style="padding:15px 20px;font-size:13px;color:#8B8D93;white-space:nowrap">{{ sr.k }}</td>
               <td style="padding:15px 20px;font-size:13.5px;color:#F2F3F5">{{ sr.v }}</td>
@@ -674,6 +674,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Nombre del negocio
         <input value="{{ settingsForm.businessName }}" onInput="{{ setSettingsBusinessName }}" placeholder="Jalip Motorsport" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
       </label>
+      <p style="margin:-6px 0 0;font-size:11px;line-height:1.5;color:#5C5E66">Solo se usa en el aviso de derechos de autor del pie de página. El logo y los mensajes de WhatsApp del sitio siempre dicen "Jalip Motorsport" — cambiarlos es un ajuste aparte, no algo que este campo pueda hacer.</p>
+
+      <div style="font:700 10px/1 Barlow;letter-spacing:.16em;text-transform:uppercase;color:#5C5E66;margin-top:6px;padding-top:14px;border-top:1px solid #1A1B1F">Contacto</div>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
         <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Teléfono
           <input value="{{ settingsForm.phone }}" onInput="{{ setSettingsPhone }}" placeholder="(829) 765-3173" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
@@ -683,7 +686,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         </label>
       </div>
       <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Correo
-        <input type="email" value="{{ settingsForm.email }}" onInput="{{ setSettingsEmail }}" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+        <input type="email" value="{{ settingsForm.email }}" onInput="{{ setSettingsEmail }}" placeholder="contacto@jalipmotorsport.com" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
         <sc-if value="{{ settingsErrors.email }}" hint-placeholder-val="{{ false }}">
           <span style="color:#FF8A92;font-size:12px">{{ settingsErrors.email }}</span>
         </sc-if>
@@ -691,12 +694,41 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Dirección
         <input value="{{ settingsForm.address }}" onInput="{{ setSettingsAddress }}" placeholder="Carr. Peña 169, Tamboril" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
       </label>
+      <p style="margin:-6px 0 0;font-size:11px;line-height:1.5;color:#5C5E66">Los links de Waze, Google Maps y el mapa de la sección Contacto del sitio se arman a partir de esta misma dirección — no hace falta tocar nada más.</p>
       <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Horario
         <input value="{{ settingsForm.hours }}" onInput="{{ setSettingsHours }}" placeholder="Lun-Vie 8:00-17:00" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
       </label>
+
+      <div style="font:700 10px/1 Barlow;letter-spacing:.16em;text-transform:uppercase;color:#5C5E66;margin-top:6px;padding-top:14px;border-top:1px solid #1A1B1F">Redes sociales</div>
       <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Instagram
         <input value="{{ settingsForm.instagram }}" onInput="{{ setSettingsInstagram }}" placeholder="@jalipmotorsport" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
       </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Facebook <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">link completo</span>
+        <input value="{{ settingsForm.facebook }}" onInput="{{ setSettingsFacebook }}" placeholder="https://www.facebook.com/..." style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+        <sc-if value="{{ settingsErrors.facebook }}" hint-placeholder-val="{{ false }}">
+          <span style="color:#FF8A92;font-size:12px">{{ settingsErrors.facebook }}</span>
+        </sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">YouTube <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional — solo si existe</span>
+        <input value="{{ settingsForm.youtube }}" onInput="{{ setSettingsYoutube }}" placeholder="https://www.youtube.com/@..." style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+        <sc-if value="{{ settingsErrors.youtube }}" hint-placeholder-val="{{ false }}">
+          <span style="color:#FF8A92;font-size:12px">{{ settingsErrors.youtube }}</span>
+        </sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">TikTok <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional — solo si existe</span>
+        <input value="{{ settingsForm.tiktok }}" onInput="{{ setSettingsTiktok }}" placeholder="https://www.tiktok.com/@..." style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+        <sc-if value="{{ settingsErrors.tiktok }}" hint-placeholder-val="{{ false }}">
+          <span style="color:#FF8A92;font-size:12px">{{ settingsErrors.tiktok }}</span>
+        </sc-if>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">X / Twitter <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional — solo si existe</span>
+        <input value="{{ settingsForm.twitter }}" onInput="{{ setSettingsTwitter }}" placeholder="https://x.com/..." style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
+        <sc-if value="{{ settingsErrors.twitter }}" hint-placeholder-val="{{ false }}">
+          <span style="color:#FF8A92;font-size:12px">{{ settingsErrors.twitter }}</span>
+        </sc-if>
+      </label>
+      <p style="margin:-6px 0 0;font-size:11px;line-height:1.5;color:#5C5E66">YouTube, TikTok y X solo aparecen en el sitio (pie de página) si los llenas — si los dejas vacíos, simplemente no se muestra ese ícono, nada se rompe.</p>
+
       <div style="display:flex;gap:8px;margin-top:6px">
         <button onClick="{{ cancelEditSettings }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;cursor:pointer">Cancelar</button>
         <button onClick="{{ submitSettings }}" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;cursor:pointer">Guardar cambios</button>
@@ -2490,6 +2522,12 @@ function isRealRecord(x) {
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+// Fase 6X: mismo criterio para los links de redes sociales de Ajustes — solo
+// se guarda si empieza por http(s), para no romper el ícono/link del sitio
+// público con un valor a medio escribir (ej. "facebook.com/..." sin protocolo).
+function isValidUrl(url) {
+  return /^https?:\/\/.+/i.test(url);
+}
 // paginación compartida — antes Clientes y Pedidos repetían el mismo cálculo
 // (Math.ceil/clamp) con variables casi idénticas; un cambio en uno podía
 // quedar desincronizado del otro sin que nada lo señalara.
@@ -2844,7 +2882,7 @@ const AVAILABILITY_OPTIONS = ['Disponible', 'Bajo pedido', 'Agotado'];
 // misma clave y usa cada campo SOLO si tiene contenido — si el admin no ha
 // llenado un campo, el sitio sigue mostrando su texto original, nunca vacío.
 const ADMIN_SETTINGS_KEY = 'jm_admin_settings';
-const BLANK_SETTINGS_FORM = { businessName: '', phone: '', whatsapp: '', email: '', address: '', hours: '', instagram: '' };
+const BLANK_SETTINGS_FORM = { businessName: '', phone: '', whatsapp: '', email: '', address: '', hours: '', instagram: '', facebook: '', youtube: '', tiktok: '', twitter: '' };
 // Fase 6J (sección 9): Proyectos reales — mismo patrón "catálogo base (código,
 // en Jalip Motorsport.dc.html) + extra (jm_extra_proyectos)" ya usado en UTV/
 // Accesorios desde Fase 6C, con foto de portada vía jm_photo_pr_<id> (mismo
@@ -4360,6 +4398,7 @@ class Component extends DCLogic {
       settingsForm: {
         businessName: current.businessName || '', phone: current.phone || '', whatsapp: current.whatsapp || '',
         email: current.email || '', address: current.address || '', hours: current.hours || '', instagram: current.instagram || '',
+        facebook: current.facebook || '', youtube: current.youtube || '', tiktok: current.tiktok || '', twitter: current.twitter || '',
       },
     });
   }
@@ -4371,9 +4410,17 @@ class Component extends DCLogic {
       this.setState({ settingsErrors: { email: 'Correo inválido.' } });
       return;
     }
+    const urlFields = [['facebook', 'Facebook'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['twitter', 'X / Twitter']];
+    for (const [key, label] of urlFields) {
+      if (f[key].trim() && !isValidUrl(f[key].trim())) {
+        this.setState({ settingsErrors: { [key]: label + ': pega el link completo (empieza con https://).' } });
+        return;
+      }
+    }
     const obj = {
       businessName: f.businessName.trim(), phone: f.phone.trim(), whatsapp: f.whatsapp.trim(),
       email: f.email.trim(), address: f.address.trim(), hours: f.hours.trim(), instagram: f.instagram.trim(),
+      facebook: f.facebook.trim(), youtube: f.youtube.trim(), tiktok: f.tiktok.trim(), twitter: f.twitter.trim(),
     };
     if (setAdminSettingsStorage(ADMIN_SETTINGS_KEY, obj)) {
       this.setState({ editingSettings: false, settingsErrors: {} });
@@ -5021,15 +5068,19 @@ class Component extends DCLogic {
   buildAjustesViewModel(st) {
     const isAjustesSection = st.sec === 'ajustes';
     const current = getAdminSettings(ADMIN_SETTINGS_KEY);
-    const hasAny = !!(current.businessName || current.phone || current.whatsapp || current.email || current.address || current.hours || current.instagram);
+    const hasAny = !!(current.businessName || current.phone || current.whatsapp || current.email || current.address || current.hours || current.instagram || current.facebook || current.youtube || current.tiktok || current.twitter);
     const rows = [
       ['Nombre del negocio', current.businessName || 'Jalip Motorsport (original del sitio)'],
       ['Teléfono', current.phone || '(829) 765-3173 (original del sitio)'],
       ['WhatsApp', current.whatsapp || '(829) 765-3173 (original del sitio)'],
-      ['Correo', current.email || 'Sin definir — no se usa en el sitio todavía'],
+      ['Correo', current.email || 'Sin definir — no se muestra en el sitio'],
       ['Dirección', current.address || 'Carr. Peña 169, Tamboril (original del sitio)'],
       ['Horario', current.hours || 'Lun-Vie 8:00-17:00, Sáb 8:00-13:00 (original del sitio)'],
       ['Instagram', current.instagram || '@jalipmotorsport (original del sitio)'],
+      ['Facebook', current.facebook || 'Jalip MotorSport (original del sitio)'],
+      ['YouTube', current.youtube || 'Sin definir — no se muestra en el sitio'],
+      ['TikTok', current.tiktok || 'Sin definir — no se muestra en el sitio'],
+      ['X / Twitter', current.twitter || 'Sin definir — no se muestra en el sitio'],
     ];
     return {
       isAjustesSection,
@@ -5045,6 +5096,10 @@ class Component extends DCLogic {
       setSettingsAddress: this.setSettingsField('address'),
       setSettingsHours: this.setSettingsField('hours'),
       setSettingsInstagram: this.setSettingsField('instagram'),
+      setSettingsFacebook: this.setSettingsField('facebook'),
+      setSettingsYoutube: this.setSettingsField('youtube'),
+      setSettingsTiktok: this.setSettingsField('tiktok'),
+      setSettingsTwitter: this.setSettingsField('twitter'),
       submitSettings: () => this.submitSettings(),
       cancelEditSettings: () => this.cancelEditSettings(),
       restoreDefaultSettings: () => this.restoreDefaultSettings(),
