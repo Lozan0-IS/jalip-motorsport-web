@@ -233,6 +233,12 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:26px">
       <h1 style="font-family:Saira;font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0">{{ title }}</h1>
       <span style="flex:1;height:1px;background:#1A1B1F;min-width:30px"></span>
+      <button onClick="{{ notifBellGoToDash }}" aria-label="Centro de notificaciones" title="Centro de notificaciones" style="position:relative;background:none;border:1px solid #24262B;color:#8B8D93;width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <i data-lucide="bell" style="width:16px;height:16px"></i>
+        <sc-if value="{{ notifBellHasItems }}" hint-placeholder-val="{{ false }}">
+          <span style="position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#E11623;color:#fff;font:700 9px/16px 'JetBrains Mono';text-align:center">{{ notifBellCountLabel }}</span>
+        </sc-if>
+      </button>
       <sc-if value="{{ hasAddButton }}" hint-placeholder-val="{{ true }}">
         <button onClick="{{ openAdd }}" class="pa-h6" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:13px 18px;cursor:pointer;display:flex;align-items:center;gap:8px"><i data-lucide="plus" style="width:14px;height:14px"></i>{{ addLabel }}</button>
       </sc-if>
@@ -6125,6 +6131,15 @@ class Component extends DCLogic {
       dashActivityItems: activityItems,
       dashHasActivity: activityItems.length > 0,
       dashNoActivity: activityItems.length === 0,
+
+      // Fase 6Z: campana de notificaciones — visible en el encabezado de
+      // TODAS las secciones (no solo en Dashboard), mismo conteo que ya usa
+      // el Centro de notificaciones. Sin "leído/no leído" real (no hay tal
+      // estado en el código) — el número es simplemente cuánta actividad
+      // reciente hay, honesto con lo que el dato representa de verdad.
+      notifBellHasItems: activityItems.length > 0,
+      notifBellCountLabel: activityItems.length > 9 ? '9+' : String(activityItems.length),
+      notifBellGoToDash: () => this.goToSection('dashboard'),
 
       dashGoToClientes: () => this.goToSection('clientes'),
       dashGoToCitas: () => this.goToSection('citas'),
