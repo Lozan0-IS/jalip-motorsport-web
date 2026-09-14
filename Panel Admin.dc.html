@@ -1409,6 +1409,23 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                   <span id="prod-name-err" style="color:#FF8A92;font-size:12px">{{ prodErrors.name }}</span>
                 </sc-if>
               </label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Foto <span style="font-family:'JetBrains Mono';color:#5C5E66;font-size:10px">opcional</span>
+                <div style="display:flex;gap:14px;align-items:center;margin-top:2px">
+                  <div style="width:60px;height:60px;flex-shrink:0;background:#101114;border:1px solid #24262B;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#3A3C42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <sc-if value="{{ prodPhotoHasPhoto }}" hint-placeholder-val="{{ false }}">
+                      <img src="{{ prodPhotoThumb }}" alt="Foto del accesorio" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <label for="prod-photo-input" style="background:#E11623;border:none;color:#fff;font:700 10.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:fit-content"><i data-lucide="upload" style="width:12px;height:12px"></i>{{ prodPhotoUploadLabel }}</label>
+                    <input id="prod-photo-input" type="file" accept="image/*" onChange="{{ prodPhotoOnUpload }}" disabled="{{ prodPhotoIsUploading }}" style="display:none">
+                    <sc-if value="{{ prodPhotoHasPhoto }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ prodPhotoOnRemove }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 10px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;cursor:pointer;width:fit-content">Quitar foto</button>
+                    </sc-if>
+                  </div>
+                </div>
+              </label>
               <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#8B8D93">Categoría
                 <select value="{{ prodForm.category }}" onChange="{{ setProdCategory }}" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:11px;font-size:13.5px">
                   <sc-for list="{{ productCategories }}" as="pc" hint-placeholder-count="11">
@@ -1447,7 +1464,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                 <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Estás editando un producto del catálogo base — el cambio se guarda como un ajuste local. Puedes restaurar los valores originales desde su tarjeta con "Restaurar original".</p>
               </sc-if>
               <sc-if value="{{ !isEditingProdBase }}" hint-placeholder-val="{{ true }}">
-                <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se agrega al catálogo del sitio apenas guardes. La foto se sube después desde esta misma lista.</p>
+                <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se agrega al catálogo del sitio apenas guardes.</p>
               </sc-if>
             </div>
           </sc-if>
@@ -2616,7 +2633,15 @@ function readAndResizeImage(file, maxW, cb) {
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      cb(canvas.toDataURL('image/jpeg', 0.82));
+      // Fase 6Z: WebP pesa bastante menos que JPEG a calidad visual similar
+      // (importa porque todo esto vive en localStorage, con cupo limitado —
+      // más fotos = navegador más lento/con menos espacio). Si el navegador
+      // no sabe exportar WebP desde canvas, toDataURL cae en silencio a PNG
+      // (sin compresión con pérdida, mucho más pesado que JPEG) — por eso se
+      // detecta ese caso puntual y se usa JPEG como respaldo, nunca PNG.
+      let dataUrl = canvas.toDataURL('image/webp', 0.82);
+      if (!dataUrl.startsWith('data:image/webp')) dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      cb(dataUrl);
     };
     // archivo corrupto o no-imagen: img.onload nunca dispara, sin esto cb() no se llamaba jamás
     img.onerror = () => cb(null);
@@ -2862,7 +2887,7 @@ const ORDER = ['dashboard', 'citas', 'cotizaciones', 'pedidos', 'clientes', 'utv
 // lanzaba un TypeError y perdía el formulario completo.
 const BLANK_VEH_FORM = { model: '', brand: 'Can-Am', year: '2025', condition: 'Nuevo', availability: 'Disponible', stock: '', price: '', description: '', destacado: false, hp: '', pax: '', motor: '', suspension: '', color: '', tech: '', caracteristicas: '' };
 const BLANK_CITA_FORM = { cliente: '', telefono: '', email: '', utv: '', servicio: '', fecha: '', hora: '', estado: 'Pendiente' };
-const BLANK_PROD_FORM = { name: '', category: 'aros', price: '', compatible: '', availability: 'Disponible', stock: '' };
+const BLANK_PROD_FORM = { name: '', category: 'aros', price: '', compatible: '', availability: 'Disponible', stock: '', photoDraft: '' };
 const BLANK_COTIZ_FORM = { cliente: '', telefono: '', origen: 'Catálogo UTV', detalle: '' };
 const BLANK_CLIENT_FORM = { name: '', phone: '', whatsapp: '', email: '', address: '', notes: '' };
 const BLANK_CLIENT_VEHICLE_FORM = { marca: '', modelo: '', anio: '', color: '', vin: '', notas: '' };
@@ -3017,7 +3042,7 @@ class Component extends DCLogic {
     proyectoSearch: '', editingProyectoId: '', proyectoDeleteConfirmId: '',
     // Fase 6R: Equipo real (fotos + nombre + cargo de quienes trabajan en el taller)
     equipoForm: { ...BLANK_EQUIPO_FORM }, equipoErrors: {},
-    editingEquipoId: '', equipoDeleteConfirmId: '', equipoPhotoDraftBusy: false,
+    editingEquipoId: '', equipoDeleteConfirmId: '', equipoPhotoDraftBusy: false, prodPhotoDraftBusy: false,
     // Fase 6M: Servicios reales
     servicioForm: { ...BLANK_SERVICIO_FORM }, servicioErrors: {},
     editingServicioId: '', servicioDeleteConfirm: null,
@@ -3526,6 +3551,43 @@ class Component extends DCLogic {
     if (setOverridesMap(PRODUCT_OVERRIDES_KEY, m)) { this.bump(); this.showAdminNotice('Se restauraron los valores originales del catálogo.', 'success'); }
     else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
   }
+  // foto elegida ANTES de que exista un id real (formulario de "Publicar
+  // accesorio") — mismo patrón que Equipo (Fase 6T): se procesa igual
+  // (readAndResizeImage) pero el resultado queda solo en prodForm.photoDraft
+  // (memoria) hasta que submitProduct() cree el id y la persista de verdad.
+  setProdPhotoDraft(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      this.showAdminNotice('"' + file.name + '" no es un archivo de imagen. Elige un JPG, PNG o WEBP.', 'error');
+      return;
+    }
+    this.setState({ prodPhotoDraftBusy: true });
+    readAndResizeImage(file, 1200, (dataUrl) => {
+      this.setState({ prodPhotoDraftBusy: false });
+      if (!dataUrl) { this.showAdminNotice('No se pudo procesar "' + file.name + '".', 'error'); return; }
+      this.setState((s) => ({ prodForm: { ...s.prodForm, photoDraft: dataUrl } }));
+    });
+  }
+  clearProdPhotoDraft() { this.setState((s) => ({ prodForm: { ...s.prodForm, photoDraft: '' } })); }
+  // subida directa cuando se edita un producto que YA tiene id real (extra o
+  // base) — mismo helper genérico que ya usa la lista de fotos, solo que
+  // invocable desde el propio formulario de alta/edición.
+  uploadProdPhoto(photoKey, file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      this.showAdminNotice('"' + file.name + '" no es un archivo de imagen. Elige un JPG, PNG o WEBP.', 'error');
+      return;
+    }
+    this.setState((s) => ({ uploadingIds: { ...s.uploadingIds, [photoKey]: true } }));
+    readAndResizeImage(file, 1200, (dataUrl) => {
+      this.setState((s) => { const u = { ...s.uploadingIds }; delete u[photoKey]; return { uploadingIds: u }; });
+      if (!dataUrl) { this.showAdminNotice('No se pudo procesar "' + file.name + '".', 'error'); return; }
+      if (!setStoredPhoto(photoKey, dataUrl)) { this.showAdminNotice(STORAGE_QUOTA_MSG, 'error'); return; }
+      this.bump();
+      this.showAdminNotice('Foto guardada.', 'success');
+    });
+  }
+  removeProdPhoto(photoKey) { clearStoredPhoto(photoKey); this.bump(); }
 
   submitProduct() {
     if (this._submittingProd) return;
@@ -3565,9 +3627,14 @@ class Component extends DCLogic {
           this.showAdminNotice('"' + fields.name + '" actualizado.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       } else {
+        const newId = 'extra' + Date.now();
         const list = getExtraList('products');
-        list.push({ id: 'extra' + Date.now(), ...fields, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
+        list.push({ id: newId, ...fields, createdBy: this.state.loggedInUser, updatedBy: this.state.loggedInUser });
         if (setExtraList('products', list)) {
+          // la foto se pudo elegir en el mismo formulario, antes de que
+          // existiera un id real (mismo patrón que Equipo) — se guardaba solo
+          // en memoria (prodForm.photoDraft) y recién ahora se persiste.
+          if (f.photoDraft) setStoredPhoto('p_' + newId, f.photoDraft);
           this.setState({ addOpen: false, prodForm: { ...BLANK_PROD_FORM }, prodErrors: {} });
           this.showAdminNotice('"' + fields.name + '" agregado al catálogo de accesorios.', 'success');
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
@@ -6306,6 +6373,13 @@ class Component extends DCLogic {
     // 'v_' + extraId para extras (mismo prefijo que usa makePhotoItem), el
     // baseId ya viene prefijado ('v_v1', etc.) para unidades del catálogo base.
     const vehWizardPhotoId = st.editingVehExtraId ? 'v_' + st.editingVehExtraId : (st.editingVehBaseId || '');
+    // Fase 6Z: foto directo en el formulario de Accesorios — a diferencia de
+    // UTV (arriba), aquí sí se puede subir ANTES de guardar (sin id real)
+    // gracias a prodForm.photoDraft, mismo patrón que Equipo. Con id real
+    // (editando extra o base) sube directo con el mismo prefijo 'p_' que ya
+    // usa makePhotoItem.
+    const prodPhotoKey = st.editingProdExtraId ? 'p_' + st.editingProdExtraId : (st.editingProdBaseId || '');
+    const prodPhotoThumb = prodPhotoKey ? getStoredPhoto(prodPhotoKey) : st.prodForm.photoDraft;
     // Fase 6Q: asistente de "Publicar proyecto" — la foto de portada y la
     // galería del proceso solo se pueden subir cuando el proyecto ya existe
     // (tiene id real), igual que el resto del panel ("se sube después de guardar").
@@ -6441,6 +6515,21 @@ class Component extends DCLogic {
       setProdAvailability: this.setProdField('availability'),
       setProdStock: this.setProdField('stock'),
       submitProduct: () => this.submitProduct(),
+      prodPhotoThumb,
+      prodPhotoHasPhoto: !!prodPhotoThumb,
+      prodPhotoIsUploading: prodPhotoKey ? !!st.uploadingIds[prodPhotoKey] : st.prodPhotoDraftBusy,
+      prodPhotoUploadLabel: (prodPhotoKey ? !!st.uploadingIds[prodPhotoKey] : st.prodPhotoDraftBusy) ? 'Procesando…' : (prodPhotoThumb ? 'Cambiar foto' : 'Subir foto'),
+      prodPhotoOnUpload: (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+        if (prodPhotoKey) this.uploadProdPhoto(prodPhotoKey, file);
+        else this.setProdPhotoDraft(file);
+      },
+      prodPhotoOnRemove: () => {
+        if (prodPhotoKey) this.removeProdPhoto(prodPhotoKey);
+        else this.clearProdPhotoDraft();
+      },
       cotizForm: st.cotizForm,
       isEditingCotiz: !!st.editingCotizId,
       cotizSubmitLabel: st.editingCotizId ? 'Guardar cambios' : 'Registrar cotización',
