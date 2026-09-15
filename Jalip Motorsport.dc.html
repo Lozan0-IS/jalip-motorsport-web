@@ -436,7 +436,13 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </sc-if>
     </button>
     <a href="#mantenimiento" data-desktop-only="1" class="jm-h13 jm-magnetic" style="flex-shrink:0;background:none;border:1px solid #3A3C42;color:#F2F3F5;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:12px 19px;display:flex;align-items:center;gap:8px;border-radius:999px"><i data-lucide="calendar-check" style="width:15px;height:15px;color:#FF3B47"></i><span data-en="Book">Agendar</span></a>
-    <a href="#mantenimiento" data-mobile-only="1" aria-label="Agendar" data-en-aria="Book" class="jm-h14" style="display:none;flex-shrink:0;margin-left:auto;background:#E11623;color:#fff;width:46px;height:46px;align-items:center;justify-content:center"><i data-lucide="calendar-check" style="width:19px;height:19px"></i></a>
+    <button type="button" data-mobile-only="1" onClick="{{ toggleCart }}" aria-label="Carrito de cotización" style="position:relative;display:none;flex-shrink:0;margin-left:auto;background:none;border:1px solid #3A3C42;color:#F2F3F5;width:46px;height:46px;align-items:center;justify-content:center;cursor:pointer">
+      <i data-lucide="shopping-cart" style="width:18px;height:18px"></i>
+      <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 4px;border-radius:999px;background:#E11623;color:#fff;font:700 10px/19px 'JetBrains Mono';text-align:center">{{ cartCountStr }}</span>
+      </sc-if>
+    </button>
+    <a href="#mantenimiento" data-mobile-only="1" aria-label="Agendar" data-en-aria="Book" class="jm-h14" style="display:none;flex-shrink:0;background:#E11623;color:#fff;width:46px;height:46px;align-items:center;justify-content:center"><i data-lucide="calendar-check" style="width:19px;height:19px"></i></a>
     <button data-mobile-only="1" onClick="{{ toggleMenu }}" aria-label="Menú" aria-expanded="{{ menuOpenStr }}" aria-controls="jm-mobile-nav" class="jm-h15" style="display:none;flex-shrink:0;background:none;border:1px solid #24262B;color:#F2F3F5;width:46px;height:46px;align-items:center;justify-content:center;cursor:pointer"><i data-lucide="{{ menuIcon }}" style="width:20px;height:20px"></i></button>
   </div>
   </header>
@@ -449,8 +455,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
      procesar un pago real. Global, disponible desde el header en cualquier
      página, se comparte por localStorage 'jm_cart'. ══ -->
 <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
-  <div role="dialog" aria-modal="true" aria-label="Tu carrito" style="position:fixed;inset:0;z-index:200;background:#08080A;overflow-y:auto;animation:jm-fade .2s ease-out both">
-    <div style="max-width:1180px;margin:0 auto;padding:28px 24px 80px">
+  <div role="dialog" aria-modal="true" aria-label="Tu carrito" style="position:fixed;inset:0;z-index:60;background:#08080A;overflow-y:auto;animation:jm-fade .2s ease-out both">
+    <div style="max-width:1180px;margin:0 auto;padding:150px 24px 80px">
       <div style="display:flex;align-items:center;gap:14px">
         <button onClick="{{ closeCart }}" aria-label="Volver al sitio" style="background:none;border:1px solid #24262B;color:#F2F3F5;width:42px;height:42px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i data-lucide="arrow-left" style="width:18px;height:18px"></i></button>
         <div>

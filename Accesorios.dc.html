@@ -598,8 +598,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
        procesar un pago real; todo sigue en esta misma vista y termina en
        una cotización real. -->
   <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
-    <div role="dialog" aria-modal="true" aria-label="Tu carrito" style="position:fixed;inset:0;z-index:200;background:#08080A;overflow-y:auto;animation:jm-fade .2s ease-out both">
-      <div style="max-width:1180px;margin:0 auto;padding:28px 24px 80px">
+    <div role="dialog" aria-modal="true" aria-label="Tu carrito" style="position:fixed;inset:0;z-index:60;background:#08080A;overflow-y:auto;animation:jm-fade .2s ease-out both">
+      <div style="max-width:1180px;margin:0 auto;padding:150px 24px 80px">
         <div style="display:flex;align-items:center;gap:14px">
           <button onClick="{{ closeCart }}" aria-label="Volver a la tienda" style="background:none;border:1px solid #24262B;color:#F2F3F5;width:42px;height:42px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i data-lucide="arrow-left" style="width:18px;height:18px"></i></button>
           <div>
