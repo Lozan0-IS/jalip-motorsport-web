@@ -1,5 +1,7 @@
 # JALIP MOTORSPORT — ADAPTACIÓN ESTRUCTURAL
 
+> **Superseded**: este documento tenía un error real — decía que Jalip "no tiene breadcrumbs en ningún archivo" cuando eso solo era cierto para el homepage (Vehículos y Accesorios sí los tienen). Ver `Website Reference - Stress Test v2 (UTV Unlimited to Jalip).md` para la versión corregida y con niveles de evidencia formales — es la fuente de verdad actual. Este archivo se conserva como historial, no como referencia vigente.
+
 Basado en `UTV Unlimited - Analisis Estructural.md`. Este documento dice qué de esa estructura conviene a Jalip, qué no, y por qué — nunca copia visual, solo lógica de organización. Comparado contra el estado real actual de `Jalip Motorsport.dc.html`, `Vehiculos.dc.html`, `Accesorios.dc.html` (verificado leyendo/grepeando los archivos reales, no asumido).
 
 ## Nota honesta de partida
