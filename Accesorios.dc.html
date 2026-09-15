@@ -1218,7 +1218,9 @@ class Component extends DCLogic {
     waBubbleClosed: (() => { try { return localStorage.getItem('jm_wa_bubble_closed') === '1'; } catch (e) { return false; } })(),
     fBrand: 'all', fCondition: 'all', fAvail: 'all', fYear: 'all',
     cat: 'aros',
-    prodSearch: '', prodSort: 'relevancia', prodAvail: 'all', prodCompat: 'all', prodPriceCap: null,
+    prodSearch: '', prodSort: 'relevancia', prodAvail: 'all',
+    prodCompat: (() => { try { return localStorage.getItem('jm_prod_compat') || 'all'; } catch (e) { return 'all'; } })(),
+    prodPriceCap: null,
     productModalKey: '',
     products: PRODUCTS,
     cart: (() => { try { return JSON.parse(localStorage.getItem('jm_cart') || '{}'); } catch (e) { return {}; } })(),
@@ -1918,17 +1920,25 @@ class Component extends DCLogic {
       setProdSearch: (e) => this.setState({ prodSearch: e.target.value }),
       setProdSort: (e) => this.setState({ prodSort: e.target.value }),
       setProdAvail: (e) => this.setState({ prodAvail: e.target.value }),
-      clearProdFilters: () => this.setState({ prodSearch: '', prodSort: 'relevancia', prodAvail: 'all', prodCompat: 'all', prodPriceCap: null }),
+      clearProdFilters: () => { try { localStorage.removeItem('jm_prod_compat'); } catch (e) {} this.setState({ prodSearch: '', prodSort: 'relevancia', prodAvail: 'all', prodCompat: 'all', prodPriceCap: null }); },
       prodResultLabel: parts.length + (parts.length === 1 ? ' resultado' : ' resultados'),
 
       // Fase paridad tienda (Modelo 01): compatibilidad + rango de precio real
+      // la compatibilidad elegida se recuerda entre visitas (localStorage) para
+      // no obligar a re-filtrar por el mismo vehículo cada vez — ver JALIP-002
       prodCompat: st.prodCompat,
-      compatOptions: [
-        { key: 'all', label: 'Todas', on: st.prodCompat === 'all', pick: () => this.setState({ prodCompat: 'all' }) },
-        { key: 'Can-Am', label: 'Can-Am', on: st.prodCompat === 'Can-Am', pick: () => this.setState({ prodCompat: 'Can-Am' }) },
-        { key: 'Polaris', label: 'Polaris', on: st.prodCompat === 'Polaris', pick: () => this.setState({ prodCompat: 'Polaris' }) },
-        { key: 'Universal', label: 'Universal / otros', on: st.prodCompat === 'Universal', pick: () => this.setState({ prodCompat: 'Universal' }) },
-      ],
+      compatOptions: (() => {
+        const pickCompat = (val) => () => {
+          try { val === 'all' ? localStorage.removeItem('jm_prod_compat') : localStorage.setItem('jm_prod_compat', val); } catch (e) {}
+          this.setState({ prodCompat: val });
+        };
+        return [
+          { key: 'all', label: 'Todas', on: st.prodCompat === 'all', pick: pickCompat('all') },
+          { key: 'Can-Am', label: 'Can-Am', on: st.prodCompat === 'Can-Am', pick: pickCompat('Can-Am') },
+          { key: 'Polaris', label: 'Polaris', on: st.prodCompat === 'Polaris', pick: pickCompat('Polaris') },
+          { key: 'Universal', label: 'Universal / otros', on: st.prodCompat === 'Universal', pick: pickCompat('Universal') },
+        ];
+      })(),
       catalogMinPrice,
       catalogMaxPrice,
       hasPriceRange: catalogMaxPrice > catalogMinPrice,

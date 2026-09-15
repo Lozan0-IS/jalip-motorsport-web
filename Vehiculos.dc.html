@@ -121,7 +121,7 @@
   /* modal de info del UTV — vista tipo tienda, imagen + detalle en columnas */
   .jm-veh-modal { display:grid; grid-template-columns:1.4fr 1fr; }
   @media (max-width: 640px) { .jm-veh-modal { grid-template-columns:1fr; } }
-  @media (max-width: 720px) { .jm-trade-steps { grid-template-columns:1fr; } }
+  @media (max-width: 720px) { .jm-trade-steps { grid-template-columns:minmax(0,1fr); } }
   .jm-veh-tabs { display:flex; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:thin; }
   .jm-veh-tabs::-webkit-scrollbar { height:4px; }
 
@@ -783,7 +783,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     <span style="font:700 10px/1 Barlow;letter-spacing:.2em;text-transform:uppercase;color:#FF3B47" data-en="Trade-in">Compra y cambio</span>
     <h3 style="font-family:Saira;font-weight:800;font-size:clamp(20px,2.6vw,27px);margin-top:8px" data-en="Have a UTV to sell?">¿Tienes un UTV para vender?</h3>
   </div>
-  <div class="jm-trade-steps" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E1F24;border:1px solid #1E1F24">
+  <div class="jm-trade-steps" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#1E1F24;border:1px solid #1E1F24">
     <div style="background:#0D0E10;padding:24px 22px;display:flex;flex-direction:column;gap:10px">
       <span style="font-family:'JetBrains Mono';font-size:11px;color:#FF3B47">01</span>
       <i data-lucide="edit-3" style="width:20px;height:20px;color:#E11623"></i>
