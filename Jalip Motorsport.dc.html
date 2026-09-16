@@ -605,15 +605,19 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
   </div>
 </section>
 
-<!-- ══ ACCESORIOS & PARTES (Home) — franja clara deliberada (no todo el sitio
-     es negro), catálogo real cruzando categorías, desplazamiento continuo
-     hacia la izquierda. Enlaces reales a Accesorios.dc.html#categoría ══ -->
+<!-- ══ ACCESORIOS & PARTES (Home) — VIS-001 (Fase 9): la franja clara original
+     rompía el tema oscuro del resto del sitio sin ninguna transición que lo
+     enmarcara como una decisión — se lee como un componente de otra paleta,
+     no como ritmo visual. Ahora usa la misma superficie oscura que el resto
+     del Homepage y el mismo lenguaje de tarjeta que Accesorios.dc.html.
+     Catálogo real cruzando categorías, desplazamiento continuo hacia la
+     izquierda. Enlaces reales a Accesorios.dc.html#categoría ══ -->
 <sc-if value="{{ hasHomeStrip }}" hint-placeholder-val="{{ true }}">
-  <section style="background:#F2F1EC;overflow:hidden">
-    <div class="jm-ticker-mask" style="border-top:1px solid rgba(10,10,12,.08);border-bottom:1px solid rgba(10,10,12,.08);background:#EAE8E1;padding:12px 0">
+  <section style="background:#0A0A0C;overflow:hidden">
+    <div class="jm-ticker-mask" style="border-top:1px solid #191A1E;border-bottom:1px solid #191A1E;background:#0D0E10;padding:12px 0">
       <div class="jm-ticker-track" id="jm-ticker-track" style="display:inline-flex;gap:36px;white-space:nowrap">
         <sc-for list="{{ tickerItems }}" as="t" hint-placeholder-count="22">
-          <span style="display:inline-flex;align-items:center;gap:9px;font-family:'JetBrains Mono';font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1A1A1C;flex-shrink:0">
+          <span style="display:inline-flex;align-items:center;gap:9px;font-family:'JetBrains Mono';font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#C9CBD1;flex-shrink:0">
             <span style="width:5px;height:5px;border-radius:50%;background:#E11623;flex-shrink:0"></span>{{ t }}
           </span>
         </sc-for>
@@ -623,31 +627,31 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <div data-reveal-scroll style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:30px">
         <div>
           <span style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:.14em;color:#E11623;text-transform:uppercase" data-en="Real catalog">Catálogo real</span>
-          <h2 style="font-family:Saira;font-weight:900;font-size:clamp(26px,3.2vw,40px);letter-spacing:-.02em;color:#0A0A0C;margin:8px 0 0" data-en="Accessories &amp; parts">Accesorios &amp; partes</h2>
+          <h2 style="font-family:Saira;font-weight:900;font-size:clamp(26px,3.2vw,40px);letter-spacing:-.02em;color:#F2F3F5;margin:8px 0 0" data-en="Accessories &amp; parts">Accesorios &amp; partes</h2>
         </div>
-        <a href="Accesorios.dc.html" style="color:#0A0A0C;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0" data-en="Full catalog">Todo el catálogo <i data-lucide="arrow-right" style="width:14px;height:14px;color:#E11623"></i></a>
+        <a href="Accesorios.dc.html" style="color:#F2F3F5;font:700 12px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0" data-en="Full catalog">Todo el catálogo <i data-lucide="arrow-right" style="width:14px;height:14px;color:#E11623"></i></a>
       </div>
     </div>
     <div class="jm-strip-mask" style="padding:2px 0 26px">
       <div class="jm-strip-track" id="jm-strip-track" style="display:inline-flex;gap:18px;padding:0 24px">
         <sc-for list="{{ homeStripItems }}" as="p" hint-placeholder-count="22">
-          <a href="{{ p.href }}" style="flex-shrink:0;width:216px;background:#fff;border:1px solid rgba(10,10,12,.1);text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 14px 30px -18px rgba(10,10,12,.25)">
-            <div style="position:relative;aspect-ratio:1;background:#F7F6F2;overflow:hidden">
+          <a href="{{ p.href }}" style="flex-shrink:0;width:216px;background:linear-gradient(165deg,#1C1D22,#131418);border:1px solid #26282E;text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 14px 30px -18px rgba(0,0,0,.6)">
+            <div style="position:relative;aspect-ratio:1;background:#0D0E10;overflow:hidden">
               <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
                 <img src="{{ p.img }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:18px;box-sizing:border-box">
               </sc-if>
               <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
-                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-                  <i data-lucide="{{ p.icon }}" style="width:38px;height:38px;color:#CFCEC7;stroke-width:1.3"></i>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,rgba(225,22,35,.16) 0%,rgba(225,22,35,.03) 46%,transparent 70%)">
+                  <i data-lucide="{{ p.icon }}" style="width:38px;height:38px;color:#5C2229;stroke-width:1.3"></i>
                 </div>
               </sc-if>
               <span style="position:absolute;top:9px;left:9px;background:#0A0A0C;color:#fff;font:700 8.5px/1 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:5px 8px">{{ p.catLabel }}</span>
             </div>
             <div style="padding:15px">
-              <h4 style="font-family:Saira;font-weight:700;font-size:13.5px;color:#0A0A0C;margin:0 0 10px;line-height:1.3;min-height:35px">{{ p.name }}</h4>
+              <h4 style="font-family:Saira;font-weight:700;font-size:13.5px;color:#F2F3F5;margin:0 0 10px;line-height:1.3;min-height:35px">{{ p.name }}</h4>
               <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
                 <span style="font-family:'JetBrains Mono';font-weight:700;font-size:14px;color:#E11623">{{ p.priceLabel }}</span>
-                <span style="font-size:9.5px;color:#8A8A85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.compatible }}</span>
+                <span style="font-size:9.5px;color:#8B8D93;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.compatible }}</span>
               </div>
             </div>
           </a>
@@ -655,7 +659,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </div>
     </div>
     <div style="max-width:1360px;margin:0 auto;padding:0 24px 40px">
-      <div class="jm-strip-progress-track" style="position:relative;height:3px;background:rgba(10,10,12,.1);overflow:hidden">
+      <div class="jm-strip-progress-track" style="position:relative;height:3px;background:#1E1F24;overflow:hidden">
         <div class="jm-strip-progress-bar" style="position:absolute;top:0;left:-15%;height:100%;width:15%;background:#E11623"></div>
       </div>
     </div>
@@ -678,14 +682,14 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;background:#0A0A0C">
         <sc-for list="{{ featuredVehicles }}" as="fv" hint-placeholder-count="4">
           <article class="jm-tilt" onClick="{{ fv.open }}" style="background:#0D0E10;border:1px solid #26282E;cursor:pointer">
-            <div style="aspect-ratio:4/3;padding:28px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            <div style="position:relative;aspect-ratio:4/3;padding:28px;display:flex;align-items:center;justify-content:center;overflow:hidden">
               <sc-if value="{{ fv.hasImg }}" hint-placeholder-val="{{ false }}">
                 <img src="{{ fv.img }}" alt="{{ fv.model }}" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain">
               </sc-if>
               <sc-if value="{{ fv.noImg }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#3A3C42">
-                  <i data-lucide="car" style="width:48px;height:48px;stroke-width:1.3"></i>
-                  <span style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 10px" data-en="Photo pending">Foto pendiente</span>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:radial-gradient(circle at 50% 38%,rgba(225,22,35,.16) 0%,rgba(225,22,35,.03) 46%,transparent 70%)">
+                  <i data-lucide="car" style="width:48px;height:48px;color:#5C2229;stroke-width:1.3"></i>
+                  <span style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B6D75;text-align:center;padding:0 10px" data-en="Photo coming soon">Foto próximamente</span>
                 </div>
               </sc-if>
             </div>
@@ -1623,9 +1627,9 @@ const CART_PAYMENT_METHODS = [
 const VEHICLES = [
   { key: 'v1', brand: 'Can-Am', model: 'Maverick R X RS', year: '2027', condition: 'Nuevo', availability: 'Disponible', img: '', color: 'Negro', specs: ['Ficha técnica editable', 'Color: Negro', 'Financiamiento por confirmar'] },
   { key: 'v2', brand: 'Can-Am', model: 'Maverick R X RS', year: '2027', condition: 'Nuevo', availability: 'Bajo pedido', img: '', color: 'Mamey', specs: ['Ficha técnica editable', 'Color: Mamey', 'Tiempo de entrega por confirmar'] },
-  { key: 'v3', brand: 'Polaris', model: 'Unidad demo 03 — modelo editable', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Ficha técnica editable', 'Configuración por definir', 'Garantía por confirmar'] },
-  { key: 'v4', brand: 'Polaris', model: 'Unidad demo 04 — modelo editable', year: '—', condition: 'Usado', availability: 'Bajo pedido', img: '', specs: ['Ficha técnica editable', 'Estado por definir', 'Fotos pendientes'] },
-  { key: 'v5', brand: 'Otra', model: 'Unidad demo 05 — marca editable', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Marca por confirmar', 'Ficha técnica editable', 'Disponibilidad por confirmar'] },
+  { key: 'v3', brand: 'Polaris', model: 'Unidad demo 03', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Ficha técnica editable', 'Configuración por definir', 'Garantía por confirmar'] },
+  { key: 'v4', brand: 'Polaris', model: 'Unidad demo 04', year: '—', condition: 'Usado', availability: 'Bajo pedido', img: '', specs: ['Ficha técnica editable', 'Estado por definir', 'Fotos pendientes'] },
+  { key: 'v5', brand: 'Otra', model: 'Unidad demo 05', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Marca por confirmar', 'Ficha técnica editable', 'Disponibilidad por confirmar'] },
   { key: 'v6', brand: 'Can-Am', model: 'Maverick R MAX X RC', year: '2027', condition: 'Nuevo', availability: 'Bajo pedido', img: '', color: 'Verde', specs: ['Ficha técnica editable', '4 puertas', 'Color: Verde'] },
 ];
 // grilla de specs de la tarjeta del catálogo — solo "Color" tiene dato real hoy;

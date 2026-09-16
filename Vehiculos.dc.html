@@ -628,9 +628,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             <div class="jm-veh-scrim" style="position:absolute;inset:0;pointer-events:none;border-radius:8px"></div>
           </sc-if>
           <sc-if value="{{ v.noImg }}" hint-placeholder-val="{{ true }}">
-            <div class="jm-acc-art" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#3A3C42" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="width:60px;height:60px"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-              <span style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#5C5E66;text-align:center;padding:0 14px">Foto pendiente — Panel Admin</span>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px;background:radial-gradient(circle at 50% 38%,rgba(225,22,35,.16) 0%,rgba(225,22,35,.03) 46%,transparent 70%)">
+              <i data-lucide="car" style="width:56px;height:56px;color:#5C2229;stroke-width:1.3"></i>
+              <span style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B6D75;text-align:center;padding:0 14px">Foto próximamente</span>
             </div>
           </sc-if>
           <span style="position:absolute;top:0;right:0;font:600 8.5px/1 'JetBrains Mono';letter-spacing:.12em;text-transform:uppercase;color:#48494e">DEMO</span>
@@ -1211,9 +1211,9 @@ const CART_PAYMENT_METHODS = [
 const VEHICLES = [
   { key: 'v1', brand: 'Can-Am', model: 'Maverick R X RS', year: '2027', condition: 'Nuevo', availability: 'Disponible', img: '', color: 'Negro', specs: ['Ficha técnica editable', 'Color: Negro', 'Financiamiento por confirmar'] },
   { key: 'v2', brand: 'Can-Am', model: 'Maverick R X RS', year: '2027', condition: 'Nuevo', availability: 'Bajo pedido', img: '', color: 'Mamey', specs: ['Ficha técnica editable', 'Color: Mamey', 'Tiempo de entrega por confirmar'] },
-  { key: 'v3', brand: 'Polaris', model: 'Unidad demo 03 — modelo editable', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Ficha técnica editable', 'Configuración por definir', 'Garantía por confirmar'] },
-  { key: 'v4', brand: 'Polaris', model: 'Unidad demo 04 — modelo editable', year: '—', condition: 'Usado', availability: 'Bajo pedido', img: '', specs: ['Ficha técnica editable', 'Estado por definir', 'Fotos pendientes'] },
-  { key: 'v5', brand: 'Otra', model: 'Unidad demo 05 — marca editable', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Marca por confirmar', 'Ficha técnica editable', 'Disponibilidad por confirmar'] },
+  { key: 'v3', brand: 'Polaris', model: 'Unidad demo 03', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Ficha técnica editable', 'Configuración por definir', 'Garantía por confirmar'] },
+  { key: 'v4', brand: 'Polaris', model: 'Unidad demo 04', year: '—', condition: 'Usado', availability: 'Bajo pedido', img: '', specs: ['Ficha técnica editable', 'Estado por definir', 'Fotos pendientes'] },
+  { key: 'v5', brand: 'Otra', model: 'Unidad demo 05', year: '—', condition: 'Nuevo', availability: 'Disponible', img: '', specs: ['Marca por confirmar', 'Ficha técnica editable', 'Disponibilidad por confirmar'] },
   { key: 'v6', brand: 'Can-Am', model: 'Maverick R MAX X RC', year: '2027', condition: 'Nuevo', availability: 'Bajo pedido', img: '', color: 'Verde', specs: ['Ficha técnica editable', '4 puertas', 'Color: Verde'] },
 ];
 
