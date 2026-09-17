@@ -14,6 +14,13 @@
 <script src="vendor/babel.min.js"></script>
 <script>window.Babel || document.write('<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"><\/script>')</script>
 <script src="./support.js"></script>
+<!-- Fase Firebase A: SDK "compat" (namespace global `firebase`, sin módulos ES)
+     para encajar con el resto de este archivo (sin build step). Google no
+     publica hashes de integridad (SRI) estables para estas URLs de gstatic,
+     así que no se inventa un integrity="..." — se deja documentado en vez
+     de fabricar un hash falso. -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <x-dc>
@@ -1502,6 +1509,20 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;configLayout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;panel&quot;,&quot;immersive&quot;],&quot;default&quot;:&quot;panel&quot;,&quot;tsType&quot;:&quot;'panel' | 'immersive'&quot;,&quot;section&quot;:&quot;Configurador 3D&quot;},&quot;autoRotate3D&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Configurador 3D&quot;},&quot;defaultBodyColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#1d1f24&quot;,&quot;#E11623&quot;,&quot;#7A4DFF&quot;,&quot;#B08B4F&quot;],&quot;default&quot;:&quot;#1d1f24&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Configurador 3D&quot;}}">
+// Fase Firebase A: conexión a Firestore para leer datos en vivo (agregados/
+// editados desde Panel Admin.dc.html en cualquier dispositivo). Esta página
+// pública nunca llama a firebase.auth() — eso vive solo en Panel Admin.
+const firebaseConfig = {
+  apiKey: 'AIzaSyB6aJ6__gDCD0jO1MACjq1-naDusvHhgOc',
+  authDomain: 'jalip-motorsport.firebaseapp.com',
+  projectId: 'jalip-motorsport',
+  storageBucket: 'jalip-motorsport.firebasestorage.app',
+  messagingSenderId: '505767643054',
+  appId: '1:505767643054:web:fe08d5a0aed2819725ea3f',
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const WA = '18297653173';
 // Fase 6J (sección 11/12): si el administrador cargó un teléfono/WhatsApp real
 // en Panel Admin.dc.html (jm_admin_settings), todos los enlaces de WhatsApp

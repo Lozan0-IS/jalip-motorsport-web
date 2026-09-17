@@ -13,6 +13,15 @@
 <script src="vendor/babel.min.js"></script>
 <script>window.Babel || document.write('<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"><\/script>')</script>
 <script src="./support.js"></script>
+<!-- Fase Firebase A: SDK "compat" (namespace global `firebase`, sin módulos ES)
+     para encajar con el resto de este archivo (sin build step). Google no
+     publica hashes de integridad (SRI) estables para estas URLs de gstatic,
+     así que no se inventa un integrity="..." — se deja documentado en vez
+     de fabricar un hash falso. Panel Admin también carga auth-compat, ya
+     que es el único archivo que necesita iniciar sesión. -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 <x-dc>
@@ -153,9 +162,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}">
           <span style="color:#FF8A92;font-size:12.5px">{{ loginError }}</span>
         </sc-if>
-        <button onClick="{{ unlock }}" class="pa-h1" style="border:none;background:#E11623;color:#fff;font:700 12px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px"><i data-lucide="lock-open" style="width:15px;height:15px"></i>Entrar</button>
+        <button onClick="{{ unlock }}" disabled="{{ loginBusy }}" class="pa-h1" style="border:none;background:#E11623;color:#fff;font:700 12px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;opacity:{{ loginButtonOpacity }}"><i data-lucide="{{ loginButtonIcon }}" style="width:15px;height:15px"></i>{{ loginButtonLabel }}</button>
       </div>
-      <div style="margin-top:22px;border-left:2px solid #E11623;background:#160C0D;padding:12px 14px;font-size:12.5px;line-height:1.6;color:#FF9AA1">Esta contraseña vive en el código del sitio — cualquiera que lo abra puede leerla. Es un obstáculo básico, no seguridad real. Antes de manejar datos sensibles de verdad, esto necesita autenticación de servidor (Supabase Auth, roles y RLS).</div>
+      <div style="margin-top:22px;border-left:2px solid #E11623;background:#160C0D;padding:12px 14px;font-size:12.5px;line-height:1.6;color:#FF9AA1">El acceso ahora es real (Firebase Authentication) — solo las cuentas de Israel y Taller pueden iniciar sesión y escribir datos. Para agregar un usuario nuevo hay que crearlo directamente en la consola de Firebase, no desde este panel.</div>
       <a href="Jalip Motorsport.dc.html" class="pa-h2" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:13px;color:#8B8D93"><i data-lucide="arrow-left" style="width:14px;height:14px"></i>Volver al sitio</a>
     </div>
   </div>
@@ -621,11 +630,14 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     </div>
     </sc-if>
 
-    <!-- Fase 6W: Usuarios del panel — vista propia (isUsuariosSection) -->
+    <!-- Fase Firebase A: Usuarios del panel — ahora de solo lectura. Crear/editar/
+         eliminar accesos requiere la consola de Firebase (ver nota debajo), no
+         este panel — antes era un CRUD completo sobre localStorage, lo cual ya
+         no es seguro una vez que el login es real. -->
     <sc-if value="{{ isUsuariosSection }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;align-items:flex-start;gap:10px;background:#101114;border:1px solid #24262B;border-left:2px solid #7A4DFF;padding:14px 18px;margin-bottom:18px">
       <i data-lucide="info" style="width:16px;height:16px;color:#7A4DFF;flex-shrink:0;margin-top:2px"></i>
-      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Cada persona aquí puede entrar al Panel Admin con su nombre y su propia contraseña. Todos tienen el mismo acceso — esto es solo para saber quién hizo cada cambio, no para restringir nada. Debe quedar siempre al menos un usuario, y no puedes eliminar el que tiene la sesión iniciada ahora mismo.</p>
+      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Estas son las cuentas con acceso real (Firebase Authentication) al Panel Admin — ambas tienen el mismo nivel de acceso. Para agregar, editar o quitar un acceso, hazlo en Firebase Console → Authentication → Users (no desde aquí).</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
       <sc-for list="{{ usuarioRows }}" as="ur" hint-placeholder-count="2">
@@ -640,16 +652,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                 <span style="font:700 8.5px/1 Barlow;letter-spacing:.06em;text-transform:uppercase;color:#7BE29A;background:#1F2B22;padding:2px 6px;flex-shrink:0">{{ ur.meBadge }}</span>
               </sc-if>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <span style="font:500 11px/1 'JetBrains Mono';color:#8B8D93">{{ ur.passwordDisplay }}</span>
-              <button onClick="{{ ur.toggleReveal }}" style="background:none;border:none;color:#5C5E66;font:600 9.5px/1 Barlow;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;padding:2px">{{ ur.revealLabel }}</button>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <button onClick="{{ ur.edit }}" style="background:none;border:1px solid #24262B;color:#F2F3F5;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Editar</button>
-            <sc-if value="{{ ur.canDelete }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ ur.remove }}" style="background:none;border:1px solid #3A1416;color:#FF8A92;font:600 9.5px/1 Barlow;padding:7px 10px;cursor:pointer">Eliminar</button>
-            </sc-if>
+            <div style="margin-top:6px;font:500 11px/1 'JetBrains Mono';color:#5C5E66">{{ ur.email }}</div>
           </div>
         </div>
       </sc-for>
@@ -2501,6 +2504,33 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
+// Fase Firebase A: conexión a Firebase. Panel Admin es el único archivo que
+// llama a firebase.auth() — los 3 sitios públicos solo leen Firestore.
+// setPersistence(LOCAL): la sesión sobrevive un refresh (antes, cualquier
+// recarga volvía a pedir la clave) — pedido explícito del usuario.
+const firebaseConfig = {
+  apiKey: 'AIzaSyB6aJ6__gDCD0jO1MACjq1-naDusvHhgOc',
+  authDomain: 'jalip-motorsport.firebaseapp.com',
+  projectId: 'jalip-motorsport',
+  storageBucket: 'jalip-motorsport.firebasestorage.app',
+  messagingSenderId: '505767643054',
+  appId: '1:505767643054:web:fe08d5a0aed2819725ea3f',
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+
+// Tabla fija nombre-mostrado → correo real de Firebase Auth. La UI de login
+// sigue siendo "elige tu nombre + escribe tu clave" — por debajo ahora es
+// un inicio de sesión real, no una comparación de texto en el navegador.
+// Para agregar un usuario nuevo: créalo en Firebase Console → Authentication
+// → Users, y agrégalo aquí con su nombre para mostrar.
+const AUTH_EMAIL_BY_NAME = {
+  Israel: 'israel@jalipmotorsport.internal',
+  Taller: 'taller@jalipmotorsport.internal',
+};
+
 // verde "positivo/con foto/aprobado" reutilizado en varios estados — mismo valor
 // que ya usa Jalip Motorsport.dc.html para su propio estado "success"
 const COLOR_SUCCESS = '#7BE29A';
@@ -3005,7 +3035,7 @@ class Component extends DCLogic {
     // Fase 6K: sub-vista de UTV — Inventario (fotos/precio, ya existía) vs
     // Evaluaciones (solicitudes reales de "Venta de tu UTV" del sitio público)
     utvSubTab: 'inventario',
-    loginPassword: '', loginError: '', loginUserName: (getEffectiveUsers()[0] || {}).name || '', loggedInUser: '',
+    loginPassword: '', loginError: '', loginBusy: false, loginUserName: Object.keys(AUTH_EMAIL_BY_NAME)[0] || '', loggedInUser: '',
     // módulo Usuarios (Fase 6W)
     usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {}, editingUsuarioId: '',
     usuarioDeleteConfirmId: '', usuarioRevealed: {},
@@ -3068,6 +3098,20 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.icons();
+    // Fase Firebase A: si ya había una sesión real de Firebase Auth guardada
+    // en este navegador (setPersistence LOCAL), restaurarla sin pedir la
+    // clave de nuevo. auth.currentUser todavía puede ser null en el primer
+    // instante aunque exista sesión — onAuthStateChanged es la forma
+    // correcta de esperar la respuesta real, nunca leer currentUser directo
+    // al montar.
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const name = Object.keys(AUTH_EMAIL_BY_NAME).find((n) => AUTH_EMAIL_BY_NAME[n] === user.email) || '';
+        if (name) this.setState({ locked: false, loggedInUser: name, loginUserName: name });
+      } else {
+        this.setState((s) => (s.locked ? s : { locked: true, loggedInUser: '' }));
+      }
+    });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (this.state.addOpen) this.closeAdd();
@@ -3202,7 +3246,16 @@ class Component extends DCLogic {
 
   openAdd() {
     const sec = this.state.sec;
-    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios' && sec !== 'equipo' && sec !== 'usuarios') {
+    // Fase Firebase A: se quitó el autoservicio de agregar/editar/eliminar
+    // usuarios — crear un usuario nuevo de forma segura desde el navegador
+    // (sin exponer la sesión del admin actual) requiere un servidor que este
+    // sitio no tiene. Un usuario nuevo se crea directo en la consola de
+    // Firebase (Authentication → Users) y se agrega a AUTH_EMAIL_BY_NAME.
+    if (sec === 'usuarios') {
+      this.showAdminNotice('Para agregar un usuario nuevo, créalo en Firebase Console → Authentication.', 'info');
+      return;
+    }
+    if (sec !== 'utv' && sec !== 'citas' && sec !== 'accesorios' && sec !== 'cotizaciones' && sec !== 'clientes' && sec !== 'pedidos' && sec !== 'proyectos' && sec !== 'servicios' && sec !== 'equipo') {
       this.showAdminNotice('Esta sección todavía no tiene formulario de alta.', 'info');
       return;
     }
@@ -3760,14 +3813,28 @@ class Component extends DCLogic {
     } finally { this._submittingCotiz = false; }
   }
 
+  // Fase Firebase A: login real. La UI se queda igual (elegir nombre +
+  // contraseña) pero ahora llama a Firebase Auth de verdad en vez de
+  // comparar un texto plano guardado en el propio código/localStorage.
   attemptUnlock() {
     const name = this.state.loginUserName;
-    const user = getEffectiveUsers().find((u) => u.name === name);
-    if (user && this.state.loginPassword === user.password) {
-      this.setState({ locked: false, loginPassword: '', loginError: '', loggedInUser: user.name });
-    } else {
+    const email = AUTH_EMAIL_BY_NAME[name];
+    if (!email) {
       this.setState({ loginError: 'Usuario o contraseña incorrectos.' });
+      return;
     }
+    this.setState({ loginBusy: true, loginError: '' });
+    auth.signInWithEmailAndPassword(email, this.state.loginPassword)
+      .then(() => {
+        this.setState({ locked: false, loginBusy: false, loginPassword: '', loginError: '', loggedInUser: name });
+      })
+      .catch(() => {
+        // Nunca se distingue "usuario no existe" de "contraseña incorrecta"
+        // en el mensaje — mismo mensaje genérico que ya usaba el login
+        // anterior, para no filtrarle a un visitante casual qué nombres
+        // de usuario son válidos.
+        this.setState({ loginBusy: false, loginError: 'Usuario o contraseña incorrectos.' });
+      });
   }
 
   // ===== Clientes (Fase 6B) =====
@@ -5411,27 +5478,22 @@ class Component extends DCLogic {
     };
   }
 
-  // Fase 6W: Usuarios del panel — vista propia (isUsuariosSection), mismo
-  // patrón que Equipo pero sin foto. getEffectiveUsers() ya resuelve
-  // semilla (ADMIN_USERS) vs. lista guardada — esta vista solo la muestra.
+  // Fase Firebase A: Usuarios del panel — ahora de solo lectura, sembrada
+  // directamente desde AUTH_EMAIL_BY_NAME (las cuentas reales de Firebase
+  // Auth) en vez de getEffectiveUsers()/localStorage. Ver openAdd() para el
+  // porqué se quitó el autoservicio de agregar/editar/eliminar.
   buildUsuariosViewModel(st) {
     const isUsuariosSection = st.sec === 'usuarios';
-    const allUsuarios = getEffectiveUsers();
-    const usuarioStats = [['Con acceso al panel', String(allUsuarios.length)]];
-    const usuarioRows = allUsuarios.map((u) => {
-      const isMe = u.name === st.loggedInUser;
-      const revealed = !!st.usuarioRevealed[u.id];
+    const usuarioNames = Object.keys(AUTH_EMAIL_BY_NAME);
+    const usuarioStats = [['Con acceso al panel', String(usuarioNames.length)]];
+    const usuarioRows = usuarioNames.map((name) => {
+      const isMe = name === st.loggedInUser;
       return {
-        id: u.id,
-        nombre: u.name,
+        id: name,
+        nombre: name,
         isMe,
         meBadge: isMe ? 'Tú' : '',
-        passwordDisplay: revealed ? u.password : '••••••••',
-        toggleReveal: () => this.toggleUsuarioPasswordReveal(u.id),
-        revealLabel: revealed ? 'Ocultar' : 'Mostrar',
-        edit: () => this.editUsuario(u.id),
-        canDelete: !isMe && allUsuarios.length > 1,
-        remove: () => this.requestDeleteUsuario(u.id),
+        email: AUTH_EMAIL_BY_NAME[name],
       };
     });
     const deleteTarget = st.usuarioDeleteConfirmId ? this.findUsuarioById(st.usuarioDeleteConfirmId) : null;
@@ -5467,21 +5529,27 @@ class Component extends DCLogic {
     return { notices, hasNotices: notices.length > 0 };
   }
 
-  // gate de contraseña client-side (ver ADMIN_PASSWORD — no es seguridad real, ya autodeclarado en pantalla)
+  // Fase Firebase A: login real vía Firebase Auth (ver AUTH_EMAIL_BY_NAME
+  // y attemptUnlock arriba). "lock" ahora también cierra la sesión real de
+  // Firebase, no solo el estado local — así "Salir" funciona de verdad.
   buildAuthViewModel(st) {
     return {
       locked: st.locked,
       open: !st.locked,
       unlock: () => this.attemptUnlock(),
-      lock: () => this.setState({ locked: true, loginPassword: '', loginError: '', loggedInUser: '' }),
+      lock: () => { auth.signOut().catch(() => {}); this.setState({ locked: true, loginPassword: '', loginError: '', loggedInUser: '' }); },
       loginPassword: st.loginPassword,
       setLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
       loginPasswordKeyDown: (e) => { if (e.key === 'Enter') this.attemptUnlock(); },
       loginError: st.loginError,
       hasLoginError: !!st.loginError,
+      loginBusy: !!st.loginBusy,
+      loginButtonLabel: st.loginBusy ? 'Entrando…' : 'Entrar',
+      loginButtonIcon: st.loginBusy ? 'loader-circle' : 'lock-open',
+      loginButtonOpacity: st.loginBusy ? '.6' : '1',
       loginUserName: st.loginUserName,
       setLoginUserName: (e) => this.setState({ loginUserName: e.target.value, loginError: '' }),
-      loginUserOptions: getEffectiveUsers().map((u) => u.name),
+      loginUserOptions: Object.keys(AUTH_EMAIL_BY_NAME),
       loggedInUser: st.loggedInUser,
       loggedInUserInitial: st.loggedInUser ? st.loggedInUser.charAt(0).toUpperCase() : '—',
     };
