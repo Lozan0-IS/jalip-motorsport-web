@@ -151,20 +151,23 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <span style="font-family:Saira;font-weight:600;font-size:8px;letter-spacing:.4em;color:#8B8D93;margin-left:5px">MOTORSPORT</span>
       </div>
       <h1 style="font-family:Saira;font-weight:800;font-size:22px;margin:0 0 8px">Panel administrativo</h1>
-      <p style="font-size:13.5px;line-height:1.6;color:#8B8D93;margin:0 0 26px">Prototipo de interfaz con candado básico del lado del cliente — no es autenticación real.</p>
+      <p style="font-size:13.5px;line-height:1.6;color:#8B8D93;margin:0 0 26px">Inicia sesión con tu cuenta del equipo.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
         <select value="{{ loginUserName }}" onChange="{{ setLoginUserName }}" aria-label="Usuario" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:13px 14px;font-size:14.5px;cursor:pointer">
-          <sc-for list="{{ loginUserOptions }}" as="un" hint-placeholder-count="2">
-            <option value="{{ un }}">{{ un }}</option>
+          <sc-for list="{{ loginUserOptions }}" as="un" hint-placeholder-count="3">
+            <option value="{{ un.value }}">{{ un.label }}</option>
           </sc-for>
         </select>
+        <sc-if value="{{ loginUseEmail }}" hint-placeholder-val="{{ false }}">
+          <input type="email" value="{{ loginEmail }}" onInput="{{ setLoginEmail }}" aria-label="Correo" autocomplete="username" placeholder="correo@ejemplo.com" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:13px 14px;font-size:14.5px">
+        </sc-if>
         <input type="password" value="{{ loginPassword }}" onInput="{{ setLoginPassword }}" onKeyDown="{{ loginPasswordKeyDown }}" placeholder="Contraseña" style="background:#101114;border:1px solid #24262B;color:#F2F3F5;padding:13px 14px;font-size:14.5px">
         <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}">
           <span style="color:#FF8A92;font-size:12.5px">{{ loginError }}</span>
         </sc-if>
         <button onClick="{{ unlock }}" disabled="{{ loginBusy }}" class="pa-h1" style="border:none;background:#E11623;color:#fff;font:700 12px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;opacity:{{ loginButtonOpacity }}"><i data-lucide="{{ loginButtonIcon }}" style="width:15px;height:15px"></i>{{ loginButtonLabel }}</button>
       </div>
-      <div style="margin-top:22px;border-left:2px solid #E11623;background:#160C0D;padding:12px 14px;font-size:12.5px;line-height:1.6;color:#FF9AA1">El acceso ahora es real (Firebase Authentication) — solo las cuentas de Israel y Taller pueden iniciar sesión y escribir datos. Para agregar un usuario nuevo hay que crearlo directamente en la consola de Firebase, no desde este panel.</div>
+      <div style="margin-top:22px;border-left:2px solid #E11623;background:#160C0D;padding:12px 14px;font-size:12.5px;line-height:1.6;color:#FF9AA1">El acceso es real (Firebase Authentication): solo las cuentas creadas en Firebase pueden iniciar sesión y escribir datos. Si tu cuenta no está en la lista, elige "Otro usuario (correo)" e ingresa el correo con el que la creaste.</div>
       <a href="Jalip Motorsport.dc.html" class="pa-h2" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:13px;color:#8B8D93"><i data-lucide="arrow-left" style="width:14px;height:14px"></i>Volver al sitio</a>
     </div>
   </div>
@@ -2531,6 +2534,18 @@ const AUTH_EMAIL_BY_NAME = {
   Israel: 'israel@jalipmotorsport.internal',
   Taller: 'taller@jalipmotorsport.internal',
 };
+// Valor especial del desplegable: permite entrar con cualquier correo que
+// exista en Firebase Authentication, sin tener que editar este archivo.
+const LOGIN_OTHER = '__other__';
+// Nombre que se guarda en createdBy/updatedBy: el de la tabla si el correo
+// es de Israel/Taller; para cualquier otra cuenta, la parte antes de la @.
+function displayNameForEmail(email) {
+  const e = (email || '').toLowerCase();
+  const known = Object.keys(AUTH_EMAIL_BY_NAME).find((n) => AUTH_EMAIL_BY_NAME[n] === e);
+  if (known) return known;
+  const local = e.split('@')[0] || '';
+  return local ? local.charAt(0).toUpperCase() + local.slice(1) : '';
+}
 
 // verde "positivo/con foto/aprobado" reutilizado en varios estados — mismo valor
 // que ya usa Jalip Motorsport.dc.html para su propio estado "success"
@@ -3036,7 +3051,7 @@ class Component extends DCLogic {
     // Fase 6K: sub-vista de UTV — Inventario (fotos/precio, ya existía) vs
     // Evaluaciones (solicitudes reales de "Venta de tu UTV" del sitio público)
     utvSubTab: 'inventario',
-    loginPassword: '', loginError: '', loginBusy: false, loginUserName: Object.keys(AUTH_EMAIL_BY_NAME)[0] || '', loggedInUser: '',
+    loginPassword: '', loginError: '', loginBusy: false, loginEmail: '', loginUserName: Object.keys(AUTH_EMAIL_BY_NAME)[0] || '', loggedInUser: '',
     // módulo Usuarios (Fase 6W)
     usuarioForm: { ...BLANK_USUARIO_FORM }, usuarioErrors: {}, editingUsuarioId: '',
     usuarioDeleteConfirmId: '', usuarioRevealed: {},
@@ -3107,8 +3122,9 @@ class Component extends DCLogic {
     // al montar.
     auth.onAuthStateChanged((user) => {
       if (user) {
-        const name = Object.keys(AUTH_EMAIL_BY_NAME).find((n) => AUTH_EMAIL_BY_NAME[n] === user.email) || '';
-        if (name) this.setState({ locked: false, loggedInUser: name, loginUserName: name });
+        const name = displayNameForEmail(user.email);
+        const inTable = !!AUTH_EMAIL_BY_NAME[name];
+        this.setState({ locked: false, loggedInUser: name, loginUserName: inTable ? name : LOGIN_OTHER });
       } else {
         this.setState((s) => (s.locked ? s : { locked: true, loggedInUser: '' }));
       }
@@ -3842,12 +3858,13 @@ class Component extends DCLogic {
   // contraseña) pero ahora llama a Firebase Auth de verdad en vez de
   // comparar un texto plano guardado en el propio código/localStorage.
   attemptUnlock() {
-    const name = this.state.loginUserName;
-    const email = AUTH_EMAIL_BY_NAME[name];
-    if (!email) {
+    const selected = this.state.loginUserName;
+    const email = (selected === LOGIN_OTHER ? this.state.loginEmail.trim() : AUTH_EMAIL_BY_NAME[selected] || '').toLowerCase();
+    if (!email || !this.state.loginPassword) {
       this.setState({ loginError: 'Usuario o contraseña incorrectos.' });
       return;
     }
+    const name = displayNameForEmail(email);
     this.setState({ loginBusy: true, loginError: '' });
     auth.signInWithEmailAndPassword(email, this.state.loginPassword)
       .then(() => {
@@ -5575,7 +5592,10 @@ class Component extends DCLogic {
       loginButtonOpacity: st.loginBusy ? '.6' : '1',
       loginUserName: st.loginUserName,
       setLoginUserName: (e) => this.setState({ loginUserName: e.target.value, loginError: '' }),
-      loginUserOptions: Object.keys(AUTH_EMAIL_BY_NAME),
+      loginUserOptions: Object.keys(AUTH_EMAIL_BY_NAME).map((n) => ({ value: n, label: n })).concat([{ value: LOGIN_OTHER, label: 'Otro usuario (correo)' }]),
+      loginUseEmail: st.loginUserName === LOGIN_OTHER,
+      loginEmail: st.loginEmail,
+      setLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
       loggedInUser: st.loggedInUser,
       loggedInUserInitial: st.loggedInUser ? st.loggedInUser.charAt(0).toUpperCase() : '—',
     };
