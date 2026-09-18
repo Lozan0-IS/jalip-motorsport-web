@@ -204,6 +204,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <span style="width:22px;height:22px;border-radius:50%;background:#1D1D20;color:#B9BBC1;font:700 10px/22px 'JetBrains Mono';text-align:center;flex-shrink:0">{{ loggedInUserInitial }}</span>
         <span style="font:600 12px/1 Barlow;color:#B9BBC1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ loggedInUser }}</span>
       </div>
+      <button onClick="{{ exportLocalData }}" style="background:none;border:1px dashed #7A4DFF;color:#B9A2FF;font:600 10.5px/1.3 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:11px;cursor:pointer;margin-bottom:8px;width:100%">Descargar mis datos (migración)</button>
       <button onClick="{{ lock }}" class="pa-h5" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 11px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i data-lucide="log-out" style="width:14px;height:14px"></i>Salir</button>
     </div>
   </aside>
@@ -3813,6 +3814,30 @@ class Component extends DCLogic {
     } finally { this._submittingCotiz = false; }
   }
 
+  // TEMPORAL (migración a Firebase, Fase B): descarga los datos guardados en
+  // este navegador como archivo JSON para sembrar Firestore sin perder nada.
+  // Se excluye jm_extra_usuarios (claves en texto plano, ya no se usan).
+  // Quitar este método y su botón en la Fase D (limpieza).
+  exportLocalData() {
+    const data = {};
+    for (const key of Object.keys(localStorage)) {
+      if (!/^jm_(extra_|admin_|photo_)/.test(key) || key === 'jm_extra_usuarios') continue;
+      const raw = localStorage.getItem(key);
+      try { data[key] = JSON.parse(raw); } catch (e) { data[key] = raw; }
+    }
+    const count = Object.keys(data).length;
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jalip-datos-locales.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    this.showAdminNotice('Se descargó jalip-datos-locales.json (' + count + ' elementos guardados en este navegador).', 'success');
+  }
+
   // Fase Firebase A: login real. La UI se queda igual (elegir nombre +
   // contraseña) pero ahora llama a Firebase Auth de verdad en vez de
   // comparar un texto plano guardado en el propio código/localStorage.
@@ -5543,6 +5568,7 @@ class Component extends DCLogic {
       loginPasswordKeyDown: (e) => { if (e.key === 'Enter') this.attemptUnlock(); },
       loginError: st.loginError,
       hasLoginError: !!st.loginError,
+      exportLocalData: () => this.exportLocalData(),
       loginBusy: !!st.loginBusy,
       loginButtonLabel: st.loginBusy ? 'Entrando…' : 'Entrar',
       loginButtonIcon: st.loginBusy ? 'loader-circle' : 'lock-open',
