@@ -15,7 +15,7 @@
 <script>window.Babel || document.write('<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"><\/script>')</script>
 <!-- Datos compartidos (Firebase): se oculta la página hasta que llegan (máx. 5 s) para que no
      parpadee el catálogo base antes de aplicar lo que se editó en Panel Admin. -->
-<style>html.jm-loading body{visibility:hidden}</style>
+<style>html.jm-loading{background:#08080A}html.jm-loading body{visibility:hidden}</style>
 <script>document.documentElement.classList.add('jm-loading');setTimeout(function(){document.documentElement.classList.remove('jm-loading')},5000);</script>
 <script src="./support.js"></script>
 <!-- Fase Firebase A: SDK "compat" (namespace global `firebase`, sin módulos ES)
