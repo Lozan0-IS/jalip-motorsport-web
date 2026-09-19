@@ -13,6 +13,10 @@
 <script>window.ReactDOM || document.write('<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"><\/script>')</script>
 <script src="vendor/babel.min.js"></script>
 <script>window.Babel || document.write('<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"><\/script>')</script>
+<!-- Datos compartidos (Firebase): se oculta la página hasta que llegan (máx. 5 s) para que no
+     parpadee el catálogo base antes de aplicar lo que se editó en Panel Admin. -->
+<style>html.jm-loading body{visibility:hidden}</style>
+<script>document.documentElement.classList.add('jm-loading');setTimeout(function(){document.documentElement.classList.remove('jm-loading')},5000);</script>
 <script src="./support.js"></script>
 <!-- Fase Firebase A: SDK "compat" (namespace global `firebase`, sin módulos ES)
      para encajar con el resto de este archivo (sin build step). Google no
@@ -902,6 +906,208 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ============================================================================
+// Capa de datos compartida (Firestore). Reemplaza a localStorage para todo lo
+// que se agrega desde Panel Admin.dc.html y se ve en el sitio público, de modo
+// que los datos existan en cualquier PC. Las funciones de más abajo
+// (getExtraList, getOverridesMap, getStoredPhoto, ...) conservan su forma
+// síncrona de siempre: leen una copia en memoria que Firestore mantiene al día
+// en vivo, y escriben SOLO los documentos que cambiaron — nunca reemplazan una
+// lista completa, así una copia vacía o vieja no puede borrar datos ajenos.
+// Este bloque es idéntico en los 4 archivos (el proyecto no tiene build step).
+// ============================================================================
+const JM = (() => {
+  const LISTS_PUBLIC = ['vehicles', 'products', 'servicios', 'proyectos', 'equipo'];
+  const LISTS_PRIVATE = ['citas', 'cotizaciones', 'pedidos', 'clientes'];
+  const OVR = { jm_admin_vehicle_overrides: 'vehicle', jm_admin_product_overrides: 'product', jm_admin_service_overrides: 'service' };
+  const S = { lists: {}, order: {}, ovr: {}, photos: {}, settings: {} };
+  const subs = new Set();
+  const unsubs = {};
+  const needed = new Set();
+  const done = new Set();
+  const H = { onError: null };
+  let ready = false;
+  let queued = false;
+
+  try { db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch (e) {}
+
+  const clean = (x) => JSON.parse(JSON.stringify(x));
+  const sortKeys = (v) => (v && typeof v === 'object' && !Array.isArray(v))
+    ? Object.keys(v).sort().reduce((o, k) => { o[k] = v[k]; return o; }, {}) : v;
+  const stable = (v) => JSON.stringify(v, (k, val) => sortKeys(val));
+  const recId = (r) => { const v = r && (r.id || r.numero); return v ? String(v) : ''; };
+  const fire = () => {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; subs.forEach((f) => { try { f(); } catch (e) {} }); }, 0);
+  };
+  const fail = (err) => {
+    try { console.error('[JM] no se pudo guardar', err); } catch (e) {}
+    if (H.onError) H.onError(err);
+  };
+  const reveal = () => {
+    if (ready) return;
+    ready = true;
+    document.documentElement.classList.remove('jm-loading');
+    fire();
+  };
+  const markDone = (name) => {
+    done.add(name);
+    if ([...needed].every((n) => done.has(n))) reveal();
+  };
+  const listen = (name, ref, apply, isNeeded) => {
+    if (unsubs[name]) return;
+    if (isNeeded) needed.add(name);
+    unsubs[name] = ref.onSnapshot(
+      (snap) => { apply(snap); if (isNeeded) markDone(name); fire(); },
+      (err) => {
+        try { console.warn('[JM] sin acceso a', name, err && err.code); } catch (e) {}
+        if (isNeeded) markDone(name);
+      }
+    );
+  };
+  const applyList = (key) => (snap) => {
+    const rows = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
+    rows.sort((a, b) => ((a.data._o || 0) - (b.data._o || 0)) || (a.id < b.id ? -1 : 1));
+    S.lists[key] = rows.map((r) => { const { _o, ...rest } = r.data; return rest; });
+    S.order[key] = {};
+    rows.forEach((r) => { S.order[key][r.id] = r.data._o || 0; });
+  };
+
+  // Lo que ve cualquier visitante: catálogo, portafolio, equipo, ajustes y fotos.
+  const startPublic = () => {
+    LISTS_PUBLIC.forEach((k) => listen('list:' + k, db.collection('extra_' + k), applyList(k), true));
+    Object.keys(OVR).forEach((lsKey) => {
+      const n = OVR[lsKey];
+      listen('ovr:' + n, db.collection('ovr').doc(n), (snap) => {
+        const d = snap.exists ? snap.data() : null;
+        S.ovr[n] = (d && d.m && typeof d.m === 'object') ? d.m : {};
+      }, true);
+    });
+    listen('settings', db.collection('settings').doc('admin'), (snap) => { S.settings = snap.exists ? snap.data() : {}; }, true);
+    // Las fotos pesan más: llegan después sin bloquear la primera pantalla.
+    listen('photos', db.collection('photos'), (snap) => {
+      const p = {};
+      snap.docs.forEach((d) => { p[d.id] = d.data().d || ''; });
+      S.photos = p;
+    }, false);
+    // Si Firebase no responde, se muestra el sitio con lo que hay en vez de dejarlo en blanco.
+    setTimeout(reveal, 4000);
+  };
+  // Solo tras iniciar sesión en Panel Admin (las reglas no dejan leer esto a visitantes).
+  const startPrivate = () => LISTS_PRIVATE.forEach((k) => listen('list:' + k, db.collection('extra_' + k), applyList(k), false));
+  const stopPrivate = () => {
+    LISTS_PRIVATE.forEach((k) => {
+      const n = 'list:' + k;
+      if (unsubs[n]) { unsubs[n](); delete unsubs[n]; }
+      delete S.lists[k];
+      delete S.order[k];
+    });
+    fire();
+  };
+
+  const getList = (key) => clean(S.lists[key] || []);
+  const getOvr = (lsKey) => clean(S.ovr[OVR[lsKey]] || {});
+  const getPhoto = (id) => S.photos[id] || '';
+  const getSettings = () => clean(S.settings || {});
+
+  const setList = (key, arr) => {
+    const prev = S.lists[key] || [];
+    const prevById = new Map(prev.map((r) => [recId(r), r]));
+    const order = S.order[key] || {};
+    let maxO = Object.keys(order).reduce((m, k) => Math.max(m, order[k]), 0);
+    const col = db.collection('extra_' + key);
+    const batch = db.batch();
+    const seen = new Set();
+    const nextRows = [];
+    const nextOrder = {};
+    let changes = 0;
+    (arr || []).forEach((raw) => {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return;
+      const rec = clean(raw);
+      const id = recId(rec);
+      if (!id) { try { console.warn('[JM] registro sin id descartado en', key); } catch (e) {} return; }
+      seen.add(id);
+      let o = order[id];
+      if (!o) { maxO = Math.max(maxO + 1, Date.now()); o = maxO; }
+      nextRows.push(rec);
+      nextOrder[id] = o;
+      const old = prevById.get(id);
+      if (!old || stable(old) !== stable(rec)) { batch.set(col.doc(id), { ...rec, _o: o }); changes++; }
+    });
+    prevById.forEach((_, id) => { if (!seen.has(id)) { batch.delete(col.doc(id)); changes++; } });
+    // Sin cambios reales no se toca nada ni se avisa a las pantallas (evita redibujos en vano).
+    if (changes) {
+      S.lists[key] = nextRows;
+      S.order[key] = nextOrder;
+      fire();
+      batch.commit().catch(fail);
+    }
+    return true;
+  };
+  const setOvr = (lsKey, obj) => {
+    const name = OVR[lsKey];
+    const prev = S.ovr[name] || {};
+    const next = clean(obj || {});
+    const data = { m: {} };
+    const fields = [];
+    Object.keys(next).forEach((k) => {
+      if (stable(prev[k]) !== stable(next[k])) { data.m[k] = next[k]; fields.push(new firebase.firestore.FieldPath('m', k)); }
+    });
+    Object.keys(prev).forEach((k) => {
+      if (!(k in next)) { data.m[k] = firebase.firestore.FieldValue.delete(); fields.push(new firebase.firestore.FieldPath('m', k)); }
+    });
+    if (fields.length) {
+      S.ovr[name] = next;
+      fire();
+      db.collection('ovr').doc(name).set(data, { mergeFields: fields }).catch(fail);
+    }
+    return true;
+  };
+  const setSettings = (obj) => {
+    const next = clean(obj || {});
+    if (stable(S.settings || {}) === stable(next)) return true;
+    S.settings = next;
+    fire();
+    db.collection('settings').doc('admin').set(next).catch(fail);
+    return true;
+  };
+  // Un documento de Firestore admite 1 MB; una foto de datos base64 debe quedar bien por debajo.
+  const setPhoto = (id, dataUrl) => {
+    if (!dataUrl || String(dataUrl).length > 900000) return false;
+    if (S.photos[id] === dataUrl) return true;
+    S.photos[id] = dataUrl;
+    fire();
+    db.collection('photos').doc(String(id)).set({ d: dataUrl }).catch(fail);
+    return true;
+  };
+  const clearPhoto = (id) => {
+    delete S.photos[id];
+    fire();
+    db.collection('photos').doc(String(id)).delete().catch(fail);
+  };
+  // Un visitante crea una cita/cotización: las reglas le dejan crear pero no leer ni editar.
+  // Devuelve una promesa que solo dice true si Firebase confirmó de verdad el guardado.
+  const createPublic = (key, rec, ms) => {
+    const r = clean(rec);
+    const id = recId(r);
+    if (!id) return Promise.resolve(false);
+    const write = db.collection('extra_' + key).doc(id).set({ ...r, _o: Date.now() })
+      .then(() => true, (e) => { try { console.error('[JM]', e); } catch (x) {} return false; });
+    const limit = new Promise((res) => setTimeout(() => res(false), ms || 8000));
+    return Promise.race([write, limit]);
+  };
+
+  return {
+    startPublic, startPrivate, stopPrivate, H,
+    subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
+    getList, getOvr, getPhoto, getSettings,
+    setList, setOvr, setSettings, setPhoto, clearPhoto, createPublic,
+    isReady: () => ready,
+  };
+})();
+JM.startPublic();
+
 const WA = '18297653173';
 // Fase 6J (sección 11/12): si el administrador cargó un teléfono/WhatsApp real
 // en Panel Admin.dc.html (jm_admin_settings), todos los enlaces de WhatsApp
@@ -909,7 +1115,7 @@ const WA = '18297653173';
 // original del código, nunca se rompe el enlace por un valor vacío o inválido.
 function effectiveWaNumber() {
   try {
-    const s = JSON.parse(localStorage.getItem('jm_admin_settings') || '{}');
+    const s = JM.getSettings();
     const raw = (s && (s.whatsapp || s.phone)) || '';
     const digits = raw.replace(/\D/g, '');
     if (digits.length === 10) return '1' + digits;
@@ -973,36 +1179,21 @@ function focusDialogOnOpen(comp) {
 // Fotos reales suben desde Panel Admin.dc.html y se guardan en localStorage
 // (misma clave que usa el panel: 'jm_photo_v_<key>' / 'jm_photo_p_<id>') — así
 // este archivo estático no necesita backend ni build step para mostrarlas.
-function getStoredPhoto(id) {
-  try { return localStorage.getItem('jm_photo_' + id) || ''; } catch (e) { return ''; }
-}
+function getStoredPhoto(id) { return JM.getPhoto(id); }
 // UTV agregados desde Panel Admin.dc.html (misma clave 'jm_extra_vehicles').
-function getExtraVehicles() {
-  try { const v = JSON.parse(localStorage.getItem('jm_extra_vehicles') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
-}
+function getExtraVehicles() { return JM.getList('vehicles'); }
 // Accesorios agregados desde Panel Admin.dc.html (misma clave 'jm_extra_products').
-function getExtraProducts() {
-  try { const v = JSON.parse(localStorage.getItem('jm_extra_products') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
-}
+function getExtraProducts() { return JM.getList('products'); }
 // Fase 6J: mismo patrón defensivo que Panel Admin.dc.html (RSK-001) — este
 // archivo estático comparte origen/localStorage con el panel, así que las
 // mismas claves pueden traer datos editados a mano o creados por el panel.
 function isRealRecord(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
-function getExtraList(key) {
-  try { const v = JSON.parse(localStorage.getItem('jm_extra_' + key) || '[]'); return Array.isArray(v) ? v.filter(isRealRecord) : []; } catch (e) { return []; }
-}
-function setExtraList(key, arr) {
-  try { localStorage.setItem('jm_extra_' + key, JSON.stringify(arr)); return true; } catch (e) { return false; }
-}
-function getOverridesMap(key) {
-  try { const v = JSON.parse(localStorage.getItem(key) || '{}'); return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch (e) { return {}; }
-}
+function getExtraList(key) { return JM.getList(key).filter(isRealRecord); }
+function getOverridesMap(key) { return JM.getOvr(key); }
 // Fase 6J (sección 11/12): mismos ajustes reales que edita Panel Admin.dc.html
 // (jm_admin_settings) — cada campo se usa SOLO si tiene contenido; vacío
 // significa "usar el texto original del sitio", nunca queda visible vacío.
-function getAdminSettings() {
-  try { const v = JSON.parse(localStorage.getItem('jm_admin_settings') || '{}'); return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch (e) { return {}; }
-}
+function getAdminSettings() { return JM.getSettings(); }
 
 const SERVICES = [
   { icon: 'car', title: 'Venta de UTV', body: 'Unidades nuevas y usadas. Asesoría según terreno, uso y presupuesto real del cliente.', cta: 'cotizar' },
@@ -1278,6 +1469,8 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    JM.subscribe(() => this.forceUpdate());
+    this.forceUpdate();
     this.icons();
     const hashKey = (location.hash || '').replace('#', '');
     if (hashKey && CATEGORIES.some((c) => c.key === hashKey)) this.setState({ cat: hashKey });
@@ -1478,19 +1671,19 @@ class Component extends DCLogic {
     try {
       const hoy = new Date();
       const id = 'cotiz' + Date.now();
-      const list = getExtraList('cotizaciones');
-      list.push({
+
+      const rec = {
         id, cliente: f.nombre.trim(), telefono: f.telefono.trim(),
         origen: this.state.quoteOrigin, detalle: this.state.quoteDetalle + (f.notas.trim() ? ' — Notas: ' + f.notas.trim() : ''),
         fecha: String(hoy.getDate()).padStart(2, '0') + '/' + String(hoy.getMonth() + 1).padStart(2, '0') + '/' + hoy.getFullYear(),
         estado: 'Nueva', clientId: '',
+      };
+      JM.createPublic('cotizaciones', rec).then((ok) => {
+        this._submittingQuote = false;
+        if (ok) this.setState({ quoteDone: true, quoteId: id, quoteError: '' });
+        else this.setState({ quoteError: 'No se pudo guardar tu solicitud. Revisa tu conexión o escríbenos directo por WhatsApp.' });
       });
-      if (setExtraList('cotizaciones', list)) {
-        this.setState({ quoteDone: true, quoteId: id, quoteError: '' });
-      } else {
-        this.setState({ quoteError: 'No se pudo guardar tu solicitud — el navegador se quedó sin espacio de almacenamiento. Intenta liberar espacio o escríbenos directo por WhatsApp.' });
-      }
-    } finally { this._submittingQuote = false; }
+    } catch (e) { this._submittingQuote = false; throw e; }
   }
 
   /* CONFIGURADOR 3D — DESACTIVADO en esta versión, métodos preservados:
@@ -2166,18 +2359,17 @@ class Component extends DCLogic {
           const numero = 'JM-' + Date.now().toString().slice(-8);
           const now = new Date().toISOString();
           const utv = [f.marca, f.modelo].filter(Boolean).join(' ').trim() + (f.anio.trim() ? ' (' + f.anio.trim() + ')' : '');
-          const list = getExtraList('citas');
-          list.push({
+          const rec = {
             numero, cliente: f.nombre.trim(), telefono: f.telefono.trim(), email: f.email.trim(),
             utv: utv || 'Por definir', servicio: f.tipoServicio, fecha: f.fecha, hora: f.hora,
             estado: 'Pendiente', clientId: '', createdAt: now, updatedAt: now,
+          };
+          JM.createPublic('citas', rec).then((ok) => {
+            this._submittingAppt = false;
+            if (ok) this.setState({ errors: {}, apptError: '', apptNumber: numero });
+            else this.setState({ apptError: 'No se pudo guardar tu solicitud. Revisa tu conexión o escríbenos directo por WhatsApp.' });
           });
-          if (setExtraList('citas', list)) {
-            this.setState({ errors: {}, apptError: '', apptNumber: numero });
-          } else {
-            this.setState({ apptError: 'No se pudo guardar tu solicitud — el navegador se quedó sin espacio de almacenamiento. Intenta liberar espacio o escríbenos directo por WhatsApp.' });
-          }
-        } finally { this._submittingAppt = false; }
+        } catch (e) { this._submittingAppt = false; throw e; }
       },
       resetAppt: () => this.setState({ apptNumber: '', bookingForm: { nombre: '', telefono: '', email: '', metodoContacto: 'WhatsApp', marca: '', anio: '', modelo: '', tipoServicio: '', descripcion: '', fecha: '', hora: '08:00 – 10:00', aceptoPoliticas: false, archivos: 0 } }),
     };

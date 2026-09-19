@@ -1,0 +1,42 @@
+// Reglas de seguridad de Firestore (proyecto Firebase "jalip-motorsport").
+// Este archivo es solo la copia de referencia: NO se despliega solo. Para cambiarlas,
+// pegar el contenido en Firebase Console -> Firestore Database -> Reglas -> Publicar.
+//
+// Modelo de datos (ver la capa "JM" al inicio del <script> de cada .dc.html):
+//   extra_<lista>/{id}   un documento por registro (vehicles, products, servicios, proyectos, equipo, citas, cotizaciones, pedidos, clientes)
+//   ovr/{vehicle|product|service}   ediciones sobre el catálogo base, en el campo "m" (mapa)
+//   photos/{id}          una foto por documento, en el campo "d" (data URL WebP/JPEG)
+//   settings/admin       ajustes del negocio
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Catálogo, portafolio, equipo, ajustes y fotos:
+    // los ve cualquier visitante, solo el equipo con sesión iniciada escribe.
+    match /extra_vehicles/{id}  { allow read: if true; allow write: if request.auth != null; }
+    match /extra_products/{id}  { allow read: if true; allow write: if request.auth != null; }
+    match /extra_servicios/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /extra_proyectos/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /extra_equipo/{id}    { allow read: if true; allow write: if request.auth != null; }
+    match /ovr/{id}             { allow read: if true; allow write: if request.auth != null; }
+    match /settings/{id}        { allow read: if true; allow write: if request.auth != null; }
+    match /photos/{id}          { allow read: if true; allow write: if request.auth != null; }
+
+    // Citas y cotizaciones: un visitante puede crearlas desde el sitio,
+    // pero solo el equipo con sesión puede leerlas, editarlas o borrarlas.
+    match /extra_citas/{id} {
+      allow create: if request.auth != null
+        || (request.resource.data.estado == 'Pendiente' && request.resource.data.keys().size() < 25);
+      allow read, update, delete: if request.auth != null;
+    }
+    match /extra_cotizaciones/{id} {
+      allow create: if request.auth != null
+        || (request.resource.data.estado == 'Nueva' && request.resource.data.keys().size() < 25);
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Datos internos: nadie sin sesión.
+    match /extra_pedidos/{id}  { allow read, write: if request.auth != null; }
+    match /extra_clientes/{id} { allow read, write: if request.auth != null; }
+  }
+}

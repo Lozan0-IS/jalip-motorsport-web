@@ -202,12 +202,11 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       </sc-for>
     </nav>
     <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
-      <div style="border:1px solid #1E1F24;padding:14px;font-size:12px;line-height:1.6;color:#8B8D93">Prototipo sin base de datos. Los cambios no se guardan.</div>
+      <div style="border:1px solid #1E1F24;padding:14px;font-size:12px;line-height:1.6;color:#8B8D93">Los cambios se guardan en Firebase y se ven en cualquier dispositivo.</div>
       <div style="display:flex;align-items:center;gap:8px;padding:0 2px">
         <span style="width:22px;height:22px;border-radius:50%;background:#1D1D20;color:#B9BBC1;font:700 10px/22px 'JetBrains Mono';text-align:center;flex-shrink:0">{{ loggedInUserInitial }}</span>
         <span style="font:600 12px/1 Barlow;color:#B9BBC1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ loggedInUser }}</span>
       </div>
-      <button onClick="{{ exportLocalData }}" style="background:none;border:1px dashed #7A4DFF;color:#B9A2FF;font:600 10.5px/1.3 Barlow;letter-spacing:.08em;text-transform:uppercase;padding:11px;cursor:pointer;margin-bottom:8px;width:100%">Descargar mis datos (migración)</button>
       <button onClick="{{ lock }}" class="pa-h5" style="background:none;border:1px solid #24262B;color:#8B8D93;font:600 11px/1 Barlow;letter-spacing:.12em;text-transform:uppercase;padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i data-lucide="log-out" style="width:14px;height:14px"></i>Salir</button>
     </div>
   </aside>
@@ -752,7 +751,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <button onClick="{{ cancelEditSettings }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;cursor:pointer">Cancelar</button>
         <button onClick="{{ submitSettings }}" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;cursor:pointer">Guardar cambios</button>
       </div>
-      <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Deja un campo vacío para que el sitio siga mostrando su texto original. Se guarda en este navegador (jm_admin_settings).</p>
+      <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Deja un campo vacío para que el sitio siga mostrando su texto original. Se guarda en Firebase y se ve en cualquier dispositivo.</p>
     </div>
     </sc-if>
     </sc-if>
@@ -822,7 +821,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     <sc-if value="{{ isPhotoSection }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;align-items:flex-start;gap:10px;background:#101114;border:1px solid #24262B;border-left:2px solid #E11623;padding:14px 18px;margin-bottom:18px">
       <i data-lucide="upload-cloud" style="width:16px;height:16px;color:#E11623;flex-shrink:0;margin-top:2px"></i>
-      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Las fotos se guardan en este navegador (localStorage), comprimidas automáticamente. Aparecen al instante en el sitio si lo tienes abierto en otra pestaña — pero solo en este navegador y este equipo. Para que las vean todos los clientes hace falta subirlas a un servidor real más adelante.</p>
+      <p style="margin:0;font-size:13px;line-height:1.65;color:#9A9CA3">Las fotos se guardan en Firebase, comprimidas automáticamente. Aparecen en el sitio para todos los visitantes, en cualquier dispositivo, sin recargar.</p>
     </div>
     <div style="border:1px solid #1A1B1F;background:#0D0E10;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
       <i data-lucide="search" style="width:15px;height:15px;color:#8B8D93"></i>
@@ -1111,7 +1110,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             <div style="display:flex;justify-content:space-between"><span>Total cobrado</span><span style="font-family:'JetBrains Mono';color:#F2F3F5">{{ dashTotalCobrado }}</span></div>
             <div style="display:flex;justify-content:space-between"><span>Pendiente por cobrar</span><span style="font-family:'JetBrains Mono'">{{ dashPendienteCobrar }}</span></div>
           </div>
-          <p style="margin:4px 0 0;font-size:11px;color:#5C5E66;line-height:1.5">Suma de abonos registrados localmente en cada pedido (sección Abonos del detalle) — no es una pasarela de pago ni facturación electrónica.</p>
+          <p style="margin:4px 0 0;font-size:11px;color:#5C5E66;line-height:1.5">Suma de abonos registrados en cada pedido (sección Abonos del detalle) — no es una pasarela de pago ni facturación electrónica.</p>
         </div>
       </div>
 
@@ -1208,7 +1207,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                       </sc-if>
                     </div>
                   </div>
-                  <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en este navegador (localStorage) y aparece de inmediato en el sitio.</p>
+                  <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en Firebase y aparece de inmediato en el sitio, en cualquier dispositivo.</p>
                 </sc-if>
                 <sc-if value="{{ !vehWizardCanUploadPhoto }}" hint-placeholder-val="{{ true }}">
                   <div style="border:1px dashed #24262B;background:#0D0E10;padding:24px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
@@ -1645,7 +1644,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
                           </sc-for>
                         </div>
                       </div>
-                      <p style="margin:12px 0 0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guardan en este navegador (localStorage) y aparecen de inmediato en el sitio.</p>
+                      <p style="margin:12px 0 0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guardan en Firebase y aparecen de inmediato en el sitio, en cualquier dispositivo.</p>
                     </sc-if>
                     <sc-if value="{{ !proyectoWizardCanUploadPhoto }}" hint-placeholder-val="{{ true }}">
                       <div style="border:1px dashed #24262B;background:#0D0E10;padding:24px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
@@ -1819,7 +1818,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
               </sc-if>
 
               <button onClick="{{ submitClient }}" style="margin-top:8px;background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer">{{ clientSubmitLabel }}</button>
-              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en este navegador. Puedes vincular citas, cotizaciones y pedidos a este cliente desde sus propios formularios.</p>
+              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en Firebase. Puedes vincular citas, cotizaciones y pedidos a este cliente desde sus propios formularios.</p>
             </div>
           </sc-if>
 
@@ -1932,7 +1931,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
               </sc-if>
 
               <button onClick="{{ submitPedido }}" style="margin-top:4px;background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer">{{ pedidoSubmitLabel }}</button>
-              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en este navegador. No hay pagos en línea ni facturación electrónica todavía.</p>
+              <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8B8D93">Se guarda en Firebase. No hay pagos en línea ni facturación electrónica todavía.</p>
             </div>
           </sc-if>
         </div>
@@ -2525,6 +2524,208 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
+// ============================================================================
+// Capa de datos compartida (Firestore). Reemplaza a localStorage para todo lo
+// que se agrega desde Panel Admin.dc.html y se ve en el sitio público, de modo
+// que los datos existan en cualquier PC. Las funciones de más abajo
+// (getExtraList, getOverridesMap, getStoredPhoto, ...) conservan su forma
+// síncrona de siempre: leen una copia en memoria que Firestore mantiene al día
+// en vivo, y escriben SOLO los documentos que cambiaron — nunca reemplazan una
+// lista completa, así una copia vacía o vieja no puede borrar datos ajenos.
+// Este bloque es idéntico en los 4 archivos (el proyecto no tiene build step).
+// ============================================================================
+const JM = (() => {
+  const LISTS_PUBLIC = ['vehicles', 'products', 'servicios', 'proyectos', 'equipo'];
+  const LISTS_PRIVATE = ['citas', 'cotizaciones', 'pedidos', 'clientes'];
+  const OVR = { jm_admin_vehicle_overrides: 'vehicle', jm_admin_product_overrides: 'product', jm_admin_service_overrides: 'service' };
+  const S = { lists: {}, order: {}, ovr: {}, photos: {}, settings: {} };
+  const subs = new Set();
+  const unsubs = {};
+  const needed = new Set();
+  const done = new Set();
+  const H = { onError: null };
+  let ready = false;
+  let queued = false;
+
+  try { db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch (e) {}
+
+  const clean = (x) => JSON.parse(JSON.stringify(x));
+  const sortKeys = (v) => (v && typeof v === 'object' && !Array.isArray(v))
+    ? Object.keys(v).sort().reduce((o, k) => { o[k] = v[k]; return o; }, {}) : v;
+  const stable = (v) => JSON.stringify(v, (k, val) => sortKeys(val));
+  const recId = (r) => { const v = r && (r.id || r.numero); return v ? String(v) : ''; };
+  const fire = () => {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; subs.forEach((f) => { try { f(); } catch (e) {} }); }, 0);
+  };
+  const fail = (err) => {
+    try { console.error('[JM] no se pudo guardar', err); } catch (e) {}
+    if (H.onError) H.onError(err);
+  };
+  const reveal = () => {
+    if (ready) return;
+    ready = true;
+    document.documentElement.classList.remove('jm-loading');
+    fire();
+  };
+  const markDone = (name) => {
+    done.add(name);
+    if ([...needed].every((n) => done.has(n))) reveal();
+  };
+  const listen = (name, ref, apply, isNeeded) => {
+    if (unsubs[name]) return;
+    if (isNeeded) needed.add(name);
+    unsubs[name] = ref.onSnapshot(
+      (snap) => { apply(snap); if (isNeeded) markDone(name); fire(); },
+      (err) => {
+        try { console.warn('[JM] sin acceso a', name, err && err.code); } catch (e) {}
+        if (isNeeded) markDone(name);
+      }
+    );
+  };
+  const applyList = (key) => (snap) => {
+    const rows = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
+    rows.sort((a, b) => ((a.data._o || 0) - (b.data._o || 0)) || (a.id < b.id ? -1 : 1));
+    S.lists[key] = rows.map((r) => { const { _o, ...rest } = r.data; return rest; });
+    S.order[key] = {};
+    rows.forEach((r) => { S.order[key][r.id] = r.data._o || 0; });
+  };
+
+  // Lo que ve cualquier visitante: catálogo, portafolio, equipo, ajustes y fotos.
+  const startPublic = () => {
+    LISTS_PUBLIC.forEach((k) => listen('list:' + k, db.collection('extra_' + k), applyList(k), true));
+    Object.keys(OVR).forEach((lsKey) => {
+      const n = OVR[lsKey];
+      listen('ovr:' + n, db.collection('ovr').doc(n), (snap) => {
+        const d = snap.exists ? snap.data() : null;
+        S.ovr[n] = (d && d.m && typeof d.m === 'object') ? d.m : {};
+      }, true);
+    });
+    listen('settings', db.collection('settings').doc('admin'), (snap) => { S.settings = snap.exists ? snap.data() : {}; }, true);
+    // Las fotos pesan más: llegan después sin bloquear la primera pantalla.
+    listen('photos', db.collection('photos'), (snap) => {
+      const p = {};
+      snap.docs.forEach((d) => { p[d.id] = d.data().d || ''; });
+      S.photos = p;
+    }, false);
+    // Si Firebase no responde, se muestra el sitio con lo que hay en vez de dejarlo en blanco.
+    setTimeout(reveal, 4000);
+  };
+  // Solo tras iniciar sesión en Panel Admin (las reglas no dejan leer esto a visitantes).
+  const startPrivate = () => LISTS_PRIVATE.forEach((k) => listen('list:' + k, db.collection('extra_' + k), applyList(k), false));
+  const stopPrivate = () => {
+    LISTS_PRIVATE.forEach((k) => {
+      const n = 'list:' + k;
+      if (unsubs[n]) { unsubs[n](); delete unsubs[n]; }
+      delete S.lists[k];
+      delete S.order[k];
+    });
+    fire();
+  };
+
+  const getList = (key) => clean(S.lists[key] || []);
+  const getOvr = (lsKey) => clean(S.ovr[OVR[lsKey]] || {});
+  const getPhoto = (id) => S.photos[id] || '';
+  const getSettings = () => clean(S.settings || {});
+
+  const setList = (key, arr) => {
+    const prev = S.lists[key] || [];
+    const prevById = new Map(prev.map((r) => [recId(r), r]));
+    const order = S.order[key] || {};
+    let maxO = Object.keys(order).reduce((m, k) => Math.max(m, order[k]), 0);
+    const col = db.collection('extra_' + key);
+    const batch = db.batch();
+    const seen = new Set();
+    const nextRows = [];
+    const nextOrder = {};
+    let changes = 0;
+    (arr || []).forEach((raw) => {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return;
+      const rec = clean(raw);
+      const id = recId(rec);
+      if (!id) { try { console.warn('[JM] registro sin id descartado en', key); } catch (e) {} return; }
+      seen.add(id);
+      let o = order[id];
+      if (!o) { maxO = Math.max(maxO + 1, Date.now()); o = maxO; }
+      nextRows.push(rec);
+      nextOrder[id] = o;
+      const old = prevById.get(id);
+      if (!old || stable(old) !== stable(rec)) { batch.set(col.doc(id), { ...rec, _o: o }); changes++; }
+    });
+    prevById.forEach((_, id) => { if (!seen.has(id)) { batch.delete(col.doc(id)); changes++; } });
+    // Sin cambios reales no se toca nada ni se avisa a las pantallas (evita redibujos en vano).
+    if (changes) {
+      S.lists[key] = nextRows;
+      S.order[key] = nextOrder;
+      fire();
+      batch.commit().catch(fail);
+    }
+    return true;
+  };
+  const setOvr = (lsKey, obj) => {
+    const name = OVR[lsKey];
+    const prev = S.ovr[name] || {};
+    const next = clean(obj || {});
+    const data = { m: {} };
+    const fields = [];
+    Object.keys(next).forEach((k) => {
+      if (stable(prev[k]) !== stable(next[k])) { data.m[k] = next[k]; fields.push(new firebase.firestore.FieldPath('m', k)); }
+    });
+    Object.keys(prev).forEach((k) => {
+      if (!(k in next)) { data.m[k] = firebase.firestore.FieldValue.delete(); fields.push(new firebase.firestore.FieldPath('m', k)); }
+    });
+    if (fields.length) {
+      S.ovr[name] = next;
+      fire();
+      db.collection('ovr').doc(name).set(data, { mergeFields: fields }).catch(fail);
+    }
+    return true;
+  };
+  const setSettings = (obj) => {
+    const next = clean(obj || {});
+    if (stable(S.settings || {}) === stable(next)) return true;
+    S.settings = next;
+    fire();
+    db.collection('settings').doc('admin').set(next).catch(fail);
+    return true;
+  };
+  // Un documento de Firestore admite 1 MB; una foto de datos base64 debe quedar bien por debajo.
+  const setPhoto = (id, dataUrl) => {
+    if (!dataUrl || String(dataUrl).length > 900000) return false;
+    if (S.photos[id] === dataUrl) return true;
+    S.photos[id] = dataUrl;
+    fire();
+    db.collection('photos').doc(String(id)).set({ d: dataUrl }).catch(fail);
+    return true;
+  };
+  const clearPhoto = (id) => {
+    delete S.photos[id];
+    fire();
+    db.collection('photos').doc(String(id)).delete().catch(fail);
+  };
+  // Un visitante crea una cita/cotización: las reglas le dejan crear pero no leer ni editar.
+  // Devuelve una promesa que solo dice true si Firebase confirmó de verdad el guardado.
+  const createPublic = (key, rec, ms) => {
+    const r = clean(rec);
+    const id = recId(r);
+    if (!id) return Promise.resolve(false);
+    const write = db.collection('extra_' + key).doc(id).set({ ...r, _o: Date.now() })
+      .then(() => true, (e) => { try { console.error('[JM]', e); } catch (x) {} return false; });
+    const limit = new Promise((res) => setTimeout(() => res(false), ms || 8000));
+    return Promise.race([write, limit]);
+  };
+
+  return {
+    startPublic, startPrivate, stopPrivate, H,
+    subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
+    getList, getOvr, getPhoto, getSettings,
+    setList, setOvr, setSettings, setPhoto, clearPhoto, createPublic,
+    isReady: () => ready,
+  };
+})();
+JM.startPublic();
+
 // Tabla fija nombre-mostrado → correo real de Firebase Auth. La UI de login
 // sigue siendo "elige tu nombre + escribe tu clave" — por debajo ahora es
 // un inicio de sesión real, no una comparación de texto en el navegador.
@@ -2553,19 +2754,18 @@ const COLOR_SUCCESS = '#7BE29A';
 // Fotos de UTV y accesorios se guardan en localStorage (clave 'jm_photo_v_<key>' /
 // 'jm_photo_p_<id>') — el sitio en vivo (Jalip Motorsport.dc.html) lee las mismas
 // claves. No hay backend: esto vive solo en el navegador donde se suben las fotos.
-function getStoredPhoto(id) {
-  try { return localStorage.getItem('jm_photo_' + id) || ''; } catch (e) { return ''; }
-}
-function setStoredPhoto(id, dataUrl) {
-  try { localStorage.setItem('jm_photo_' + id, dataUrl); return true; } catch (e) { return false; }
-}
-function clearStoredPhoto(id) {
-  try { localStorage.removeItem('jm_photo_' + id); } catch (e) {}
-}
+function getStoredPhoto(id) { return JM.getPhoto(id); }
+function setStoredPhoto(id, dataUrl) { return JM.setPhoto(id, dataUrl); }
+function clearStoredPhoto(id) { JM.clearPhoto(id); }
 // Listas creadas desde el panel (UTV nuevos, citas nuevas) — mismo patrón sin
 // backend: viven en localStorage de este navegador, el sitio en vivo las lee.
+// 'usuarios' ya no se sincroniza (el acceso real vive en Firebase Authentication); se deja el
+// rastro local solo para el código heredado que todavía lo consulta.
 function getExtraList(key) {
-  try { const v = JSON.parse(localStorage.getItem('jm_extra_' + key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  if (key === 'usuarios') {
+    try { const v = JSON.parse(localStorage.getItem('jm_extra_usuarios') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  return JM.getList(key);
 }
 // Fase 6I (sección 20): antes esta función no comunicaba si la escritura
 // falló (p. ej. QuotaExceededError al llenarse localStorage) — los llamadores
@@ -2573,7 +2773,10 @@ function getExtraList(key) {
 // persistido. Ahora devuelve true/false, igual que setStoredPhoto ya hacía,
 // para que cada acción pueda mostrar un aviso real en vez de uno falso.
 function setExtraList(key, arr) {
-  try { localStorage.setItem('jm_extra_' + key, JSON.stringify(arr)); return true; } catch (e) { return false; }
+  if (key === 'usuarios') {
+    try { localStorage.setItem('jm_extra_usuarios', JSON.stringify(arr)); return true; } catch (e) { return false; }
+  }
+  return JM.setList(key, arr);
 }
 const STORAGE_QUOTA_MSG = 'No se pudo guardar — el navegador se quedó sin espacio de almacenamiento. Libera espacio (p. ej. quitando alguna foto) e intenta de nuevo.';
 // Fase 6I (sección 7.2/8): overrides administrativos del catálogo base fijo
@@ -2581,23 +2784,15 @@ const STORAGE_QUOTA_MSG = 'No se pudo guardar — el navegador se quedó sin esp
 // no un array, porque no son entidades independientes creables/borrables sino
 // reemplazos parciales de un elemento que ya existe en código. "Restaurar
 // original" simplemente borra la entrada de este objeto.
-function getOverridesMap(key) {
-  try { const v = JSON.parse(localStorage.getItem(key) || '{}'); return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch (e) { return {}; }
-}
-function setOverridesMap(key, obj) {
-  try { localStorage.setItem(key, JSON.stringify(obj)); return true; } catch (e) { return false; }
-}
+function getOverridesMap(key) { return JM.getOvr(key); }
+function setOverridesMap(key, obj) { return JM.setOvr(key, obj); }
 const VEHICLE_OVERRIDES_KEY = 'jm_admin_vehicle_overrides';
 const PRODUCT_OVERRIDES_KEY = 'jm_admin_product_overrides';
 const SERVICE_OVERRIDES_KEY = 'jm_admin_service_overrides';
 // Fase 6J: Ajustes reales — un único objeto, no una lista, así que usa su
 // propio getter/setter en vez de getExtraList (que siempre espera un array).
-function getAdminSettings(key) {
-  try { const v = JSON.parse(localStorage.getItem(key) || '{}'); return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch (e) { return {}; }
-}
-function setAdminSettingsStorage(key, obj) {
-  try { localStorage.setItem(key, JSON.stringify(obj)); return true; } catch (e) { return false; }
-}
+function getAdminSettings(key) { return JM.getSettings(); }
+function setAdminSettingsStorage(key, obj) { return JM.setSettings(obj); }
 // Mismo formato de moneda que el sitio público (usd() en Jalip Motorsport.dc.html)
 // — el proyecto entero trabaja en USD, no en RD$.
 function usdFmt(n) {
@@ -2812,7 +3007,7 @@ const SECTIONS = {
     // vista propia (isDashboardSection), sin tabla ni demo — igual que Clientes/Pedidos.
     label: 'Dashboard', icon: 'layout-dashboard', badge: '', title: 'Dashboard operativo', add: '',
     stats: [], cols: [], rows: [],
-    note: 'Resumen calculado en vivo a partir de los datos reales de este navegador (localStorage). No representa ingresos ni pagos cobrados — ver el detalle de cada pedido para su estado real.',
+    note: 'Resumen calculado en vivo a partir de los datos guardados en Firebase. No representa ingresos ni pagos cobrados — ver el detalle de cada pedido para su estado real.',
   },
   citas: {
     label: 'Citas', icon: 'calendar-check', badge: '3', title: 'Solicitudes de cita', add: 'Nueva cita',
@@ -2856,13 +3051,13 @@ const SECTIONS = {
     // stats/cols/rows para CUALQUIER sección antes de decidir cuál se muestra.
     label: 'Clientes', icon: 'users', badge: '', title: 'Clientes', add: 'Nuevo cliente',
     stats: [], cols: [], rows: [],
-    note: 'Base de clientes del taller — hoy vive en este navegador (localStorage). Citas y cotizaciones ya pueden vincularse a un cliente; los pedidos también.',
+    note: 'Base de clientes del taller — se guarda en Firebase. Citas y cotizaciones ya pueden vincularse a un cliente; los pedidos también.',
   },
   pedidos: {
     // misma razón que Clientes: vista propia (isPedidosSection), no la tabla genérica.
     label: 'Pedidos', icon: 'shopping-bag', badge: '', title: 'Pedidos', add: 'Nuevo pedido',
     stats: [], cols: [], rows: [],
-    note: 'Pedidos administrados manualmente por el taller — hoy viven en este navegador (localStorage). No hay pagos en línea ni facturación electrónica todavía.',
+    note: 'Pedidos administrados manualmente por el taller — se guardan en Firebase. No hay pagos en línea ni facturación electrónica todavía.',
   },
   utv: {
     label: 'UTV', icon: 'car', badge: '', title: 'Inventario de UTV', add: 'Añadir UTV',
@@ -2876,7 +3071,7 @@ const SECTIONS = {
       ['Unidad demo 04', 'Polaris', '—', 'Usado', 'Bajo pedido', 'Sin foto'],
       ['Unidad demo 05', 'Otra marca', '—', 'Nuevo', 'Disponible', 'Sin foto'],
     ],
-    note: 'Sube la foto de cada unidad abajo — se guarda en este navegador y aparece de inmediato en el sitio. Falta ficha técnica completa y precio real; se publica solo cuando Jalip lo autorice.',
+    note: 'Sube la foto de cada unidad abajo — se guarda en Firebase y aparece de inmediato en el sitio. Falta ficha técnica completa y precio real; se publica solo cuando Jalip lo autorice.',
   },
   accesorios: {
     label: 'Accesorios', icon: 'package', badge: '', title: 'Catálogo de accesorios', add: 'Añadir accesorio',
@@ -2888,7 +3083,7 @@ const SECTIONS = {
       ['Filtro de aire de alto flujo', 'Rendimiento', 'Universal', 'Disponible', 'Sin foto'],
       ['Parachoques delantero tubular', 'Parachoques y defensas', 'Can-Am Maverick', 'Bajo pedido', 'Sin foto'],
     ],
-    note: 'Sube la foto de cada producto abajo — se guarda en este navegador y aparece de inmediato en el sitio. Los precios mostrados son marcadores, no confirmados por el taller.',
+    note: 'Sube la foto de cada producto abajo — se guarda en Firebase y aparece de inmediato en el sitio. Los precios mostrados son marcadores, no confirmados por el taller.',
   },
   proyectos: {
     // Fase 6J: módulo real (jm_extra_proyectos) — stats/cols/rows quedan vacíos
@@ -2913,7 +3108,7 @@ const SECTIONS = {
     stats: [['Este dispositivo', 'local'], ['Total', '—'], ['Convertidas', '—'], ['Sin contacto', '—']],
     cols: ['Código', 'Modelo', 'Color', 'Guardada', 'Contacto'],
     rows: [['—', '—', '—', 'Sin datos aún', '—']],
-    note: 'Hoy las configuraciones se guardan en el navegador del cliente. Con backend se guardan en la tabla configurations y quedan visibles aquí.',
+    note: 'Las configuraciones se guardan en Firebase y quedan visibles aquí.',
   },
   equipo: {
     // Fase 6R: módulo real (jm_extra_equipo) — vista propia (isEquipoSection),
@@ -2927,7 +3122,7 @@ const SECTIONS = {
     // Fase 6J: módulo real (jm_admin_settings) — vista propia (isAjustesSection).
     label: 'Ajustes', icon: 'settings', badge: '', title: 'Datos del negocio', add: 'Guardar cambios',
     stats: [], cols: [], rows: [],
-    note: 'Estos datos se guardan en este navegador (jm_admin_settings) y el sitio público los usa donde corresponda si tienen un valor propio — si un campo queda vacío, el sitio sigue mostrando su texto original.',
+    note: 'Estos datos se guardan en Firebase y el sitio público los usa donde corresponda si tienen un valor propio — si un campo queda vacío, el sitio sigue mostrando su texto original.',
   },
   usuarios: {
     // Fase 6W: módulo real (jm_extra_usuarios) — vista propia (isUsuariosSection),
@@ -2936,7 +3131,7 @@ const SECTIONS = {
     // quitar usuarios desde aquí mismo, sin tocar el código fuente.
     label: 'Usuarios', icon: 'users', badge: '', title: 'Usuarios del panel', add: 'Agregar usuario',
     stats: [], cols: [], rows: [],
-    note: 'Cada persona aquí puede iniciar sesión en este Panel Admin con su nombre y su propia contraseña. Todos tienen el mismo acceso — esto es solo para saber quién hizo cada cambio, no para restringir nada. Sigue sin ser seguridad real: la contraseña vive en este navegador, cualquiera que abra el código fuente puede leerla.',
+    note: 'Cuentas con acceso real al Panel Admin (Firebase Authentication). Todas tienen el mismo nivel de acceso; el nombre se usa para saber quién hizo cada cambio. Las cuentas se crean o quitan en Firebase Console → Authentication.',
   },
 };
 
@@ -3114,6 +3309,10 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.icons();
+    // Datos compartidos (Firebase): re-dibujar cuando cambian, y avisar si un guardado falla.
+    JM.subscribe(() => this.forceUpdate());
+    JM.H.onError = (e) => this.showAdminNotice('No se pudo guardar en Firebase (' + ((e && e.code) || 'error') + '). Revisa tu conexión o vuelve a iniciar sesión.', 'error');
+    this.forceUpdate();
     // Fase Firebase A: si ya había una sesión real de Firebase Auth guardada
     // en este navegador (setPersistence LOCAL), restaurarla sin pedir la
     // clave de nuevo. auth.currentUser todavía puede ser null en el primer
@@ -3125,7 +3324,9 @@ class Component extends DCLogic {
         const name = displayNameForEmail(user.email);
         const inTable = !!AUTH_EMAIL_BY_NAME[name];
         this.setState({ locked: false, loggedInUser: name, loginUserName: inTable ? name : LOGIN_OTHER });
+        JM.startPrivate();
       } else {
+        JM.stopPrivate();
         this.setState((s) => (s.locked ? s : { locked: true, loggedInUser: '' }));
       }
     });
@@ -3828,30 +4029,6 @@ class Component extends DCLogic {
         } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
       }
     } finally { this._submittingCotiz = false; }
-  }
-
-  // TEMPORAL (migración a Firebase, Fase B): descarga los datos guardados en
-  // este navegador como archivo JSON para sembrar Firestore sin perder nada.
-  // Se excluye jm_extra_usuarios (claves en texto plano, ya no se usan).
-  // Quitar este método y su botón en la Fase D (limpieza).
-  exportLocalData() {
-    const data = {};
-    for (const key of Object.keys(localStorage)) {
-      if (!/^jm_(extra_|admin_|photo_)/.test(key) || key === 'jm_extra_usuarios') continue;
-      const raw = localStorage.getItem(key);
-      try { data[key] = JSON.parse(raw); } catch (e) { data[key] = raw; }
-    }
-    const count = Object.keys(data).length;
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'jalip-datos-locales.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    this.showAdminNotice('Se descargó jalip-datos-locales.json (' + count + ' elementos guardados en este navegador).', 'success');
   }
 
   // Fase Firebase A: login real. La UI se queda igual (elegir nombre +
@@ -5585,7 +5762,6 @@ class Component extends DCLogic {
       loginPasswordKeyDown: (e) => { if (e.key === 'Enter') this.attemptUnlock(); },
       loginError: st.loginError,
       hasLoginError: !!st.loginError,
-      exportLocalData: () => this.exportLocalData(),
       loginBusy: !!st.loginBusy,
       loginButtonLabel: st.loginBusy ? 'Entrando…' : 'Entrar',
       loginButtonIcon: st.loginBusy ? 'loader-circle' : 'lock-open',

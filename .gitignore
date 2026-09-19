@@ -14,3 +14,6 @@ github.md
 
 # Unused/stale local uploads not referenced by the site
 uploads/
+
+# Export temporal de datos reales para la migracion a Firebase -- nunca publicar
+jalip-datos-locales*.json
