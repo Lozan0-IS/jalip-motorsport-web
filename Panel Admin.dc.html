@@ -2343,12 +2343,33 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
               <div style="display:flex;flex-direction:column;gap:2px">
                 <sc-for list="{{ paymentHistoryList }}" as="ph" hint-placeholder-count="1">
                   <div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid #16171B">
-                    <div style="display:flex;justify-content:space-between;font-size:12.5px">
-                      <span style="color:#F2F3F5">{{ ph.amountLabel }} — {{ ph.method }}</span>
+                    <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px">
+                      <span style="color:{{ ph.amountColor }};text-decoration:{{ ph.amountDecoration }}">{{ ph.amountLabel }} — {{ ph.method }}</span>
                       <span style="color:#8B8D93;font-family:'JetBrains Mono';white-space:nowrap">{{ ph.dateLabel }}</span>
                     </div>
                     <sc-if value="{{ ph.hasNote }}" hint-placeholder-val="{{ false }}">
                       <span style="font-size:11.5px;color:#8B8D93">{{ ph.note }}</span>
+                    </sc-if>
+                    <sc-if value="{{ ph.isVoided }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:11.5px;color:#FF8A92;line-height:1.5">{{ ph.voidedText }}</span>
+                    </sc-if>
+                    <sc-if value="{{ ph.canVoid }}" hint-placeholder-val="{{ false }}">
+                      <button type="button" onClick="{{ ph.askVoid }}" style="align-self:flex-start;background:none;border:none;padding:4px 0;color:#8B8D93;font:600 10.5px/1 Barlow;letter-spacing:.04em;text-decoration:underline;cursor:pointer">Anular abono</button>
+                    </sc-if>
+                    <sc-if value="{{ ph.isVoidTarget }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:8px;padding:10px;margin-top:4px;background:#0D0E10;border:1px solid #24262B">
+                        <label style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#8B8D93">Motivo de la anulación
+                          <input value="{{ ph.voidReason }}" onInput="{{ ph.setVoidReason }}" placeholder="Ej. monto mal escrito" style="background:#08080A;border:1px solid #24262B;color:#F2F3F5;padding:8px;font-size:12.5px">
+                        </label>
+                        <sc-if value="{{ ph.hasVoidError }}" hint-placeholder-val="{{ false }}">
+                          <span style="color:#FF8A92;font-size:12px">{{ ph.voidError }}</span>
+                        </sc-if>
+                        <div style="display:flex;gap:8px">
+                          <button type="button" onClick="{{ ph.confirmVoid }}" style="background:#E11623;border:none;color:#fff;font:700 10px/1 Barlow;letter-spacing:.06em;text-transform:uppercase;padding:9px 12px;cursor:pointer">Anular abono</button>
+                          <button type="button" onClick="{{ ph.cancelVoid }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 10px/1 Barlow;letter-spacing:.06em;text-transform:uppercase;padding:9px 12px;cursor:pointer">Volver</button>
+                        </div>
+                        <span style="font-size:11px;color:#5C5E66;line-height:1.5">El abono no se borra: queda marcado como anulado con tu nombre, la fecha y el motivo, y deja de contar en lo abonado.</span>
+                      </div>
                     </sc-if>
                   </div>
                 </sc-for>
@@ -2356,6 +2377,14 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
             </sc-if>
             <sc-if value="{{ paymentNoHistory }}" hint-placeholder-val="{{ true }}">
               <span style="color:#5C5E66;font-size:12.5px">Sin abonos registrados.</span>
+            </sc-if>
+            <sc-if value="{{ paymentCancelledNote }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;padding-top:6px;border-top:1px solid #1E1F24">
+                <span style="font-size:12.5px;color:#B9BBC1;line-height:1.5">Pedido cancelado: no se registran abonos nuevos.</span>
+                <sc-if value="{{ paymentCancelledHasPaid }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:12px;color:#FFB020;line-height:1.5">{{ paymentCancelledPaidNote }}</span>
+                </sc-if>
+              </div>
             </sc-if>
             <sc-if value="{{ paymentCanRegister }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid #1E1F24">
@@ -2409,6 +2438,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         <div role="dialog" aria-modal="true" aria-label="Confirmar cancelación de pedido" style="background:#0D0E10;border:1px solid #24262B;max-width:400px;width:100%;padding:26px" onClick="{{ stopProp }}">
           <h3 style="font-family:Saira;font-weight:700;font-size:17px;margin:0 0 12px">Cancelar pedido</h3>
           <p style="margin:0 0 20px;font-size:13.5px;line-height:1.6;color:#B9BBC1">¿Cancelar el pedido {{ pedidoCancelTargetId }}? Esta acción cambiará su estado a Cancelado. El pedido no se elimina.</p>
+          <sc-if value="{{ pedidoCancelHasPaid }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:-8px 0 20px;font-size:12.5px;line-height:1.55;color:#FFB020">{{ pedidoCancelPaidWarning }}</p>
+          </sc-if>
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button onClick="{{ cancelCancelPedido }}" style="background:none;border:1px solid #24262B;color:#8B8D93;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Volver</button>
             <button onClick="{{ confirmCancelPedido }}" style="background:#E11623;border:none;color:#fff;font:700 11px/1 Barlow;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer">Cancelar pedido</button>
@@ -2798,6 +2830,12 @@ function setAdminSettingsStorage(key, obj) { return JM.setSettings(obj); }
 function usdFmt(n) {
   const num = Number(n);
   return '$' + (isNaN(num) ? '0.00' : num.toFixed(2)) + ' USD';
+}
+// Dinero en centavos enteros: comparar 66.40 contra 100.10 - 33.70 (= 66.39999…) rechazaba
+// el saldo exacto; con enteros el saldo siempre cuadra al centavo.
+function toCents(n) { return Math.round((Number(n) || 0) * 100); }
+function paymentStatusFor(paidCents, totalCents) {
+  return paidCents <= 0 ? 'Pendiente' : paidCents >= totalCents ? 'Pagado' : 'Abono parcial';
 }
 // Mismo filtro "elemento real" que ya se repetía suelto en buildClientesViewModel/
 // buildPedidosViewModel (localStorage editado a mano puede traer null/números/
@@ -3286,6 +3324,7 @@ class Component extends DCLogic {
     // Fase 6I: orden/paginación de Pedidos + registro de abonos
     pedidoSort: 'recientes', pedidoPage: 1, pedidoPageSize: 25,
     paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '',
+    paymentVoidId: '', paymentVoidReason: '', paymentVoidError: '',
     // Fase 6I: edición del catálogo base de UTV/Accesorios vía overrides + edición de extras
     editingVehIsExtra: false, editingVehBaseId: '', editingVehExtraId: '',
     editingProdIsExtra: false, editingProdBaseId: '', editingProdExtraId: '',
@@ -4474,33 +4513,66 @@ class Component extends DCLogic {
     const idx = list.findIndex((p) => p && p.id === pedidoId);
     if (idx === -1) { this.showAdminNotice('Este pedido ya no existe.', 'error'); return; }
     const pedido = list[idx];
-    const total = Number(pedido.total) || 0;
+    if (pedido.status === 'Cancelado') { this.showAdminNotice('Este pedido está cancelado: no se registran abonos.', 'error'); return; }
+    const totalC = toCents(pedido.total);
     const payment = isRealRecord(pedido.payment) ? pedido.payment : { totalPaid: 0, status: 'Pendiente', history: [] };
-    const currentPaid = Number(payment.totalPaid) || 0;
+    const paidC = toCents(payment.totalPaid);
     const f = this.state.paymentDraft;
-    const amount = Number(f.amount);
-    if (!f.amount.trim() || isNaN(amount) || amount <= 0) {
+    // solo dólares con hasta 2 decimales (acepta coma decimal); "1e2", "Infinity" o 100.005 se rechazan
+    const raw = String(f.amount).trim().replace(',', '.');
+    if (!/^\d+(\.\d{1,2})?$/.test(raw)) {
+      this.setState({ paymentDraftError: 'Escribe un monto válido en dólares, con hasta 2 decimales (ej. 150 o 150.50).' });
+      return;
+    }
+    const amountC = toCents(raw);
+    if (amountC <= 0) {
       this.setState({ paymentDraftError: 'El monto debe ser mayor que 0.' });
       return;
     }
-    const remaining = total - currentPaid;
-    if (amount > remaining) {
-      this.setState({ paymentDraftError: 'El monto no puede superar el saldo pendiente (' + usdFmt(remaining) + ').' });
+    const remainingC = totalC - paidC;
+    if (amountC > remainingC) {
+      this.setState({ paymentDraftError: 'El monto no puede superar el saldo pendiente (' + usdFmt(remainingC / 100) + ').' });
       return;
     }
     const now = new Date().toISOString();
-    const newPaid = currentPaid + amount;
-    const newStatus = newPaid <= 0 ? 'Pendiente' : newPaid >= total ? 'Pagado' : 'Abono parcial';
+    const newPaidC = paidC + amountC;
     const history = Array.isArray(payment.history) ? payment.history.filter(isRealRecord) : [];
     const newPayment = {
-      totalPaid: newPaid, status: newStatus,
-      history: [...history, { id: 'pay' + Date.now(), amount, date: now, method: f.method, note: f.note.trim() }],
+      totalPaid: newPaidC / 100, status: paymentStatusFor(newPaidC, totalC),
+      history: [...history, { id: 'pay' + Date.now(), amount: amountC / 100, date: now, method: f.method, note: f.note.trim(), by: this.state.loggedInUser }],
     };
     list[idx] = { ...pedido, payment: newPayment, updatedAt: now, updatedBy: this.state.loggedInUser };
     if (setExtraList('pedidos', list)) {
       this.setState({ paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '' });
       this.bump();
-      this.showAdminNotice('Abono de ' + usdFmt(amount) + ' registrado para ' + pedidoId + '.', 'success');
+      this.showAdminNotice('Abono de ' + usdFmt(amountC / 100) + ' registrado para ' + pedidoId + '.', 'success');
+    } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
+  }
+  // Un abono mal registrado (o devuelto al cliente) no se borra: se marca como anulado con
+  // motivo, quién y cuándo, y el total abonado se recalcula solo con los abonos vigentes.
+  requestVoidPayment(payId) { this.setState({ paymentVoidId: payId, paymentVoidReason: '', paymentVoidError: '' }); }
+  cancelVoidPayment() { this.setState({ paymentVoidId: '', paymentVoidReason: '', paymentVoidError: '' }); }
+  setPaymentVoidReason(e) { this.setState({ paymentVoidReason: e.target.value, paymentVoidError: '' }); }
+  confirmVoidPayment(pedidoId) {
+    const payId = this.state.paymentVoidId;
+    const reason = this.state.paymentVoidReason.trim();
+    if (reason.length < 3) { this.setState({ paymentVoidError: 'Escribe el motivo de la anulación (mínimo 3 letras).' }); return; }
+    const list = getExtraList('pedidos');
+    const idx = list.findIndex((p) => p && p.id === pedidoId);
+    if (idx === -1) { this.showAdminNotice('Este pedido ya no existe.', 'error'); return; }
+    const pedido = list[idx];
+    const payment = isRealRecord(pedido.payment) ? pedido.payment : null;
+    const history = payment && Array.isArray(payment.history) ? payment.history.filter(isRealRecord) : [];
+    const hIdx = history.findIndex((h) => h.id === payId);
+    if (hIdx === -1 || history[hIdx].voided) { this.cancelVoidPayment(); this.showAdminNotice('Ese abono ya no está disponible para anular.', 'error'); return; }
+    const now = new Date().toISOString();
+    const nextHistory = history.map((h, i) => (i === hIdx ? { ...h, voided: true, voidedAt: now, voidedBy: this.state.loggedInUser, voidReason: reason } : h));
+    const paidC = nextHistory.filter((h) => !h.voided).reduce((sum, h) => sum + toCents(h.amount), 0);
+    list[idx] = { ...pedido, payment: { ...payment, totalPaid: paidC / 100, status: paymentStatusFor(paidC, toCents(pedido.total)), history: nextHistory }, updatedAt: now, updatedBy: this.state.loggedInUser };
+    if (setExtraList('pedidos', list)) {
+      this.cancelVoidPayment();
+      this.bump();
+      this.showAdminNotice('Abono de ' + usdFmt(history[hIdx].amount) + ' anulado en ' + pedidoId + '.', 'success');
     } else this.showAdminNotice(STORAGE_QUOTA_MSG, 'error');
   }
 
@@ -4590,9 +4662,10 @@ class Component extends DCLogic {
       pedidoDetailId: id, addOpen: false, clientDetailId: '', clientDeleteConfirmId: '',
       citaDetailKey: '', cotizDetailKey: '', pedidoLinkQuery: '',
       paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '',
+      paymentVoidId: '', paymentVoidReason: '', paymentVoidError: '',
     });
   }
-  closePedidoDetail() { this.setState({ pedidoDetailId: '', pedidoLinkQuery: '', paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '' }); }
+  closePedidoDetail() { this.setState({ pedidoDetailId: '', pedidoLinkQuery: '', paymentDraft: { ...BLANK_PAYMENT_DRAFT }, paymentDraftError: '', paymentVoidId: '', paymentVoidReason: '', paymentVoidError: '' }); }
   setPedidoLinkQuery(e) { this.setState({ pedidoLinkQuery: e.target.value }); }
   linkPedidoToClient(clientId) {
     const id = this.state.pedidoDetailId;
@@ -4657,14 +4730,14 @@ class Component extends DCLogic {
           // el pedido quedaría "sobre-pagado" en silencio (saldo pendiente
           // forzado a $0 sin avisar que en realidad hay un excedente real)
           const currentPaid = Number(list[idx].payment && list[idx].payment.totalPaid) || 0;
-          if (currentPaid > 0 && total < currentPaid) {
+          if (currentPaid > 0 && toCents(total) < toCents(currentPaid)) {
             this.setState({ pedidoErrors: { total: 'El nuevo total (' + usdFmt(total) + ') es menor que lo ya abonado (' + usdFmt(currentPaid) + '). Ajusta los items o el descuento, o corrige los abonos antes de guardar.' } });
             this._submittingPedido = false;
             return;
           }
           let payment = list[idx].payment;
           if (isRealRecord(payment)) {
-            const newStatus = currentPaid <= 0 ? 'Pendiente' : currentPaid >= total ? 'Pagado' : 'Abono parcial';
+            const newStatus = paymentStatusFor(toCents(currentPaid), toCents(total));
             if (newStatus !== payment.status) payment = { ...payment, status: newStatus };
           }
           list[idx] = {
@@ -6560,10 +6633,30 @@ class Component extends DCLogic {
     const payment = pedido && isRealRecord(pedido.payment) ? pedido.payment : { totalPaid: 0, status: 'Pendiente', history: [] };
     const paymentTotalPaid = Number(payment.totalPaid) || 0;
     const paymentTotal = pedido ? (Number(pedido.total) || 0) : 0;
-    const paymentRemaining = Math.max(0, paymentTotal - paymentTotalPaid);
+    const paymentRemaining = Math.max(0, toCents(paymentTotal) - toCents(paymentTotalPaid)) / 100;
+    const pedidoIsCancelled = !!pedido && pedido.status === 'Cancelado';
     const paymentHistoryList = (Array.isArray(payment.history) ? payment.history.filter(isRealRecord) : [])
       .slice().reverse()
-      .map((h) => ({ amountLabel: usdFmt(h.amount), method: h.method || 'Otro', note: h.note || '', hasNote: !!(h.note || '').trim(), dateLabel: fmtDateTime(h.date) }));
+      .map((h) => {
+        const voided = !!h.voided;
+        const isVoidTarget = !!h.id && st.paymentVoidId === h.id;
+        return {
+          amountLabel: usdFmt(h.amount), method: h.method || 'Otro', note: h.note || '', hasNote: !!(h.note || '').trim(), dateLabel: fmtDateTime(h.date),
+          isVoided: voided,
+          amountColor: voided ? '#5C5E66' : '#F2F3F5',
+          amountDecoration: voided ? 'line-through' : 'none',
+          voidedText: voided ? 'Anulado por ' + (h.voidedBy || '—') + ' el ' + fmtDateTime(h.voidedAt) + ' — ' + (h.voidReason || 'sin motivo') : '',
+          canVoid: !voided && !!h.id && !isVoidTarget,
+          askVoid: () => this.requestVoidPayment(h.id),
+          isVoidTarget,
+          voidReason: st.paymentVoidReason,
+          setVoidReason: (e) => this.setPaymentVoidReason(e),
+          voidError: st.paymentVoidError,
+          hasVoidError: !!st.paymentVoidError,
+          confirmVoid: () => this.confirmVoidPayment(pedido.id),
+          cancelVoid: () => this.cancelVoidPayment(),
+        };
+      });
 
     return {
       isPedidosSection,
@@ -6667,6 +6760,9 @@ class Component extends DCLogic {
 
       pedidoCancelConfirmOpen: !!cancelTarget,
       pedidoCancelTargetId: cancelTarget ? cancelTarget.id : '',
+      pedidoCancelPaidWarning: cancelTarget && isRealRecord(cancelTarget.payment) && toCents(cancelTarget.payment.totalPaid) > 0
+        ? 'Este pedido tiene ' + usdFmt(cancelTarget.payment.totalPaid) + ' abonado. Cancelar no devuelve ni anula ese dinero; si corresponde, anula los abonos desde el detalle del pedido.' : '',
+      pedidoCancelHasPaid: !!(cancelTarget && isRealRecord(cancelTarget.payment) && toCents(cancelTarget.payment.totalPaid) > 0),
       cancelCancelPedido: () => this.cancelCancelPedido(),
       confirmCancelPedido: () => this.confirmCancelPedido(),
 
@@ -6680,7 +6776,10 @@ class Component extends DCLogic {
       paymentTotalPaidLabel: usdFmt(paymentTotalPaid),
       paymentRemainingLabel: usdFmt(paymentRemaining),
       paymentIsPagado: payment.status === 'Pagado',
-      paymentCanRegister: !!pedido && payment.status !== 'Pagado',
+      paymentCanRegister: !!pedido && payment.status !== 'Pagado' && !pedidoIsCancelled,
+      paymentCancelledNote: pedidoIsCancelled,
+      paymentCancelledPaidNote: pedidoIsCancelled && paymentTotalPaid > 0 ? 'Este pedido está cancelado y todavía tiene ' + usdFmt(paymentTotalPaid) + ' abonado. Si ese dinero se devolvió al cliente, anula los abonos correspondientes (queda el registro con el motivo).' : '',
+      paymentCancelledHasPaid: pedidoIsCancelled && paymentTotalPaid > 0,
       paymentDraft: st.paymentDraft,
       paymentDraftError: st.paymentDraftError,
       hasPaymentDraftError: !!st.paymentDraftError,
